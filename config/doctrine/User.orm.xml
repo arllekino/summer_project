@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\User" table="user">
+
+        <unique-constraints>
+            <unique-constraint columns="email" name="search_idx" />
+        </unique-constraints>
+
+        <id name="id" type="integer" column="user_id">
+            <generator strategy="IDENTITY" />
+        </id>
+        <field name="email" column="email" type="string" length="200" nullable="false" />   
+        <field name="hashPassword" column="password" type="string" length="200" nullable="true" />
+        <field name="userName" column="user_name" type="string" length="200" nullable="false" />
+    </entity>
+
+</doctrine-mapping>

@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+{% block title %}Регистрация{% endblock %}
+{% block body %}
+
+	<div>
+		<span class="user-name">{{ userName }}</span>
+		<form action="">
+			<button type"submit" class="settings">Settings</button>
+		</form>
+		<form action="">
+			<button type="submit" class="logout">Log out</button>
+		</form>
+	</div>
+	<form action="">
+		<button type="submit">Создать лобби</button>
+	</form>
+	<form action="">
+		<label for="key-room"></label>
+		<input type="text" name="key_room" id="key-room">
+		<button type="submit">Войти в лобби</button>
+	</form>
+
+{% endblock %}

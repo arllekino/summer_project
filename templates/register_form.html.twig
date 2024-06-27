@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+{% block title %}Регистрация
+{% endblock %}
+{% block body %}
+
+	<form action="/register_user">
+		{% set error = error|default({}) %}
+		{% if error %}
+			<span>{{ error }}</span>
+		{% endif %}
+
+		<div>
+			<label for="user-name">Nickname</label>
+			<input type="text" name="user_name" id="user-name">
+		</div>
+		<div>
+			<label for="email">Email</label>
+			<input type="email" name="email" id="email">
+		</div>
+		<div>
+			<label for="password">Password</label>
+			<input type="password" name="password" id="password">
+		</div>
+		<button type="submit">OK</button>
+		<span>Уже есть аккаунт?</span>
+		<a href="/login_form">Вход</a>
+	</form>
+
+{% endblock %}
