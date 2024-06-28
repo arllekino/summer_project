@@ -5,14 +5,14 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\Input\LoginUserInputInterface;
+use App\Service\Input\RegisterUserInputInterface;
 use App\Service\PasswordHasher;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Constraints\Email;
 
 class UserService
 {
-    const MIN_LENGTH_USER_NAME = 5; 
-    const MIN_LENGTH_PASSWORD = 8; 
     public function __construct(
         private UserRepository $repository,
         private PasswordHasher $passwordHasher
@@ -20,44 +20,33 @@ class UserService
     {    
     }
 
-    public function register(
-        string $userName,
-        string $email,
-        string $password
-    ): int
+    public function register(RegisterUserInputInterface $input): int
     {
-        $extantEmailUser = $this->repository->findByEmail($email);
+        $extantEmailUser = $this->repository->findByEmail($input->getEmail());
         if ($extantEmailUser)
         {
             throw new \UnexpectedValueException('User with this email is already exist');
         }
-        if (!self::isValid($userName, $email, $password))
-        {
-            throw new \UnexpectedValueException('Check all fields.');
-        }
 
-        $hashPassword = $this->passwordHasher->hash($password);
+        $hashPassword = $this->passwordHasher->hash($input->getPassword());
 
         $user = new User(
             null,
-            $userName,
-            $email,
+            $input->getUsername(),
+            $input->getEmail(),
             $hashPassword
         );
         return $this->repository->store($user);
     }
 
-    public function logIn(string $email, string $password): int
+    public function logIn(LoginUserInputInterface $input): int
     {
-        if (!$this->isValid('username', $email, $password))
-        {
-            throw new \UnexpectedValueException('Check all fields');
-        }
-        $extantEmailUser = $this->repository->findByEmail($email);
+
+        $extantEmailUser = $this->repository->findByEmail($input->getEmail());
         
         if ($extantEmailUser !== null)
         {
-            $hashPassword = $this->passwordHasher->hash($password);
+            $hashPassword = $this->passwordHasher->hash($input->getPassword());
             if ($hashPassword === $extantEmailUser->getHashPassword())
             {
                 return $extantEmailUser->getId();
@@ -76,20 +65,5 @@ class UserService
         return $user->getUserName();
     }
 
-    private function isValid(
-        string $userName,
-        string $email,
-        string $password
-    ): bool
-    {
-        if (
-           empty($userName) || ($userName < self::MIN_LENGTH_USER_NAME) ||
-           empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) ||
-           empty($password) || (str_replace(' ', '', $password) < self::MIN_LENGTH_PASSWORD)
-        )
-        {
-            return false;
-        }
-        return true;
-    }
+
 }
