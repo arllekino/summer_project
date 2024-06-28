@@ -1,6 +1,7 @@
 // const { setPositionsInIsometric } = require("./pixi");
 
 // import * as PIXI from './pixi.mjs';
+import { DrawInfoBlock } from "./testGame.js";
 
 (async () =>
     {
@@ -10,9 +11,11 @@
         document.body.appendChild(app.canvas);
         const container = new PIXI.Container();
         app.stage.addChild(container)
-        buildings = [];
+        let buildings = [];
         let buildingMoment = false;
         let t;
+
+        DrawInfoBlock(app);
 
     function cartesianToIsometric(cartX, cartY)
     {
@@ -43,9 +46,8 @@
         );
     }
 
-    textures = await PIXI.Assets.load('grounds.json');
-    texturess = await PIXI.Assets.load('buildings.json');
-    texteee = await PIXI.Assets.load(`house100x100.png`);
+    let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
+    let texturess = await PIXI.Assets.load('/../imageParser/buildings.json');
 
     class Cell {
         constructor(ptrTower, placeType)
@@ -442,7 +444,7 @@
     mapReader(worldMatrix)
 
     window.addEventListener('keydown', (event) => {
-        key = event.key
+        var key = event.key
         if (key === 'r' && !buildingMoment)
         {
             t = new build(100, 0, 0);

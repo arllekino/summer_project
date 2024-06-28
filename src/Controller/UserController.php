@@ -109,6 +109,11 @@ class UserController extends AbstractController
         ]);
     }
 
+    public function mainGame(): Response
+    {
+        return $this->render('main_game.html.twig');    
+    }
+
     private function isValid(mixed $input): bool
     {
         $email = filter_var($input->getEmail(), FILTER_SANITIZE_EMAIL);

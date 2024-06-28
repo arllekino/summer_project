@@ -20,3 +20,7 @@ start_lobby_page:
   methods: GET
   controller: App\Controller\UserController::startLobbyPage
 
+main_game:
+  path: /main_game
+  controller: App\Controller\UserController::mainGame
+

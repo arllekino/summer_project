@@ -16,7 +16,7 @@
         }
     },
     "meta": {
-        "image": "buildingsSprites.png",
+        "image": "/../assets/buildingsSprites.png",
         "format": "RGBA8888",
         "size": { "w": 128, "h": 64 },
         "scale": "1"
