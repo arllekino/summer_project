@@ -1,0 +1,33 @@
+{
+	"name": "edgeoffate",
+	"version": "1.0.0",
+	"description": "projectForPraktika",
+	"main": "index.html",
+	"scripts": {
+		"lint": "npx stylelint **/*.css --fix || npx eslint . --fix || npx prettier . --write",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/TailerDerdan/EdgeOfFate.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/TailerDerdan/EdgeOfFate/issues"
+	},
+	"homepage": "https://github.com/TailerDerdan/EdgeOfFate#readme",
+	"devDependencies": {
+		"eslint": "^9.5.0",
+		"eslint-config-prettier": "^9.1.0",
+		"prettier": "^3.3.2",
+		"stylelint": "^16.6.1",
+		"stylelint-config-standard": "^36.0.1",
+		"stylelint-order": "^6.0.4",
+		"stylelint-prettier": "^5.0.0"
+	},
+	"dependencies": {
+		"pixi.js": "^8.2.1",
+		"typescript": "^5.5.2"
+	}
+}
