@@ -48,6 +48,7 @@ import { DrawInfoBlock } from "./testGame.js";
 
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
     let texturess = await PIXI.Assets.load('/../imageParser/buildings.json');
+    texturess = await PIXI.Assets.load('/../imageParser/farmParser.json');
 
     class Cell {
         constructor(ptrTower, placeType)
@@ -65,10 +66,10 @@ import { DrawInfoBlock } from "./testGame.js";
         {
             const bounds = object.getBounds();
             return (
-                this.__bounds.x + this.__bounds.width / 3 < bounds.x + bounds.width / 2.8
-                && this.__bounds.x + this.__bounds.width / 1.4 > bounds.x + bounds.width / 3
-                && this.__bounds.y + this.__bounds.height / 4 < bounds.y + bounds.height / 1.6
-                && this.__bounds.y + this.__bounds.height / 1.3 > bounds.y + bounds.height / 4
+                this.__bounds.x + this.__bounds.width / 2.37 < bounds.x + bounds.width / 1.72
+                && this.__bounds.x + this.__bounds.width / 1.72 > bounds.x + bounds.width / 2.37
+                && this.__bounds.y + this.__bounds.height / 2.46 < bounds.y + bounds.height / 2
+                && this.__bounds.y + this.__bounds.height / 2 > bounds.y + bounds.height / 2.46
             );
         }
 
@@ -115,9 +116,9 @@ import { DrawInfoBlock } from "./testGame.js";
         initSprite()
         {
             this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`ground_${this.__placeType}.png`));
-            this.__sprite.texture.rotate = 1;
-            this.__sprite.texture.updateUvs();
-            this.__sprite.height /= 2;
+            //this.__sprite.texture.rotate = 1;
+            //this.__sprite.texture.updateUvs();
+            //this.__sprite.height /= 2;
             app.stage.addChild(this.__sprite);
         }
 
@@ -125,22 +126,22 @@ import { DrawInfoBlock } from "./testGame.js";
         {
             this.__placeType = type;
             this.__sprite.texture = PIXI.Texture.from(`ground_${type}.png`);
-            this.__sprite.texture.rotate = 1;
-            this.__sprite.texture.updateUvs();
+            //this.__sprite.texture.rotate = 1;
+            //this.__sprite.texture.updateUvs();
         }
 
         errorField()
         {
             this.__sprite.texture = PIXI.Texture.from(`ground_${3}.png`);
-            this.__sprite.texture.rotate = 1;
-            this.__sprite.texture.updateUvs();
+            //this.__sprite.texture.rotate = 1;
+            //this.__sprite.texture.updateUvs();
         }
 
         okField()
         {
             this.__sprite.texture = PIXI.Texture.from(`ground_${4}.png`);
-            this.__sprite.texture.rotate = 1;
-            this.__sprite.texture.updateUvs();
+            //this.__sprite.texture.rotate = 1;
+            //this.__sprite.texture.updateUvs();
         }
 
         setPositionsInIsometric(x, y)
@@ -176,11 +177,12 @@ import { DrawInfoBlock } from "./testGame.js";
 
     class build
     {
-        constructor(hp, defense, buildType)
+        constructor(hp, defense, buildType, buildPtr)
         {
             this.__hp = hp;
             this.__defense = defense;
             this.__buildType = buildType;
+            this.__buildPtr = buildPtr;
             this.__sprite;
             this.__peopleCount;
             this.__droppingResources = [];
@@ -224,9 +226,14 @@ import { DrawInfoBlock } from "./testGame.js";
         }
         initSprite()
         {
-            this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildType}.png`));
+            this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
             this.__sprite.zIndex = 10000;
             app.stage.addChild(this.__sprite);
+        }
+
+        changeTexture(ptr)
+        {
+            this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
         }
         setPosition(x, y)
         {
@@ -289,20 +296,21 @@ import { DrawInfoBlock } from "./testGame.js";
         startMouseFollowing(event)
         {
             let position = event.data.global;
-            if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x - this.__eCells[0].getBounds().width / 2, position.y - 28 - 14);}
-            if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - this.__eCells[1].getBounds().width + 4, position.y - 28);}
-            if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - this.__eCells[2].getBounds().width - 28 + 4, position.y - 14);}
-            if (this.__eCells[3]) {this.__eCells[3].setDirectPositions(position.x - 4, position.y - 28);}
-            if (this.__eCells[4]) {this.__eCells[4].setDirectPositions(position.x - this.__eCells[4].getBounds().width / 2, position.y - 14);}
-            if (this.__eCells[5]) {this.__eCells[5].setDirectPositions(position.x - this.__eCells[5].getBounds().width + 4, position.y);}
-            if (this.__eCells[6]) {this.__eCells[6].setDirectPositions(position.x + this.__eCells[6].getBounds().width / 2 - 8, position.y - 14);}
-            if (this.__eCells[7]) {this.__eCells[7].setDirectPositions(position.x - 4, position.y);}
-            if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x - this.__eCells[8].getBounds().width / 2, position.y + 14);}
+            if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50); console.log(this.__eCells[0].getBounds().x, this.__eCells[0].getBounds().y);}
+            if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50); console.log(this.__eCells[1].getBounds().x, this.__eCells[1].getBounds().y);}
+            if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50); console.log(this.__eCells[2].getBounds().x, this.__eCells[2].getBounds().y);}
+            if (this.__eCells[3]) {this.__eCells[3].setDirectPositions(position.x + 40 - 50, position.y + 10 - 50); console.log(this.__eCells[3].getBounds().x, this.__eCells[3].getBounds().y);}
+            if (this.__eCells[4]) {this.__eCells[4].setDirectPositions(position.x + 20 - 50, position.y + 20 - 50); console.log(this.__eCells[4].getBounds().x, this.__eCells[4].getBounds().y);}
+            if (this.__eCells[5]) {this.__eCells[5].setDirectPositions(position.x - 50, position.y + 30 - 50); console.log(this.__eCells[5].getBounds().x, this.__eCells[5].getBounds().y);}
+            if (this.__eCells[6]) {this.__eCells[6].setDirectPositions(position.x + 60 - 50, position.y + 20 - 50); console.log(this.__eCells[6].getBounds().x, this.__eCells[6].getBounds().y);}
+            if (this.__eCells[7]) {this.__eCells[7].setDirectPositions(position.x + 40 - 50, position.y + 30 - 50); console.log(this.__eCells[7].getBounds().x, this.__eCells[7].getBounds().y);}
+            if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50); console.log(this.__eCells[8].getBounds().x, this.__eCells[8].getBounds().y);}
             this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
             this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
             cells.forEach((cell) => {
                 cell.changeType(cell.getType());
                 this.__eCells.forEach((eCell => {
+                    // this.__cellsStatus[eCell.getCellId()] = null
                     if ((eCell !== null) && (cell.intersectWithCell(eCell)))
                     {
                         cell.errorField();
@@ -327,6 +335,16 @@ import { DrawInfoBlock } from "./testGame.js";
                     rotatedMatrix.push(column.reverse());
                 }
                 this.__matrixPattern = rotatedMatrix;
+                if (this.__buildPtr % 4 == 0)
+                {
+                    this.__buildPtr -= 3;
+                    this.changeTexture(this.__buildPtr)
+                }
+                else
+                {
+                    this.__buildPtr += 1;
+                    this.changeTexture(this.__buildPtr);
+                }
             }
             else if (direction = -1)
             {
@@ -336,6 +354,16 @@ import { DrawInfoBlock } from "./testGame.js";
                     rotatedMatrix.push(column);
                 }
                 this.__matrixPattern = rotatedMatrix;
+                if ((this.__buildPtr - 1) % 4 == 0)
+                {
+                    this.__buildPtr += 3;
+                    this.changeTexture(this.__buildPtr)
+                }
+                else
+                {
+                    this.__buildPtr -= 1;
+                    this.changeTexture(this.__buildPtr);
+                }
             }
         }
 
@@ -350,7 +378,7 @@ import { DrawInfoBlock } from "./testGame.js";
                 });
                 this.__stopMovingFlag = true;
                 app.stage.on('pointermove', (event) => this.startMouseFollowing(event)).off('pointermove');
-                this.setPosition(this.__cellsStatus[4].getBounds().x, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3);
+                this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
                 this.clearPatterns();
                 this.__sprite.zIndex = this.__sprite.y;
                 buildingMoment = false;
@@ -428,10 +456,10 @@ import { DrawInfoBlock } from "./testGame.js";
             row.forEach((num) => {
                 var cell = new Cell(-1, num);
                 cell.__sprite.zIndex = -999;
-                cell.setPositionsInIsometric(500 + 28 * i, -500 + 28 * j);
+                cell.setPositionsInIsometric(500 + 20 * i, -500 + 20 * j);
                 if (i % 2 == 0)
                 {   
-                    cell.setPositionsInIsometric(500 + 28 * i, -500 + 28 * j);
+                    cell.setPositionsInIsometric(500 + 20 * i, -500 + 20 * j);
                 }
                 cells.push(cell);
                 j += 1
@@ -447,22 +475,22 @@ import { DrawInfoBlock } from "./testGame.js";
         var key = event.key
         if (key === 'r' && !buildingMoment)
         {
-            t = new build(100, 0, 0);
+            t = new build(100, 0, 13 , 3);
             t.setMatrixPattern([
-                [1, 1, 1],
-                [1, 1, 1],
-                [1, 1, 1],
+                [0, 1, 0],
+                [0, 1, 1],
+                [0, 0, 0],
             ])
             t.renderMatrixPattern();
             buildingMoment = true
         }
         if (key === 't' && !buildingMoment)
             {
-                t = new build(100, 0, 1);
+                t = new build(100, 0, 4, 1);
                 t.setMatrixPattern([
-                    [0, 1, 1],
-                    [0, 1, 0],
-                    [0, 0, 0], 
+                    [1, 1, 0],
+                    [1, 1, 0],
+                    [1, 1, 0], 
                 ])
                 t.renderMatrixPattern();
                 buildingMoment = true
