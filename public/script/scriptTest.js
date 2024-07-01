@@ -49,6 +49,7 @@ import { DrawInfoBlock } from "./testGame.js";
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
     let texturess = await PIXI.Assets.load('/../imageParser/buildings.json');
     texturess = await PIXI.Assets.load('/../imageParser/farmParser.json');
+    texturess = await PIXI.Assets.load('/../imageParser/playingHouse.json');
 
     class Cell {
         constructor(ptrTower, placeType)
@@ -517,11 +518,11 @@ import { DrawInfoBlock } from "./testGame.js";
         var key = event.key
         if (key === 'r' && !buildingMoment)
         {
-            t = new build(100, 0, 13 , 3);
+            t = new build(100, 0, 13 , 5);
             t.setMatrixPattern([
-                [0, 1, 0],
-                [0, 1, 1],
                 [0, 0, 0],
+                [0, 1, 0],
+                [1, 1, 0],
             ])
             t.renderMatrixPattern();
             buildingMoment = true
