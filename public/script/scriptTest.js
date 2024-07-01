@@ -228,6 +228,7 @@ import { DrawInfoBlock } from "./testGame.js";
         {
             this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
             this.__sprite.zIndex = 10000;
+            this.__sprite.alpha = 0.3;
             app.stage.addChild(this.__sprite);
         }
 
@@ -381,6 +382,7 @@ import { DrawInfoBlock } from "./testGame.js";
                 this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
                 this.clearPatterns();
                 this.__sprite.zIndex = this.__sprite.y;
+                this.__sprite.alpha = 1;
                 buildingMoment = false;
                 buildings.push(this);
             }
@@ -422,6 +424,46 @@ import { DrawInfoBlock } from "./testGame.js";
             this.status = ''; // R - бросок кубиков,  W - драка, B - Постройка, D - несчастье
         }
     }
+
+    class Timer {
+        constructor(duration) 
+        {
+          this.__paused = false;
+          this.__startTime;
+          this.__duration = duration;
+          this.reset();
+        }
+      
+        reset()
+        {
+          this.__startTime = Date.now();
+        }
+      
+        update(delta)
+        {
+          if (!this.__paused) {
+            this.__duration -= delta;
+          }
+        }
+      
+        isExpired()
+        {
+          return this.__duration <= 0;
+        }
+      
+        get remainingTime()
+        {
+          return Math.max(0, this.__duration);
+        }
+      
+        pause() {
+          this.__paused = true;
+        }
+      
+        resume() {
+          this.__paused = false;
+        }
+      }
 
     let worldMatrix = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
@@ -550,6 +592,16 @@ import { DrawInfoBlock } from "./testGame.js";
             }
         }
     })
+
+    const timer = new Timer(5000);
+
+    app.ticker.add(() => {
+        timer.update(app.ticker.elapsedMS);
+
+        if (timer.isExpired()) {
+            timer.pause();
+        }
+    });
 
     return {
         stage: app.stage,
