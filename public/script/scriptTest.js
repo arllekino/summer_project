@@ -555,10 +555,10 @@ import { DrawInfoBlock } from "./testGame.js";
                 build.setPosition(build.getBounds().x, build.getBounds().y  - 50)
             })
         }
-        else if(key === 'd')
+        else if(key === 'l')
         {
             cells.forEach(cell => {
-                cell.setDirectPositions(cell.getBounds().x + 50, cell.getBounds().y)
+                console.log(123321123);
             })
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x + 50, build.getBounds().y)
