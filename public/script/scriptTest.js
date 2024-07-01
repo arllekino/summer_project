@@ -447,6 +447,7 @@ import { DrawInfoBlock } from "./testGame.js";
         var key = event.key
         if (key === 'r' && !buildingMoment)
         {
+            console.log('asd');   
             t = new build(100, 0, 0);
             t.setMatrixPattern([
                 [1, 1, 1],

@@ -1,13 +1,12 @@
 {% extends 'base.html.twig' %}
 {% block title %}Регистрация{% endblock %}
-{% block body %}
-
+{% block content %}
 	<div>
 		<span class="user-name">{{ userName }}</span>
 		<form action="">
 			<button type"submit" class="settings">Settings</button>
 		</form>
-		<form action="">
+		<form action="/logout">
 			<button type="submit" class="logout">Log out</button>
 		</form>
 	</div>

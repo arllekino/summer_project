@@ -56,6 +56,19 @@ class UserController extends AbstractController
         return $this->redirect('login_form');
     }
 
+    public function logInForm(Request $request): Response
+    {       
+        $userSession = $this->session->getSession('userId');
+        if ($userSession)
+        {
+            return $this->redirectToRoute('start_lobby_page');
+        } 
+        $error = $request->get('error');
+        return $this->render('login_form.html.twig', [
+            'error' => $error
+        ]);
+    }
+
     public function logInUser(Request $request): Response
     {
         $input = new LoginUserInput(
@@ -80,23 +93,27 @@ class UserController extends AbstractController
         }   
         $this->session->setSession($userId, $userName);
 
-        return $this->redirectToRoute('start_lobby_page', [
-            'userId' => $userId
-        ]);
+        return $this->redirectToRoute('start_lobby_page');
     }
 
-    public function startLobbyPage(Request $request): Response
+    public function logout(): Response
     {
-        $userId = $request->get('userId');
+        $this->session->removeSession('userId');
+        return $this->redirectToRoute('login_form');
+    }
+
+    public function startLobbyPage(): Response
+    {
         $sessionUserId = $this->session->getSession('userId');
-        if ($userId != $sessionUserId)
+        if (!$sessionUserId)
         {
             return $this->redirectToRoute('login_form', [
                 'error' => 'You must log in first'
-        ]);
+            ]);
         }
+
         try {
-            $userName = $this->userService->findUserName((int) $userId);
+            $userName = $this->userService->findUserName($sessionUserId);
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'error_page',
@@ -111,6 +128,16 @@ class UserController extends AbstractController
 
     public function mainGame(): Response
     {
+        // пока что проверяем на наличие сессии юзера
+        // в дальнейшем надо проверять на наличие сессии игры
+        $sessionUserId = $this->session->getSession('userId');
+        if (!$sessionUserId)
+        {
+            return $this->redirectToRoute('login_form', [
+                'error' => 'You must log in first'
+            ]);
+        }
+        
         return $this->render('main_game.html.twig');    
     }
 
@@ -118,7 +145,6 @@ class UserController extends AbstractController
     {
         $email = filter_var($input->getEmail(), FILTER_SANITIZE_EMAIL);
 
-        // Проверяем, является ли email действительным
         if (preg_match('/\s/', $input->getPassword()) ||
            strlen($input->getPassword()) < self::MIN_LENGTH_PASSWORD    
         ) 

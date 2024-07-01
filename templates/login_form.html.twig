@@ -1,12 +1,11 @@
 {% extends 'base.html.twig' %}
-{% block title %}Вход	
-{% endblock %}
-{% block body %}
+{% block title %}Вход{% endblock %}
+{% block content %}
 
 	<form action="/login_user">
 		{% set error = error|default({}) %}
         {% if error %}     
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            <div class="alert alert-danger">{{ error }}</div>
         {% endif %}
 		<div>
 			<label for="email">Email</label>

@@ -1,23 +1,15 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		{% block head %}
-			<link rel="stylesheet" href="style.css"/>
-			<title>
-				{% block title %}{% endblock %}
-			</title>
-		{% endblock %}
+		<title>{% block title %}{% endblock %}</title>
+		{% block head %}{% endblock %}
 		{% block javascripts %}
 			{{ encore_entry_script_tags('app') }}
 		{% endblock %}
 	</head>
 	<body>
-		<div id="content"> {% block content %}{% endblock %}</div>
-			<div id="footer">
-				{% block footer %}
-					&copy; Copyright 2023 by
-					<a href="https://www.ispring.ru/">iSpring Team</a>.
-				{% endblock %}
-			</div>
+		<div id="content">
+			{% block content %}{% endblock %}
+		</div>
 	</body>
 </html>

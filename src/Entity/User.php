@@ -10,6 +10,8 @@ class User
     private string $email;
     private string $hashPassword;
 
+    private ?Island $island = null;
+
     public function __construct(
         ?int $id,
         string $userName,
@@ -40,6 +42,11 @@ class User
         return $this->hashPassword;    
     }
 
+    public function getIsland(): ?Island
+    {
+        return $this->island;    
+    }
+
     public function setUserName(string $userName): void
     {
         $this->userName = $userName;    
@@ -51,5 +58,13 @@ class User
     public function setHashPassword(string $hashPassword): void
     {
         $this->hashPassword = $hashPassword;    
+    }
+    public function setIsland(?Island $island): void
+    {
+        $this->island = $island;
+        if ($island !== null && $island->getUser() !== $this)
+        {
+            $island->setUser($this);
+        }    
     }
 }

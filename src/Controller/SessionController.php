@@ -19,7 +19,7 @@ class SessionController
         $this->session->set('userName', $userName);
     }   
 
-    public function getSession(string $name): mixed
+    public function getSession(string $name): ?int
     {
         $sessionName = $this->session->get($name);
 
