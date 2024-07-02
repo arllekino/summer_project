@@ -51,6 +51,8 @@ import { DrawInfoBlock } from "./testGame.js";
     texturess = await PIXI.Assets.load('/../imageParser/farmParser.json');
     texturess = await PIXI.Assets.load('/../imageParser/playingHouse.json');
     texturess = await PIXI.Assets.load('/../imageParser/wareHouse.json');
+    texturess = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
+    texturess = await PIXI.Assets.load('/../imageParser/greenCastle.json');
 
     class Cell {
         constructor(ptrTower, placeType)
@@ -299,15 +301,15 @@ import { DrawInfoBlock } from "./testGame.js";
         startMouseFollowing(event)
         {
             let position = event.data.global;
-            if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50); console.log(this.__eCells[0].getBounds().x, this.__eCells[0].getBounds().y);}
-            if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50); console.log(this.__eCells[1].getBounds().x, this.__eCells[1].getBounds().y);}
-            if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50); console.log(this.__eCells[2].getBounds().x, this.__eCells[2].getBounds().y);}
-            if (this.__eCells[3]) {this.__eCells[3].setDirectPositions(position.x + 40 - 50, position.y + 10 - 50); console.log(this.__eCells[3].getBounds().x, this.__eCells[3].getBounds().y);}
-            if (this.__eCells[4]) {this.__eCells[4].setDirectPositions(position.x + 20 - 50, position.y + 20 - 50); console.log(this.__eCells[4].getBounds().x, this.__eCells[4].getBounds().y);}
-            if (this.__eCells[5]) {this.__eCells[5].setDirectPositions(position.x - 50, position.y + 30 - 50); console.log(this.__eCells[5].getBounds().x, this.__eCells[5].getBounds().y);}
-            if (this.__eCells[6]) {this.__eCells[6].setDirectPositions(position.x + 60 - 50, position.y + 20 - 50); console.log(this.__eCells[6].getBounds().x, this.__eCells[6].getBounds().y);}
-            if (this.__eCells[7]) {this.__eCells[7].setDirectPositions(position.x + 40 - 50, position.y + 30 - 50); console.log(this.__eCells[7].getBounds().x, this.__eCells[7].getBounds().y);}
-            if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50); console.log(this.__eCells[8].getBounds().x, this.__eCells[8].getBounds().y);}
+            if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
+            if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
+            if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50);}
+            if (this.__eCells[3]) {this.__eCells[3].setDirectPositions(position.x + 40 - 50, position.y + 10 - 50);}
+            if (this.__eCells[4]) {this.__eCells[4].setDirectPositions(position.x + 20 - 50, position.y + 20 - 50);}
+            if (this.__eCells[5]) {this.__eCells[5].setDirectPositions(position.x - 50, position.y + 30 - 50);}
+            if (this.__eCells[6]) {this.__eCells[6].setDirectPositions(position.x + 60 - 50, position.y + 20 - 50);}
+            if (this.__eCells[7]) {this.__eCells[7].setDirectPositions(position.x + 40 - 50, position.y + 30 - 50);}
+            if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50);}
             this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
             this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
             cells.forEach((cell) => {
@@ -540,16 +542,38 @@ import { DrawInfoBlock } from "./testGame.js";
             buildingMoment = true
         }
         if (key === 'y' && !buildingMoment)
-            {
-                t = new build(100, 0, 3, 9);
-                t.setMatrixPattern([
-                    [1, 1, 0],
-                    [1, 1, 0],
-                    [1, 1, 0], 
-                ])
-                t.renderMatrixPattern();
-                buildingMoment = true
-            }
+        {
+            t = new build(100, 0, 3, 9);
+            t.setMatrixPattern([
+                [1, 1, 0],
+                [1, 1, 0],
+                [1, 1, 0], 
+            ])
+            t.renderMatrixPattern();
+            buildingMoment = true
+        }
+        if (key === 'u' && !buildingMoment)
+        {
+            t = new build(100, 0, 4, 13);
+            t.setMatrixPattern([
+                [0, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0], 
+            ])
+            t.renderMatrixPattern();
+            buildingMoment = true
+        }
+        if (key === 'i' && !buildingMoment)
+        {
+            t = new build(100, 0, 5, 17);
+            t.setMatrixPattern([
+                [1, 1, 1],
+                [1, 1, 1],
+                [1, 1, 1], 
+            ])
+            t.renderMatrixPattern();
+            buildingMoment = true
+        }
         else if(key === 'a')
         {
             cells.forEach(cell => {
@@ -605,6 +629,7 @@ import { DrawInfoBlock } from "./testGame.js";
             }
         }
     })
+
 
     const timer = new Timer(5000);
 
