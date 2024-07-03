@@ -361,8 +361,8 @@ import { DrawInfoBlock } from "./testGame.js";
                         this.__cellsStatus[eCell.getCellId()] = null
                         if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
                             cell.okField();
-                            this.__cellsStatus[eCell.getCellId()] = cell;
                         }
+                        this.__cellsStatus[eCell.getCellId()] = cell;
                     }
                 }));
             });
@@ -404,7 +404,7 @@ import { DrawInfoBlock } from "./testGame.js";
         }
 
         buildBuilding() {
-            const sum = Object.values(this.__cellsStatus).filter(value => value !== null).length;
+            const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
             if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
                 Object.values(this.__cellsStatus).forEach(element => {
                     element.setPtrTower(this.__buildType);
@@ -434,8 +434,9 @@ import { DrawInfoBlock } from "./testGame.js";
                     cell = null;
                 }
             })
+            console.log(this.__cellsStatus);
             Object.values(this.__cellsStatus).forEach(cell => {
-                if (cell !== null) { cell.changeType(cell.getType()); }
+                if (cell !== null) { console.log(cell.getType()); cell.changeType(cell.getType());}
             })
             this.__eCells = [];
         }
@@ -625,10 +626,10 @@ import { DrawInfoBlock } from "./testGame.js";
         {
             hummer.initSprite();
             hummer.activate();
-            document.addEventListener('mousemove', (e) => hummer.followMouse(e))
-            document.addEventListener('pointerdown', (e) => hummer.click(e))
         }
     })
+    document.addEventListener('mousemove', (e) => hummer.followMouse(e))
+    document.addEventListener('pointerdown', (e) => hummer.click(e))
     
     async function DrawBlockBuildings(container, app) {
         const textureBackground = await PIXI.Assets.load(
@@ -696,6 +697,16 @@ import { DrawInfoBlock } from "./testGame.js";
                     t.renderMatrixPattern();
                     buildingMoment = true
                 }
+                if ((textureName === 'house.png') && !buildingMoment) {
+                    t = new build(100, 0, 3, 13);
+                    t.setMatrixPattern([
+                        [0, 0, 0],
+                        [0, 1, 0],
+                        [0, 0, 0],
+                    ])
+                    t.renderMatrixPattern();
+                    buildingMoment = true
+                }
             });
 
             buildingsContainer.addChild(buildingSprite);
@@ -713,13 +724,15 @@ import { DrawInfoBlock } from "./testGame.js";
             if (key === 'f' && buildingMoment && t) {
                 console.log('f');
                 t.clearPatterns();
-                t.rotateMatrix(1);
+                t.clearCellsStatus()
+                t.rotateMatrix(-1);
                 t.renderMatrixPattern();
             } 
             else if (key === 'g' && buildingMoment && t) {
                 console.log('g');
                 t.clearPatterns();
-                t.rotateMatrix(-1);
+                t.clearCellsStatus();
+                t.rotateMatrix(1);
                 t.renderMatrixPattern();
             }
         }
@@ -776,6 +789,7 @@ import { DrawInfoBlock } from "./testGame.js";
         if (event.button === 2 && buildingMoment) 
         {
             event.preventDefault();
+            selectedBuilding.tint = 0xffffff;
             t.clearPatterns();
             t.clearCellsStatus();
             app.stage.on('pointermove', (event) => t.startMouseFollowing(event)).off('pointermove');
