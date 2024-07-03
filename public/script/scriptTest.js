@@ -3,28 +3,27 @@
 // import * as PIXI from './pixi.mjs';
 import { DrawInfoBlock } from "./testGame.js";
 
-(async () =>
-    {
-        const app = new PIXI.Application();
-        await app.init({ background: '#00aeff', resizeTo: window });
-        app.stage.interactive = true;
-        document.body.appendChild(app.canvas);
-        let buildings = [];
-        let buildingMoment = false;
-        let t;
+(async () => {
+    const app = new PIXI.Application();
+    await app.init({ background: '#00aeff', resizeTo: window });
+    app.stage.interactive = true;
+    document.body.appendChild(app.canvas);
+    let buildings = [];
+    let buildingMoment = false;
+    let t;
+    let selectedBuilding = null;
 
-        DrawInfoBlock(app);
+    DrawInfoBlock(app);
+    DrawBuildingsBlock(app);
 
-    function cartesianToIsometric(cartX, cartY)
-    {
+    function cartesianToIsometric(cartX, cartY) {
         return {
             x: cartX - cartY,
             y: (cartX + cartY) / 2
         };
     }
 
-    function cartesianToScreenFromIsometric(cartX, cartY)
-    {
+    function cartesianToScreenFromIsometric(cartX, cartY) {
         return {
             x: cartX + cartY,
             y: (cartX - cartY) * 2
@@ -32,15 +31,14 @@ import { DrawInfoBlock } from "./testGame.js";
     }
 
 
-    function intersects(object1, object2)
-    {
+    function intersects(object1, object2) {
         const bounds1 = object1.getBounds();
         const bounds2 = object2.getBounds();
         return (
             bounds1.x + bounds1.width < bounds2.x + bounds2.width
             && bounds1.x + bounds1.width > bounds2.x
             && bounds1.y + bounds1.height < bounds2.y + bounds2.height
-            && bounds1.y + bounds1.height > bounds2.y 
+            && bounds1.y + bounds1.height > bounds2.y
         );
     }
 
@@ -62,8 +60,7 @@ import { DrawInfoBlock } from "./testGame.js";
     texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
 
     class Cell {
-        constructor(ptrTower, placeType)
-        {
+        constructor(ptrTower, placeType) {
             this.__ptrTower = ptrTower;
             this.__placeType = placeType;
             this.__sprite;
@@ -73,8 +70,7 @@ import { DrawInfoBlock } from "./testGame.js";
             this.initSprite()
         }
 
-        intersectWithCell(object) 
-        {
+        intersectWithCell(object) {
             const bounds = object.getBounds();
             return (
                 this.__bounds.x + this.__bounds.width / 2.37 < bounds.x + bounds.width / 1.72
@@ -84,48 +80,39 @@ import { DrawInfoBlock } from "./testGame.js";
             );
         }
 
-        getSprite()
-        {
+        getSprite() {
             return this.__sprite;
         }
 
-        setCellId(id)
-        {
+        setCellId(id) {
             this.__cellId = id;
         }
 
-        getCellId()
-        {
+        getCellId() {
             return this.__cellId;
         }
 
-        activate()
-        {
+        activate() {
             this.__active = true;
         }
 
-        deactivate()
-        {
+        deactivate() {
             this.__active = false;
         }
 
-        getActive()
-        {
+        getActive() {
             return this.__active;
         }
 
-        getPtrTower()
-        {
+        getPtrTower() {
             return this.__ptrTower;
         }
 
-        setPtrTower(newPtr)
-        {
+        setPtrTower(newPtr) {
             this.__ptrTower = newPtr;
         }
 
-        initSprite()
-        {
+        initSprite() {
             this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`ground_${this.__placeType}.png`));
             //this.__sprite.texture.rotate = 1;
             //this.__sprite.texture.updateUvs();
@@ -133,55 +120,47 @@ import { DrawInfoBlock } from "./testGame.js";
             app.stage.addChild(this.__sprite);
         }
 
-        changeType(type)
-        {
+        changeType(type) {
             this.__placeType = type;
             this.__sprite.texture = PIXI.Texture.from(`ground_${type}.png`);
             //this.__sprite.texture.rotate = 1;
             //this.__sprite.texture.updateUvs();
         }
 
-        errorField()
-        {
+        errorField() {
             this.__sprite.texture = PIXI.Texture.from(`ground_${3}.png`);
             //this.__sprite.texture.rotate = 1;
             //this.__sprite.texture.updateUvs();
         }
 
-        okField()
-        {
+        okField() {
             this.__sprite.texture = PIXI.Texture.from(`ground_${4}.png`);
             //this.__sprite.texture.rotate = 1;
             //this.__sprite.texture.updateUvs();
         }
 
-        setPositionsInIsometric(x, y)
-        {
+        setPositionsInIsometric(x, y) {
             const isoPos = cartesianToIsometric(x, y);
             this.__sprite.position.set(isoPos.x, isoPos.y);
             this.__bounds = this.__sprite.getBounds();
         }
 
-        setDirectPositions(x, y)
-        {
+        setDirectPositions(x, y) {
             this.__sprite.position.set(x, y);
             this.__bounds = this.__sprite.getBounds();
         }
 
-        getPositions()
-        {
+        getPositions() {
             const x = this.__sprite.position.x;
             const y = this.__sprite.position.y;
-            return {x, y};
+            return { x, y };
         }
 
-        getBounds()
-        {
+        getBounds() {
             return this.__sprite.getBounds();
         }
 
-        getType()
-        {
+        getType() {
             return this.__placeType;
         }
     }
@@ -277,94 +256,75 @@ import { DrawInfoBlock } from "./testGame.js";
             this.__stopMovingFlag = false;
             this.__bounds;
             this.initSprite();
-            window.addEventListener('click',() => this.mouseClick());
+            window.addEventListener('click', () => this.mouseClick());
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event));
             //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
         }
-        getHp()
-        {
+        getHp() {
             return this.__hp;
         }
-        setHp(hp)
-        {
+        setHp(hp) {
             this.__hp = hp;
         }
-        getECells()
-        {
+        getECells() {
             return this.__eCells;
         }
-        getDefense()
-        {
+        getDefense() {
             return this.__defense;
         }
-        setDefense(defense)
-        {
+        setDefense(defense) {
             this.__defense = defense;
         }
-        getPtrTower()
-        {
+        getPtrTower() {
             return this.__buildType;
         }
-        setTowerType(buildType)
-        {
+        setTowerType(buildType) {
             this.__buildType = buildType;
         }
-        initSprite()
-        {
+        initSprite() {
             this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
             this.__sprite.zIndex = 10000;
             this.__sprite.alpha = 0.3;
             app.stage.addChild(this.__sprite);
         }
 
-        changeTexture(ptr)
-        {
+        changeTexture(ptr) {
             this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
         }
-        setPosition(x, y)
-        {
+        setPosition(x, y) {
             this.__sprite.position.set(x, y);
             this.__sprite.zIndex = y;
             this.__bounds = this.__sprite.getBounds();
         }
-        getBounds()
-        {
+        getBounds() {
             return this.__bounds;
         }
-        setPeopleCount(count)
-        {
+        setPeopleCount(count) {
             this.__peopleCount = count;
         }
-        getPeopleCount()
-        {
+        getPeopleCount() {
             return this.__peopleCount;
         }
-        getDroppingResources()
-        {
+        getDroppingResources() {
             return this.__droppingResources;
         }
-        setDroppingResources(droppingResources)
-        {
+        setDroppingResources(droppingResources) {
             this.__droppingResources = droppingResources;
         }
-        getMatrixPattern()
-        {
+        getMatrixPattern() {
             return this.__matrixPattern;
         }
-        setMatrixPattern(matrix)
-        {
+        setMatrixPattern(matrix) {
             this.__matrixPattern = matrix;
         }
-        renderMatrixPattern()
-        {
+        renderMatrixPattern() {
             let i = 0;
             let j = 0;
             let count = 0;
             this.__matrixPattern.forEach((row) => {
                 row.forEach((num) => {
                     var cell = null;
-                    if (num === 1)
-                    {
+                    if (num === 1) {
                         cell = new Cell(this.__buildType, 5);
                         cell.activate();
                         this.__cellsStatus[count] = null;
@@ -379,8 +339,7 @@ import { DrawInfoBlock } from "./testGame.js";
             })
         }
 
-        startMouseFollowing(event)
-        {
+        startMouseFollowing(event) {
             let position = event.data.global;
             if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
             if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
@@ -397,12 +356,10 @@ import { DrawInfoBlock } from "./testGame.js";
                 cell.changeType(cell.getType());
                 this.__eCells.forEach((eCell => {
                     // this.__cellsStatus[eCell.getCellId()] = null
-                    if ((eCell !== null) && (cell.intersectWithCell(eCell)))
-                    {
+                    if ((eCell !== null) && (cell.intersectWithCell(eCell))) {
                         cell.errorField();
                         this.__cellsStatus[eCell.getCellId()] = null
-                        if ((cell.getType() == 1) && (cell.getPtrTower() == -1))
-                        {
+                        if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
                             cell.okField();
                             this.__cellsStatus[eCell.getCellId()] = cell;
                         }
@@ -411,53 +368,44 @@ import { DrawInfoBlock } from "./testGame.js";
             });
         }
 
-        rotateMatrix(direction)
-        {
-            if (direction == 1)
-            {
+        rotateMatrix(direction) {
+            if (direction == 1) {
                 const rotatedMatrix = [];
                 for (let i = 0; i < this.__matrixPattern[0].length; i++) {
                     const column = this.__matrixPattern.map(row => row[i]);
                     rotatedMatrix.push(column.reverse());
                 }
                 this.__matrixPattern = rotatedMatrix;
-                if (this.__buildPtr % 4 == 0)
-                {
+                if (this.__buildPtr % 4 == 0) {
                     this.__buildPtr -= 3;
                     this.changeTexture(this.__buildPtr)
                 }
-                else
-                {
+                else {
                     this.__buildPtr += 1;
                     this.changeTexture(this.__buildPtr);
                 }
             }
-            else if (direction = -1)
-            {
+            else if (direction == -1) {
                 const rotatedMatrix = [];
                 for (let i = this.__matrixPattern[0].length - 1; i >= 0; i--) {
                     const column = this.__matrixPattern.map(row => row[i]);
                     rotatedMatrix.push(column);
                 }
                 this.__matrixPattern = rotatedMatrix;
-                if ((this.__buildPtr - 1) % 4 == 0)
-                {
+                if ((this.__buildPtr - 1) % 4 == 0) {
                     this.__buildPtr += 3;
                     this.changeTexture(this.__buildPtr)
                 }
-                else
-                {
+                else {
                     this.__buildPtr -= 1;
                     this.changeTexture(this.__buildPtr);
                 }
             }
         }
 
-        buildBuilding()
-        {
-            const sum =  Object.values(this.__cellsStatus).filter(value => value !== null).length;
-            if (sum === Object.keys(this.__cellsStatus).length && sum !== 0)
-            {
+        buildBuilding() {
+            const sum = Object.values(this.__cellsStatus).filter(value => value !== null).length;
+            if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
                 Object.values(this.__cellsStatus).forEach(element => {
                     element.setPtrTower(this.__buildType);
                     element.setPtrTower(this.getPtrTower());
@@ -468,26 +416,26 @@ import { DrawInfoBlock } from "./testGame.js";
                 this.clearPatterns();
                 this.__sprite.zIndex = this.__sprite.y;
                 this.__sprite.alpha = 1;
-                buildingMoment = false;
+                if (buildingMoment) {
+                    buildingMoment = false;
+                };
                 buildings.push(this);
+                selectedBuilding.tint = 0xffffff;
             }
         }
 
-        clearPatterns()
-        {
+        clearPatterns() {
             this.__eCells.forEach(cell => {
-                if (cell !== null)
-                {
+                if (cell !== null) {
                     //cell.getSprite().parent.removeChild(cell.getSprite());
-                    for (let property in cell)
-                    {
+                    for (let property in cell) {
                         delete cell[property]
                     }
                     cell = null;
                 }
             })
             Object.values(this.__cellsStatus).forEach(cell => {
-                if (cell !== null) {cell.changeType(cell.getType());}
+                if (cell !== null) { cell.changeType(cell.getType()); }
             })
             this.__eCells = [];
         }
@@ -497,90 +445,80 @@ import { DrawInfoBlock } from "./testGame.js";
             this.__cellsStatus = {};
         }
 
-        mouseClick()
-        {
-            if (!this.__stopMovingFlag)
-            {
+        mouseClick() {
+            if (!this.__stopMovingFlag) {
                 this.buildBuilding();
             }
         }
     }
 
-    class game
-    {
-        constructor()
-        {
+    class game {
+        constructor() {
             this.status = ''; // R - бросок кубиков,  W - драка, B - Постройка, D - несчастье
         }
     }
 
     class Timer {
-        constructor(duration) 
-        {
-          this.__paused = false;
-          this.__startTime;
-          this.__duration = duration;
-          this.reset();
+        constructor(duration) {
+            this.__paused = false;
+            this.__startTime;
+            this.__duration = duration;
+            this.reset();
         }
-      
-        reset()
-        {
-          this.__startTime = Date.now();
+
+        reset() {
+            this.__startTime = Date.now();
         }
-      
-        update(delta)
-        {
-          if (!this.__paused) {
-            this.__duration -= delta;
-          }
+
+        update(delta) {
+            if (!this.__paused) {
+                this.__duration -= delta;
+            }
         }
-      
-        isExpired()
-        {
-          return this.__duration <= 0;
+
+        isExpired() {
+            return this.__duration <= 0;
         }
-      
-        get remainingTime()
-        {
-          return Math.max(0, this.__duration);
+
+        get remainingTime() {
+            return Math.max(0, this.__duration);
         }
-      
+
         pause() {
-          this.__paused = true;
+            this.__paused = true;
         }
-      
+
         resume() {
-          this.__paused = false;
+            this.__paused = false;
         }
-      }
+    }
 
     let worldMatrix = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, ],
-        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, ],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, ],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 0, ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, ],
-        [0, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 2, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0, ],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, ],
-        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, ],
-        [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-        [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, ],
-        [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0,],
+        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0,],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 2, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0,],
+        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
+        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
+        [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,],
+        [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
     ];
-      
+
 
     let cells = [];
-    function mapReader(worldMatrix)
-    {
+    function mapReader(worldMatrix) {
         let i = 0;
         let j = 0;
         worldMatrix.forEach((row) => {
@@ -588,8 +526,7 @@ import { DrawInfoBlock } from "./testGame.js";
                 var cell = new Cell(-1, num);
                 cell.__sprite.zIndex = -999;
                 cell.setPositionsInIsometric(500 + 20 * i, -500 + 20 * j);
-                if (i % 2 == 0)
-                {   
+                if (i % 2 == 0) {
                     cell.setPositionsInIsometric(500 + 20 * i, -500 + 20 * j);
                 }
                 cells.push(cell);
@@ -600,6 +537,86 @@ import { DrawInfoBlock } from "./testGame.js";
         })
     }
     mapReader(worldMatrix)
+
+    // window.addEventListener('keydown', (event) => {
+    //     var key = event.key
+    //     if (key === 'r' && !buildingMoment) {
+    //         t = new build(100, 0, 2, 5);
+    //         t.setMatrixPattern([
+    //             [0, 0, 0],
+    //             [0, 1, 0],
+    //             [1, 1, 0],
+    //         ])
+    //         t.renderMatrixPattern();
+    //         buildingMoment = true
+    //     }
+    //     if (key === 't' && !buildingMoment) {
+    //         t = new build(100, 0, 1, 1);
+    //         t.setMatrixPattern([
+    //             [1, 1, 0],
+    //             [1, 1, 0],
+    //             [1, 1, 0],
+    //         ])
+    //         t.renderMatrixPattern();
+    //         buildingMoment = true
+    //     }
+    //     if (key === 'y' && !buildingMoment) {
+    //         t = new build(100, 0, 3, 9);
+    //         t.setMatrixPattern([
+    //             [1, 1, 0],
+    //             [1, 1, 0],
+    //             [1, 1, 0],
+    //         ])
+    //         t.renderMatrixPattern();
+    //         buildingMoment = true
+    //     }
+    //     else if (key === 'a') {
+    //         cells.forEach(cell => {
+    //             cell.setDirectPositions(cell.getBounds().x - 50, cell.getBounds().y)
+    //         })
+    //         buildings.forEach(build => {
+    //             build.setPosition(build.getBounds().x - 50, build.getBounds().y)
+    //         })
+    //     }
+    //     else if (key === 'w') {
+    //         cells.forEach(cell => {
+    //             cell.setDirectPositions(cell.getBounds().x, cell.getBounds().y - 50)
+    //         })
+    //         buildings.forEach(build => {
+    //             build.setPosition(build.getBounds().x, build.getBounds().y - 50)
+    //         })
+    //     }
+    //     else if (key === 'l') {
+    //         cells.forEach(cell => {
+    //             console.log(123321123);
+    //         })
+    //         buildings.forEach(build => {
+    //             build.setPosition(build.getBounds().x + 50, build.getBounds().y)
+    //         })
+    //     }
+    //     else if (key === 's') {
+    //         cells.forEach(cell => {
+    //             cell.setDirectPositions(cell.getBounds().x, cell.getBounds().y + 50)
+    //         })
+    //         buildings.forEach(build => {
+    //             build.setPosition(build.getBounds().x, build.getBounds().y + 50)
+    //         })
+    //     }
+    // if (key === 'g' && buildingMoment) {
+    //     if (t) {
+    //         t.clearPatterns();
+    //         t.rotateMatrix(1);
+    //         t.renderMatrixPattern();
+    //     }
+    // }
+    // if (key === 'f' && buildingMoment) {
+    //     if (t) {
+    //         t.clearPatterns();
+    //         t.rotateMatrix(-1);
+    //         t.renderMatrixPattern();
+    //     }
+    // }
+    // })
 
     const hummer = new Destroyer()
     document.addEventListener('keypress', (e) => {
@@ -612,66 +629,101 @@ import { DrawInfoBlock } from "./testGame.js";
             document.addEventListener('pointerdown', (e) => hummer.click(e))
         }
     })
+    
+    async function DrawBlockBuildings(container, app) {
+        const textureBackground = await PIXI.Assets.load(
+            "/../assets/textures/BuildingsPanel.svg",
+        );
+        const buildingBlock = new PIXI.Sprite(textureBackground);
+        container.addChild(buildingBlock);
 
-    window.addEventListener('keydown', (event) => {
-        var key = event.key
-        if (key === 'r' && !buildingMoment)
-        {
-            t = new build(100, 0, 2 , 5);
-            t.setMatrixPattern([
-                [0, 0, 0],
-                [0, 1, 0],
-                [1, 1, 0],
-            ])
-            t.renderMatrixPattern();
-            buildingMoment = true
+        const percentageScreenWidth = 0.3;
+        const percentageScreenHeight = 0.77;
+        container.x = app.screen.width * percentageScreenWidth;
+        container.y = app.screen.height * percentageScreenHeight;
+
+        const textures = await PIXI.Assets.load('/../imageParser/panelBuildings.json');
+        let buildingX = 20;
+        let buildingY = 20;
+
+        const buildingsContainer = new PIXI.Container();
+        container.addChild(buildingsContainer);
+
+        for (const textureName in textures.textures) {
+            const buildingSprite = new PIXI.Sprite(textures.textures[textureName]);
+
+            buildingSprite.x = buildingX;
+            buildingSprite.y = buildingY;
+
+            buildingSprite.interactive = true;
+            buildingSprite.buttonMode = true;
+
+            buildingSprite.on('pointerdown', () => {
+                if (selectedBuilding) {
+                    selectedBuilding.tint = 0xffffff;
+                }
+                selectedBuilding = buildingSprite;
+                selectedBuilding.tint = 0x00ff00
+                console.log('Выбрано здание:', textureName);
+
+                if ((textureName === 'richHouse.png') && !buildingMoment) {
+                    t = new build(100, 0, 2, 5);
+                    t.setMatrixPattern([
+                        [0, 0, 0],
+                        [0, 1, 0],
+                        [1, 1, 0],
+                    ])
+                    t.renderMatrixPattern();
+                    buildingMoment = true
+                }
+                if ((textureName === 'farm.png') && !buildingMoment) {
+                    t = new build(100, 0, 1, 1);
+                    t.setMatrixPattern([
+                        [1, 1, 0],
+                        [1, 1, 0],
+                        [1, 1, 0],
+                    ])
+                    t.renderMatrixPattern();
+                    buildingMoment = true
+                }
+                if ((textureName === 'warehouse.png') && !buildingMoment) {
+                    t = new build(100, 0, 3, 9);
+                    t.setMatrixPattern([
+                        [1, 1, 0],
+                        [1, 1, 0],
+                        [1, 1, 0],
+                    ])
+                    t.renderMatrixPattern();
+                    buildingMoment = true
+                }
+            });
+
+            buildingsContainer.addChild(buildingSprite);
+            buildingX += buildingSprite.width + 20;
+            if (buildingX + buildingSprite.width > buildingBlock.width) {
+                buildingX = 20;
+                buildingY += buildingSprite.height + 20;
+            }
         }
-        if (key === 't' && !buildingMoment)
-        {
-            t = new build(100, 0, 1, 1);
-            t.setMatrixPattern([
-                [1, 1, 0],
-                [1, 1, 0],
-                [1, 1, 0], 
-            ])
-            t.renderMatrixPattern();
-            buildingMoment = true
+    }
+
+    const handleKeyDown = (event) => {
+        const key = event.key;
+        if (selectedBuilding) {
+            if (key === 'f' && buildingMoment && t) {
+                console.log('f');
+                t.clearPatterns();
+                t.rotateMatrix(1);
+                t.renderMatrixPattern();
+            } 
+            else if (key === 'g' && buildingMoment && t) {
+                console.log('g');
+                t.clearPatterns();
+                t.rotateMatrix(-1);
+                t.renderMatrixPattern();
+            }
         }
-        if (key === 'y' && !buildingMoment)
-        {
-            t = new build(100, 0, 3, 9);
-            t.setMatrixPattern([
-                [1, 1, 0],
-                [1, 1, 0],
-                [1, 1, 0], 
-            ])
-            t.renderMatrixPattern();
-            buildingMoment = true
-        }
-        if (key === 'u' && !buildingMoment)
-        {
-            t = new build(100, 0, 4, 13);
-            t.setMatrixPattern([
-                [0, 0, 0],
-                [0, 1, 0],
-                [0, 0, 0], 
-            ])
-            t.renderMatrixPattern();
-            buildingMoment = true
-        }
-        if (key === 'i' && !buildingMoment)
-        {
-            t = new build(100, 0, 5, 17);
-            t.setMatrixPattern([
-                [1, 1, 1],
-                [1, 1, 1],
-                [1, 1, 1], 
-            ])
-            t.renderMatrixPattern();
-            buildingMoment = true
-        }
-        else if(key === 'a')
-        {
+        if (key === 'a') {
             cells.forEach(cell => {
                 cell.setDirectPositions(cell.getBounds().x - 50, cell.getBounds().y)
             })
@@ -679,54 +731,39 @@ import { DrawInfoBlock } from "./testGame.js";
                 build.setPosition(build.getBounds().x - 50, build.getBounds().y)
             })
         }
-        else if(key === 'w')
-        {
+        else if (key === 'w') {
             cells.forEach(cell => {
                 cell.setDirectPositions(cell.getBounds().x, cell.getBounds().y - 50)
             })
             buildings.forEach(build => {
-                build.setPosition(build.getBounds().x, build.getBounds().y  - 50)
+                build.setPosition(build.getBounds().x, build.getBounds().y - 50)
             })
         }
-        else if(key === 'l')
-        {
+        else if (key === 'd') {
             cells.forEach(cell => {
-                console.log(123321123);
+                cell.setDirectPositions(cell.getBounds().x + 50, cell.getBounds().y)
             })
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x + 50, build.getBounds().y)
             })
         }
-        else if(key === 's')
-        {
+        else if (key === 's') {
             cells.forEach(cell => {
                 cell.setDirectPositions(cell.getBounds().x, cell.getBounds().y + 50)
             })
             buildings.forEach(build => {
-                build.setPosition(build.getBounds().x, build.getBounds().y  + 50)
+                build.setPosition(build.getBounds().x, build.getBounds().y + 50)
             })
         }
-        if(key === 'g' && buildingMoment)
-        {
-            if (t)
-            {
-                t.clearPatterns();
-                t.clearCellsStatus();
-                t.rotateMatrix(1);
-                t.renderMatrixPattern();
-            }
-        }
-        if(key === 'f' && buildingMoment)
-        {
-            if (t)
-            {
-                t.clearPatterns();
-                t.clearCellsStatus();
-                t.rotateMatrix(-1);
-                t.renderMatrixPattern();
-            }
-        }
-    })
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    function DrawBuildingsBlock(app) {
+
+        const containerForBuilding = new PIXI.Container();
+        app.stage.addChild(containerForBuilding);
+        DrawBlockBuildings(containerForBuilding, app);
+    }
 
     // window.addEventListener('oncontextmenu', (e) => {
     //     console.log('asdsad');
