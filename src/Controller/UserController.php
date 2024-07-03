@@ -53,6 +53,7 @@ class UserController extends AbstractController
                 'error' => $e->getMessage()
             ]);
         }
+        $this->session->clearSession();
         return $this->redirect('login_form');
     }
 
@@ -122,7 +123,42 @@ class UserController extends AbstractController
         }
         return $this->render(
             'start_lobby_page.html.twig',
-            ['userName' => $userName
+            ['userName' => $userName]
+    );
+    }
+
+    public function joinLobby(): Response
+    {
+        $sessionUserId = $this->session->getSession('userId');
+        if (!$sessionUserId)
+        {
+            return $this->redirectToRoute('login_form', [
+                'error' => 'You must log in first'
+            ]);
+        }
+        return $this->redirectToRoute('lobby_page');       
+    }
+
+    public function lobbyPage(): Response
+    {
+        $sessionUserId = $this->session->getSession('userId');
+        if (!$sessionUserId)
+        {
+            return $this->redirectToRoute('login_form', [
+                'error' => 'You must log in first'
+            ]);
+        }
+        
+        try {
+            $userName = $this->userService->findUserName($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return $this->redirectToRoute(
+                'error_page',
+                ['message' => $e->getMessage(),
+            ]);
+        }
+        return $this->render('lobby_page.html.twig', [
+            'userName' => $userName
         ]);
     }
 
