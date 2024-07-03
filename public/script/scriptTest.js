@@ -1,7 +1,8 @@
 // const { setPositionsInIsometric } = require("./pixi");
 
 // import * as PIXI from './pixi.mjs';
-import { DrawInfoBlock } from "./testGame.js";
+import { DrawInfoBlocks } from "./drawInfoBlocks.js";
+import { main } from "./stages.js";
 
 (async () =>
     {
@@ -15,7 +16,7 @@ import { DrawInfoBlock } from "./testGame.js";
         let buildingMoment = false;
         let t;
 
-        DrawInfoBlock(app);
+        const allContainer = DrawInfoBlocks(app);
 
     function cartesianToIsometric(cartX, cartY)
     {
@@ -32,7 +33,6 @@ import { DrawInfoBlock } from "./testGame.js";
             y: (cartX - cartY) * 2
         };
     }
-
 
     function intersects(object1, object2)
     {
@@ -176,7 +176,7 @@ import { DrawInfoBlock } from "./testGame.js";
 
     class build
     {
-        constructor(hp, defense, buildType)
+        constructor(hp, defense, buildType, cube)
         {
             this.__hp = hp;
             this.__defense = defense;
@@ -190,6 +190,7 @@ import { DrawInfoBlock } from "./testGame.js";
             this.__stopMovingFlag = false;
             this.__bounds;
             this.initSprite();
+            this.__cube = cube;
             window.addEventListener('click',() => this.mouseClick());
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event));
             //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
@@ -261,6 +262,9 @@ import { DrawInfoBlock } from "./testGame.js";
         setMatrixPattern(matrix)
         {
             this.__matrixPattern = matrix;
+        }
+        getCube() {
+            return this.__cube;
         }
         renderMatrixPattern()
         {
@@ -417,7 +421,6 @@ import { DrawInfoBlock } from "./testGame.js";
         [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, ],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, ],
     ];
-      
 
     let cells = [];
     function mapReader(worldMatrix)
@@ -444,7 +447,7 @@ import { DrawInfoBlock } from "./testGame.js";
     mapReader(worldMatrix)
 
     window.addEventListener('keydown', (event) => {
-        var key = event.key
+        const key = event.key
         if (key === 'r' && !buildingMoment)
         {
             t = new build(100, 0, 0);
@@ -521,7 +524,10 @@ import { DrawInfoBlock } from "./testGame.js";
                 t.renderMatrixPattern();
             }
         }
+        
     })
+
+    main(allContainer, app);
 
     return {
         stage: app.stage,
