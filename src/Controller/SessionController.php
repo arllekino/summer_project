@@ -13,10 +13,9 @@ class SessionController
     {
         $this->session = $session;     
     }
-    public function setSession(int $id, string $userName): void
+    public function setSession(string $name, mixed $value): void
     {
-        $this->session->set('userId', $id);
-        $this->session->set('userName', $userName);
+        $this->session->set($name, $value);
     }   
 
     public function getSession(string $name): ?int

@@ -12,8 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
-    const MIN_LENGTH_USER_NAME = 3; 
-    const MIN_LENGTH_PASSWORD = 8; 
+    private const MIN_LENGTH_USER_NAME = 3; 
+    private const MIN_LENGTH_PASSWORD = 8; 
+    private const SESSION_NAME = 'userId';
 
     private UserService $userService;
     private SessionController $session;
@@ -92,7 +93,7 @@ class UserController extends AbstractController
                 'error' => $e->getMessage()
             ]);
         }   
-        $this->session->setSession($userId, $userName);
+        $this->session->setSession(self::SESSION_NAME, $userId);
 
         return $this->redirectToRoute('start_lobby_page');
     }
@@ -105,7 +106,7 @@ class UserController extends AbstractController
 
     public function startLobbyPage(): Response
     {
-        $sessionUserId = $this->session->getSession('userId');
+        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
         if (!$sessionUserId)
         {
             return $this->redirectToRoute('login_form', [
@@ -124,12 +125,12 @@ class UserController extends AbstractController
         return $this->render(
             'start_lobby_page.html.twig',
             ['userName' => $userName]
-    );
+        );
     }
 
     public function joinLobby(): Response
     {
-        $sessionUserId = $this->session->getSession('userId');
+        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
         if (!$sessionUserId)
         {
             return $this->redirectToRoute('login_form', [
@@ -141,7 +142,7 @@ class UserController extends AbstractController
 
     public function lobbyPage(): Response
     {
-        $sessionUserId = $this->session->getSession('userId');
+        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
         if (!$sessionUserId)
         {
             return $this->redirectToRoute('login_form', [

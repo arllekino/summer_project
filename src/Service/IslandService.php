@@ -20,6 +20,7 @@ class IslandService
     {
         $island = new Island(
             null,
+            $input->getIslandMatrix(),
             $input->getFood(),
             $input->getMaxFood(),
             $input->getWood(),
@@ -36,5 +37,50 @@ class IslandService
         );
         
         $this->repository->store($island);
+    }
+    public function update(IslandInputInterface $input): void
+    {
+        $island = $this->repository->findByUserId($input->getUserId());
+        if ($island === null)
+        {
+            throw new \UnexpectedValueException('Island not found');
+        }  
+
+        $island->setIslandMatrix($input->getIslandMatrix());
+        $island->setFood($input->getFood());
+        $island->setMaxFood($input->getMaxFood());
+        $island->setWood($input->getWood());
+        $island->setMaxWood($input->getMaxWood());
+        $island->setStones($input->getStones());
+        $island->setMaxStones($input->getMaxStones());
+        $island->setWarriors($input->getWarriors());
+        $island->setMaxWarriors($input->getMaxWarriors());
+        $island->setVillagers($input->getVillagers());
+        $island->setHammers($input->getHammers());
+        $island->setMoney($input->getMoney());
+        $island->setKnowledge($input->getKnowledge());
+    }
+
+    public function findAll(): array
+    {
+        $islands = $this->repository->listIsland();
+
+        $islandsOutputArr = [];
+
+        foreach ($islands as $island)
+        {
+            $islandOutput = [
+                'island_matrix' => $island->getIslandMatrix(),
+                'warriors' => $island->getWarriors(),
+                'villagers' => $island->getVillagers()
+            ];
+            $islandsOutputArr[] = $islandOutput;
+        }
+        return $islandsOutputArr;
+    }
+
+    public function deleteAll(): void
+    {
+        $this->repository->deleteAll();    
     }
 }
