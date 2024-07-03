@@ -9,8 +9,6 @@ import { DrawInfoBlock } from "./testGame.js";
         await app.init({ background: '#00aeff', resizeTo: window });
         app.stage.interactive = true;
         document.body.appendChild(app.canvas);
-        const container = new PIXI.Container();
-        app.stage.addChild(container)
         let buildings = [];
         let buildingMoment = false;
         let t;
@@ -46,6 +44,14 @@ import { DrawInfoBlock } from "./testGame.js";
         );
     }
 
+    function distance(object1, object2)
+    {
+        const bounds1 = object1.getBounds();
+        const bounds2 = object2.getBounds();
+
+        return Math.sqrt(((bounds2.x + bounds2.width / 2) - (bounds1.x + bounds1.width / 2)) ** 2 + ((bounds2.y + bounds2.height / 2) - (bounds1.y + bounds1.height / 2)) ** 2);
+    }
+
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
     let texturess = await PIXI.Assets.load('/../imageParser/buildings.json');
     texturess = await PIXI.Assets.load('/../imageParser/farmParser.json');
@@ -53,6 +59,7 @@ import { DrawInfoBlock } from "./testGame.js";
     texturess = await PIXI.Assets.load('/../imageParser/wareHouse.json');
     texturess = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
     texturess = await PIXI.Assets.load('/../imageParser/greenCastle.json');
+    texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
 
     class Cell {
         constructor(ptrTower, placeType)
@@ -177,6 +184,80 @@ import { DrawInfoBlock } from "./testGame.js";
         {
             return this.__placeType;
         }
+    }
+
+    class Destroyer
+    {
+        constructor()
+        {
+            this.__sprite;
+            this.activation = false;
+        }
+
+        initSprite()
+        {
+            this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`hummer.png`));
+            app.stage.addChild(this.__sprite);
+            this.__sprite.scale = 0.8
+            this.__sprite.zIndex = 999999999;
+        }
+
+        activate()
+        {
+            this.activation = true;
+        }
+
+        deactivate()
+        {
+            this.activation = false;
+        }
+
+        click(e)
+        {
+            if (!this.activation)
+            {
+                return;
+            }
+            if (e.buttons === 2 && this.activation)
+            {
+                this.deactivate();
+                this.__sprite.destroy();
+                return;
+            }
+            var min = 999999999999;
+            var minDistBuilding = null;
+            buildings.forEach((building) => {
+                if (intersects(this.__sprite, building) && distance(this.__sprite, building) < min)
+                {
+                    minDistBuilding = building;
+                    min = distance(this.__sprite, building);
+                }
+            })
+            if (minDistBuilding)
+            {
+                for (const cellId in minDistBuilding.__cellsStatus)
+                    {
+                        minDistBuilding.__cellsStatus[cellId].setPtrTower(-1);
+                    }
+                    this.deactivate();
+                    minDistBuilding.__sprite.destroy();
+                    buildings = buildings.filter(item => item !== minDistBuilding);
+                    this.__sprite.destroy();
+                    return;
+            }
+        }
+
+        followMouse(e)
+        {
+            if (this.activation)
+            {
+                const position = {'x': e.clientX, 'y': e.clientY};
+                this.__sprite.x = position.x - this.__sprite.getBounds().width - 10;
+                this.__sprite.y = position.y - this.__sprite.getBounds().height - 25;
+            }
+        }
+
+
     }
 
     class build
@@ -409,6 +490,10 @@ import { DrawInfoBlock } from "./testGame.js";
                 if (cell !== null) {cell.changeType(cell.getType());}
             })
             this.__eCells = [];
+        }
+
+        clearCellsStatus()
+        {
             this.__cellsStatus = {};
         }
 
@@ -509,13 +594,24 @@ import { DrawInfoBlock } from "./testGame.js";
                 }
                 cells.push(cell);
                 j += 1
-                container.addChild(cell.__sprite);
             })
             j = 0;
             i += 1;
         })
     }
     mapReader(worldMatrix)
+
+    const hummer = new Destroyer()
+    document.addEventListener('keypress', (e) => {
+        const key = e.key;
+        if (key === 'z' && !hummer.activation)
+        {
+            hummer.initSprite();
+            hummer.activate();
+            document.addEventListener('mousemove', (e) => hummer.followMouse(e))
+            document.addEventListener('pointerdown', (e) => hummer.click(e))
+        }
+    })
 
     window.addEventListener('keydown', (event) => {
         var key = event.key
@@ -615,6 +711,7 @@ import { DrawInfoBlock } from "./testGame.js";
             if (t)
             {
                 t.clearPatterns();
+                t.clearCellsStatus();
                 t.rotateMatrix(1);
                 t.renderMatrixPattern();
             }
@@ -624,11 +721,32 @@ import { DrawInfoBlock } from "./testGame.js";
             if (t)
             {
                 t.clearPatterns();
+                t.clearCellsStatus();
                 t.rotateMatrix(-1);
                 t.renderMatrixPattern();
             }
         }
     })
+
+    // window.addEventListener('oncontextmenu', (e) => {
+    //     console.log('asdsad');
+    //     e.preventDefault();
+    //     t.clearPatterns();
+    //     delete t.__sprite;
+    // })
+
+    document.addEventListener("pointerdown", function(event) {
+        if (event.button === 2 && buildingMoment) 
+        {
+            event.preventDefault();
+            t.clearPatterns();
+            t.clearCellsStatus();
+            app.stage.on('pointermove', (event) => t.startMouseFollowing(event)).off('pointermove');
+            app.stage.removeChild(t.__sprite);
+            t.__sprite.destroy();
+            buildingMoment = false;
+        }
+      });
 
 
     const timer = new Timer(5000);

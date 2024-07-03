@@ -1,0 +1,17 @@
+{
+    "frames": {
+        "hummer.png": {
+            "frame": { "x": 0, "y": 0, "w": 33, "h": 33 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 33, "h": 33 },
+            "sourceSize": { "w": 3, "h": 33 }
+        }
+    },
+    "meta": {
+        "image": "/../assets/hammerIcon.png",
+        "format": "RGBA8888",
+        "size": { "w": 33, "h": 33 },
+        "scale": "1"
+    }
+}
