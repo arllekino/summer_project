@@ -1,12 +1,11 @@
 // const { setPositionsInIsometric } = require("./pixi");
 
 // import * as PIXI from './pixi.mjs';
-import { DrawInfoBlock } from "./testGame.js";
+import { DrawInfoBlocks } from "./drawInfoBlocks.js";
 import { intersects, distance, cartesianToIsometric } from "./classes/CommonFunctions.js";
 import { Destroyer } from "./classes/destroyer.js"; 
 import { Building } from "./classes/Building.js";
 import { Cell } from "./classes/Cell.js"; 
-import { DrawInfoBlocks } from "./drawInfoBlocks.js";
 import { main } from "./stages.js";
 
 
@@ -21,7 +20,7 @@ import { main } from "./stages.js";
     let selectedBuilding = null;
         const allContainer = DrawInfoBlocks(app);
 
-    DrawInfoBlock(app);
+    DrawInfoBlocks(app);
     DrawBuildingsBlock(app);
 
     function cartesianToScreenFromIsometric(cartX, cartY) {
@@ -95,7 +94,8 @@ import { main } from "./stages.js";
     document.addEventListener('keypress', (e) => {
         const key = e.key;
         if (key === 'z' && !hummer.activation) {
-            
+            hummer.initSprite(app);
+            hummer.activate();
         }
     })
     window.addEventListener('keydown', (event) => {

@@ -281,7 +281,6 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     setTimeout(() => {
         containerCubes.children.forEach((sprite) => {
             const index = arrCubes.findIndex(spriteIndex => spriteIndex === sprite);
-            console.log(index, "oiuytre");
             ButtonCube(sprite, containerDiceRoll, index, blockButtonReRoll);
         });
     }, 1000);
@@ -304,19 +303,16 @@ function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources) {
 }
 
 function MoveCubeOnItsPosition(serialNumberInContainer, sprite, containerDiceRoll) {
-    console.log(serialNumberInContainer, ";;;;;");
 
     const numberOfY = Math.floor(serialNumberInContainer / 6);
     const numberOfX = serialNumberInContainer % 6;
 
-    console.log(containerDiceRoll.height, numberOfY, "12333333");
     const limitX = containerDiceRoll.width * (STEP_WIDTH * numberOfX);
     const limitY = containerDiceRoll.height * (STEP_HEIGHT * numberOfY);
 
     let thisCubeBelow;
     let thisCubeSameHeight;
 
-    console.log(sprite.y, limitY);
     if (sprite.y > limitY) {
         thisCubeBelow = true;
     }
@@ -358,7 +354,6 @@ function MoveCubeOnItsPosition(serialNumberInContainer, sprite, containerDiceRol
 }
 
 function ReRoll(containerDiceRoll, resources) {
-    console.log(arrCubesRight, ":3");
     arrCubesRight.forEach(el => {
         if (el.typeCube === "cubeOfVillage") {
             DeleteResourcesFromVillage(el.numberOfFace, resources);
@@ -431,7 +426,6 @@ function containerCubesMove(containerCubes) {
 }
 
 function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll) {
-    console.log(index, "я туту");
     const ticker = new PIXI.Ticker;
 
     const limitX = containerDiceRoll.width * POSITION_LAST_CUBE_RIGHT.x;
@@ -492,17 +486,16 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
 
 		if (mainCondition) {
             
-            blockButtonReRoll.interactive = true;
-            blockButtonReRoll.buttonMode = true;
-            blockButtonReRoll.cursor = "pointer";
+            // blockButtonReRoll.interactive = true;
+            // blockButtonReRoll.buttonMode = true;
+            // blockButtonReRoll.cursor = "pointer";
 
             spriteCube.addEventListener('click', function handlerForMoveCubeOnItsPosition() {
                 MoveCubeOnItsPosition(index, spriteCube, containerDiceRoll);
-                blockButtonReRoll.interactive = false;
-                blockButtonReRoll.buttonMode = false;
-                blockButtonReRoll.cursor = "default";
+                // blockButtonReRoll.interactive = false;
+                // blockButtonReRoll.buttonMode = false;
+                // blockButtonReRoll.cursor = "default";
                 arrCubesRight = arrCubesRight.filter(item => {
-                    console.log(item.serialNumberInContainer, index);
                     return item.serialNumberInContainer !== index;
                 });
                 if ((POSITION_LAST_CUBE_RIGHT.cubeInRow === 0) && (POSITION_LAST_CUBE_RIGHT.y !== POSITION_LAST_CUBE_RIGHT.startY)) {
@@ -514,7 +507,7 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
                     POSITION_LAST_CUBE_RIGHT.x -= STEP_WIDTH;
                     POSITION_LAST_CUBE_RIGHT.cubeInRow -= 1;
                 }
-                ButtonCube(spriteCube, containerDiceRoll, arrCubesRight, index);
+                ButtonCube(spriteCube, containerDiceRoll, index, blockButtonReRoll);
                 this.removeEventListener('click', handlerForMoveCubeOnItsPosition);
             });
             ticker.destroy();
@@ -527,15 +520,17 @@ function ButtonCube(sprite, containerDiceRoll, index, blockButtonReRoll) {
     sprite.buttonMode = true;
     sprite.interactive = true;
 
-    blockButtonReRoll.interactive = true;
-    blockButtonReRoll.buttonMode = true;
-    blockButtonReRoll.cursor = "pointer";
+    // console.log(blockButtonReRoll, "12132");
+
+    // blockButtonReRoll.interactive = true;
+    // blockButtonReRoll.buttonMode = true;
+    // blockButtonReRoll.cursor = "pointer";
 
     sprite.addEventListener('click', function handlerForSpriteCubeMove() {
         spriteCubeMove(sprite, containerDiceRoll, index, blockButtonReRoll);
-        blockButtonReRoll.interactive = false;
-        blockButtonReRoll.buttonMode = false;
-        blockButtonReRoll.cursor = "default";
+        // blockButtonReRoll.interactive = false;
+        // blockButtonReRoll.buttonMode = false;
+        // blockButtonReRoll.cursor = "default";
         this.removeEventListener('click', handlerForSpriteCubeMove);
     });
 }
