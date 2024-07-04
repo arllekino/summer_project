@@ -10,7 +10,7 @@ export function stageResources(containerForDiceRoll, app) {
         houseVillage: 4,
         houseGrendee: 7,
     }
-    GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll);
+    GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, app);
 }
 
 export function stageDisasters() {
