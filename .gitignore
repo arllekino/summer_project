@@ -8,5 +8,9 @@
 /public/bundles/
 /var/
 /vendor/
+<<<<<<< HEAD
 .env
+=======
+/.env
+>>>>>>> stageResources
 ###< symfony/framework-bundle ###

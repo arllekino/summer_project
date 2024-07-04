@@ -6,6 +6,8 @@ import { intersects, distance, cartesianToIsometric } from "./classes/CommonFunc
 import { Destroyer } from "./classes/destroyer.js"; 
 import { Building } from "./classes/Building.js";
 import { Cell } from "./classes/Cell.js"; 
+import { DrawInfoBlocks } from "./drawInfoBlocks.js";
+import { main } from "./stages.js";
 
 
 (async () => {
@@ -17,6 +19,7 @@ import { Cell } from "./classes/Cell.js";
     let buildingMoment = false;
     let t;
     let selectedBuilding = null;
+        const allContainer = DrawInfoBlocks(app);
 
     DrawInfoBlock(app);
     DrawBuildingsBlock(app);
@@ -91,7 +94,13 @@ import { Cell } from "./classes/Cell.js";
     const hummer = new Destroyer(app)
     document.addEventListener('keypress', (e) => {
         const key = e.key;
-        if (key === 'z' && !hummer.activation)
+        if (key === 'z' && !hummer.activation) {
+            
+        }
+    })
+    window.addEventListener('keydown', (event) => {
+        const key = event.key
+        if (key === 'r' && !buildingMoment)
         {
             hummer.initSprite();
             hummer.activate();
@@ -269,13 +278,9 @@ import { Cell } from "./classes/Cell.js";
         }
       });
 
+    main(allContainer, app);
+
     return {
         stage: app.stage,
     };
 })();
-
-function startBuildingsEventListners()
-{
-    
-}
-
