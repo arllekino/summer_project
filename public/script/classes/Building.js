@@ -1,0 +1,215 @@
+import { Cell } from "./Cell.js"; 
+
+export class Building
+{
+    constructor(app, cells, buildings, hp, defense, buildType, buildPtr, buildingMoment)
+    {
+        this.__hp = hp;
+        this.__defense = defense;
+        this.__buildType = buildType;
+        this.__buildPtr = buildPtr;
+        this.__sprite;
+        this.__peopleCount;
+        this.__droppingResources = [];
+        this.__matrixPattern = [];
+        this.__eCells = [];
+        this.__cellsStatus = {};
+        this.__stopMovingFlag = false;
+        this.__bounds;
+        this.initSprite(app);
+        window.addEventListener('click', () => this.mouseClick(app, buildings));
+        app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells));
+        //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
+    }
+    getHp() {
+        return this.__hp;
+    }
+    setHp(hp) {
+        this.__hp = hp;
+    }
+    getECells() {
+        return this.__eCells;
+    }
+    getDefense() {
+        return this.__defense;
+    }
+    setDefense(defense) {
+        this.__defense = defense;
+    }
+    getPtrTower() {
+        return this.__buildType;
+    }
+    setTowerType(buildType) {
+        this.__buildType = buildType;
+    }
+    initSprite(app) {
+        this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
+        this.__sprite.zIndex = 10000;
+        this.__sprite.alpha = 0.3;
+        app.stage.addChild(this.__sprite);
+    }
+
+    changeTexture(ptr) {
+        this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
+    }
+    setPosition(x, y) {
+        this.__sprite.position.set(x, y);
+        this.__sprite.zIndex = y;
+        this.__bounds = this.__sprite.getBounds();
+    }
+    getBounds() {
+        return this.__bounds;
+    }
+    setPeopleCount(count) {
+        this.__peopleCount = count;
+    }
+    getPeopleCount() {
+        return this.__peopleCount;
+    }
+    getDroppingResources() {
+        return this.__droppingResources;
+    }
+    setDroppingResources(droppingResources) {
+        this.__droppingResources = droppingResources;
+    }
+    getMatrixPattern() {
+        return this.__matrixPattern;
+    }
+    setMatrixPattern(matrix) {
+        this.__matrixPattern = matrix;
+    }
+    renderMatrixPattern(app) {
+        let i = 0;
+        let j = 0;
+        let count = 0;
+        this.__matrixPattern.forEach((row) => {
+            row.forEach((num) => {
+                var cell = null;
+                if (num === 1) {
+                    cell = new Cell(app, this.__buildType, 5);
+                    cell.activate();
+                    this.__cellsStatus[count] = null;
+                    cell.setCellId(count);
+                }
+                this.__eCells.push(cell);
+                j += 1
+                count += 1;
+            })
+            j = 0;
+            i += 1;
+        })
+    }
+
+    startMouseFollowing(event, cells) {
+        let position = event.data.global;
+        if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
+        if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
+        if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50);}
+        if (this.__eCells[3]) {this.__eCells[3].setDirectPositions(position.x + 40 - 50, position.y + 10 - 50);}
+        if (this.__eCells[4]) {this.__eCells[4].setDirectPositions(position.x + 20 - 50, position.y + 20 - 50);}
+        if (this.__eCells[5]) {this.__eCells[5].setDirectPositions(position.x - 50, position.y + 30 - 50);}
+        if (this.__eCells[6]) {this.__eCells[6].setDirectPositions(position.x + 60 - 50, position.y + 20 - 50);}
+        if (this.__eCells[7]) {this.__eCells[7].setDirectPositions(position.x + 40 - 50, position.y + 30 - 50);}
+        if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50);}
+        this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
+        this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
+        cells.forEach((cell) => {
+            cell.changeType(cell.getType());
+            this.__eCells.forEach((eCell => {
+                // this.__cellsStatus[eCell.getCellId()] = null
+                if ((eCell !== null) && (cell.intersectWithCell(eCell))) {
+                    cell.errorField();
+                    this.__cellsStatus[eCell.getCellId()] = null
+                    if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
+                        cell.okField();
+                    }
+                    this.__cellsStatus[eCell.getCellId()] = cell;
+                }
+            }));
+        });
+    }
+
+    rotateMatrix(direction) {
+        if (direction == 1) {
+            const rotatedMatrix = [];
+            for (let i = 0; i < this.__matrixPattern[0].length; i++) {
+                const column = this.__matrixPattern.map(row => row[i]);
+                rotatedMatrix.push(column.reverse());
+            }
+            this.__matrixPattern = rotatedMatrix;
+            if (this.__buildPtr % 4 == 0) {
+                this.__buildPtr -= 3;
+                this.changeTexture(this.__buildPtr)
+            }
+            else {
+                this.__buildPtr += 1;
+                this.changeTexture(this.__buildPtr);
+            }
+        }
+        else if (direction == -1) {
+            const rotatedMatrix = [];
+            for (let i = this.__matrixPattern[0].length - 1; i >= 0; i--) {
+                const column = this.__matrixPattern.map(row => row[i]);
+                rotatedMatrix.push(column);
+            }
+            this.__matrixPattern = rotatedMatrix;
+            if ((this.__buildPtr - 1) % 4 == 0) {
+                this.__buildPtr += 3;
+                this.changeTexture(this.__buildPtr)
+            }
+            else {
+                this.__buildPtr -= 1;
+                this.changeTexture(this.__buildPtr);
+            }
+        }
+    }
+
+    buildBuilding(app, buildings, buildingMoment) {
+        const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
+        if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
+            Object.values(this.__cellsStatus).forEach(element => {
+                element.setPtrTower(this.__buildType);
+                element.setPtrTower(this.getPtrTower());
+            });
+            this.__stopMovingFlag = true;
+            app.stage.on('pointermove', (event) => this.startMouseFollowing(event)).off('pointermove');
+            this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
+            this.clearPatterns();
+            this.__sprite.zIndex = this.__sprite.y;
+            this.__sprite.alpha = 1;
+            if (buildingMoment) {
+                buildingMoment = false;
+            };
+            buildings.push(this);
+            // selectedBuilding.tint = 0xffffff;
+        }
+    }
+
+    clearPatterns() {
+        this.__eCells.forEach(cell => {
+            if (cell !== null) {
+                //cell.getSprite().parent.removeChild(cell.getSprite());
+                for (let property in cell) {
+                    delete cell[property]
+                }
+                cell = null;
+            }
+        })
+        console.log(this.__cellsStatus);
+        Object.values(this.__cellsStatus).forEach(cell => {
+            if (cell !== null) { console.log(cell.getType()); cell.changeType(cell.getType());}
+        })
+        this.__eCells = [];
+    }
+
+    clearCellsStatus()
+    {
+        this.__cellsStatus = {};
+    }
+
+    mouseClick(app, buildings, buildingMoment) {
+        if (!this.__stopMovingFlag) {
+            this.buildBuilding(app, buildings, buildingMoment);
+        }
+    }
+}
