@@ -23,7 +23,7 @@ export function stageDisasters() {
 export async function stageBuilding(app, selectedBuilding, cells, buildings, buildingMoment, t, resources) {
 
     const hummer = new Destroyer(app)
-    AddEventListenersForHammer(hummer, buildings, buildingMoment, app, Game.stage, resources);
+    AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app);
 
     const handleKeyDown = (event) => {
         const key = event.key;

@@ -1,4 +1,5 @@
 import { intersects, distance } from "./CommonFunctions.js";
+import { Game } from "./game.js";
 
 export class Destroyer
     {
@@ -82,17 +83,17 @@ export class Destroyer
         }
 }
 
-export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, stage) {
+export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app) {
     document.addEventListener('keypress', (e) => {
         const key = e.key;
-        if (key === 'z' && !hummer.activation && stage === 3) {
+        if (key === 'z' && !hummer.activation && Game.stage === 3) {
             hummer.initSprite(app);
             hummer.activate();
         }
     })
     window.addEventListener('keydown', (event) => {
         const key = event.key
-        if (key === 'r' && !buildingMoment.isContctructionGoingNow && stage === 3)
+        if (key === 'r' && !buildingMoment.isContctructionGoingNow && Game.stage === 3)
         {
             hummer.initSprite();
             hummer.activate();
