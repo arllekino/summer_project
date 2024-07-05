@@ -107,7 +107,7 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	blockButtonReRoll.y = container.height * percentageScreenHeightButtonReRoll;
 }
 
-export async function DrawBlockBuildings(container, app, selectedBuilding, cells, buildings, buildingMoment, t) {
+export async function DrawBlockBuildings(container, app, island) {
 	const textureBackground = await PIXI.Assets.load(
 		"/../assets/textures/BuildingsPanel.svg",
 	);
@@ -139,51 +139,51 @@ export async function DrawBlockBuildings(container, app, selectedBuilding, cells
 			if (Game.stage !== 3) {
 				return;
 			}
-			if (selectedBuilding.buildingSprite) {
-				selectedBuilding.buildingSprite.tint = 0xffffff;
+			if (island.buildingSprite) {
+				island.buildingSprite.tint = 0xffffff;
 			}
-			selectedBuilding.buildingSprite = buildingSprite;
-			selectedBuilding.buildingSprite.tint = 0x00ff00
+			island.buildingSprite = buildingSprite;
+			island.buildingSprite.tint = 0x00ff00
 
 			if ((textureName === 'richHouse.png')) {
-				t.buldingObject = new Building(app, cells, buildings, 100, 0, 2, 5, buildingMoment.isContctructionGoingNow);
-				t.buldingObject.setMatrixPattern([
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 2, 5, island.buildingMoment);
+				island.buldingObject.setMatrixPattern([
 					[0, 0, 0],
 					[0, 1, 0],
 					[1, 1, 0],
 				])
-				t.buldingObject.renderMatrixPattern(app);
-				buildingMoment.isContctructionGoingNow = true
+				island.buldingObject.renderMatrixPattern(app);
+				island.buildingMoment.isContctructionGoingNow = true
 			}
 			if ((textureName === 'farm.png')) {
-				t.buldingObject = new Building(app, cells, buildings, 100, 0, 1, 1, buildingMoment.isContctructionGoingNow);
-				t.buldingObject.setMatrixPattern([
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 1, 1, island.buildingMoment);
+				island.buldingObject.setMatrixPattern([
 					[1, 1, 0],
 					[1, 1, 0],
 					[1, 1, 0],
 				])
-				t.buldingObject.renderMatrixPattern(app);
-				buildingMoment.isContctructionGoingNow = true
+				island.buldingObject.renderMatrixPattern(app);
+				island.buildingMoment.isContctructionGoingNow = true
 			}
 			if ((textureName === 'warehouse.png')) {
-				t.buldingObject = new Building(app, cells, buildings, 100, 0, 3, 9, buildingMoment.isContctructionGoingNow);
-				t.buldingObject.setMatrixPattern([
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 9, island.buildingMoment);
+				island.buldingObject.setMatrixPattern([
 					[1, 1, 0],
 					[1, 1, 0],
 					[1, 1, 0],
 				])
-				t.buldingObject.renderMatrixPattern(app);
-				buildingMoment.isContctructionGoingNow = true
+				island.buldingObject.renderMatrixPattern(app);
+				island.buildingMoment = true
 			}
 			if ((textureName === 'house.png')) {
-				t.buldingObject = new Building(app, cells, buildings, 100, 0, 3, 13, buildingMoment.isContctructionGoingNow);
-				t.buldingObject.setMatrixPattern([
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 13, island.buildingMoment);
+				island.buldingObject.setMatrixPattern([
 					[0, 0, 0],
 					[0, 1, 0],
 					[0, 0, 0],
 				])
-				t.buldingObject.renderMatrixPattern(app);
-				buildingMoment.isContctructionGoingNow = true
+				island.buldingObject.renderMatrixPattern(app);
+				island.buildingMoment = true
 			}
 		});
 
@@ -196,10 +196,10 @@ export async function DrawBlockBuildings(container, app, selectedBuilding, cells
 	}
 }
 
-export function DrawBuildingsBlock(app, selectedBuilding, cells, buildings, buildingMoment, t) {
+export function DrawBuildingsBlock(app, island) {
 	const containerForBuilding = new PIXI.Container();
 	app.stage.addChild(containerForBuilding);
-	DrawBlockBuildings(containerForBuilding, app, selectedBuilding, cells, buildings, buildingMoment, t);
+	DrawBlockBuildings(containerForBuilding, app, island);
 }
 
 export function DrawInfoBlocks(app) {

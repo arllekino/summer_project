@@ -84,6 +84,7 @@ export class Destroyer
 }
 
 export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app) {
+    console.log(resources);
     document.addEventListener('keypress', (e) => {
         const key = e.key;
         if (key === 'z' && !hummer.activation && Game.stage === 3) {

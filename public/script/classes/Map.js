@@ -1,5 +1,17 @@
-import { Cell } from "./classes/Cell.js";
-import { Resource } from "./classes/Resource.js";
+import { Cell } from "./Cell.js";
+import { Resource } from "./Resource.js";
+
+const TResources = {
+    wheat: 0,
+    wood: 0,
+    stone: 0,
+    wars: 0,
+    inhabitants: 0,
+    hammer: 0,
+    money: 0,
+    books: 0,
+    skulls: 0,
+}
 
 export let worldMatrix = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
@@ -24,8 +36,7 @@ export let worldMatrix = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
 ];
 
-export let cells = [];
-export function mapReader(worldMatrix, app, resources) {
+function mapReader(worldMatrix, cells, app, resources) {
     let i = 0;
     let j = 0;
     worldMatrix.forEach((row) => {
@@ -57,4 +68,18 @@ export function mapReader(worldMatrix, app, resources) {
         j = 0;
         i += 1;
     })
+}
+
+export function CreateIsland(worldMatrix) {
+    return {
+        resourcesOfUser: TResources,
+        matrixOfIsland: worldMatrix,
+        cells: [],
+        mapReader: mapReader,
+        resourcesOnIsland: [],
+        buildings: [],
+        buildingMoment: false,
+        buldingObject: null,
+        buildingSprite: null,
+    }
 }

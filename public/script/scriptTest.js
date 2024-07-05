@@ -1,6 +1,6 @@
 import { DrawInfoBlocks, DrawBuildingsBlock } from "./drawInfoBlocks.js";
-import { mapReader, worldMatrix, cells } from "./renderMap.js";
 import { main } from "./stages.js";
+import { CreateIsland, worldMatrix } from "./classes/Map.js";
 
 (async () => {
     const app = new PIXI.Application();
@@ -9,20 +9,10 @@ import { main } from "./stages.js";
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);
 
-    let buildings = [];
-    const buildingMoment = {
-        isContctructionGoingNow: false,
-    };
-    let resources = []
-
-    const t = {
-        buldingObject: null,
-    };
-    const selectedBuilding = {
-        buildingSprite: null,
-    };
+    const island = CreateIsland(worldMatrix);
+    const island123 = CreateIsland(worldMatrix);
     
-    DrawBuildingsBlock(app, selectedBuilding, cells, buildings, buildingMoment, t);
+    DrawBuildingsBlock(app, island);
     const allContainer = DrawInfoBlocks(app);
     
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
@@ -35,9 +25,10 @@ import { main } from "./stages.js";
     texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
     texturess = await PIXI.Assets.load('/../imageParser/resources.json');
 
-    mapReader(worldMatrix, app, resources);
+    island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland);
+    island123.mapReader(island123.matrixOfIsland, island123.cells, app, island123.resourcesOnIsland);
 
-    main(allContainer, app, selectedBuilding, cells, buildings, buildingMoment, t, resources);    
+    main(allContainer, app, island);    
 
     return {
         stage: app.stage,

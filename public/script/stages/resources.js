@@ -203,19 +203,7 @@ async function AddIconInInfoBlock(
 	containerCubes.addChild(icon);
 }
 
-export async function GetResources(buildings, containerCubes, containerDiceRoll, blockButtonReRoll, app) {
-    const resources = {
-        wheat: 0,
-        wood: 0,
-        stone: 0,
-        wars: 0,
-        inhabitants: 0,
-        hammer: 0,
-        money: 0,
-        books: 0,
-        skulls: 0,
-    }
-
+export async function GetResources(buildings, containerCubes, containerDiceRoll, blockButtonReRoll, resources) {
     const arrCubes = [];
 
     const startPositionWidth = 0;
