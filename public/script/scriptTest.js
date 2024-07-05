@@ -6,6 +6,7 @@ import { intersects, distance, cartesianToIsometric } from "./classes/CommonFunc
 import { Destroyer } from "./classes/destroyer.js"; 
 import { Building } from "./classes/Building.js";
 import { Cell } from "./classes/Cell.js"; 
+import { Resource } from "./classes/Resource.js";
 
 
 (async () => {
@@ -14,6 +15,7 @@ import { Cell } from "./classes/Cell.js";
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);
     let buildings = [];
+    let resources = []
     let buildingMoment = false;
     let t;
     let selectedBuilding = null;
@@ -36,6 +38,7 @@ import { Cell } from "./classes/Cell.js";
     texturess = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
     texturess = await PIXI.Assets.load('/../imageParser/greenCastle.json');
     texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
+    texturess = await PIXI.Assets.load('/../imageParser/resources.json');
 
     class game {
         constructor() {
@@ -48,12 +51,12 @@ import { Cell } from "./classes/Cell.js";
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 3, 4, 4, 4, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 3, 3, 3, 3, 4, 4, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
+        [0, 0, 3, 3, 3, 3, 3, 4, 4, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
         [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0,],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 0,],
+        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 2, 2, 2, 0,],
         [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0,],
         [0, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 2, 0, 0,],
         [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0,],
@@ -66,18 +69,32 @@ import { Cell } from "./classes/Cell.js";
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
     ];
 
-
     let cells = [];
     function mapReader(worldMatrix) {
         let i = 0;
         let j = 0;
         worldMatrix.forEach((row) => {
             row.forEach((num) => {
-                var cell = new Cell(app, -1, num);
+                if (num < 3)
+                {
+                    var cell = new Cell(app, -1, num);
+                }
+                else
+                {
+                    var cell = new Cell(app, 9, 1);
+                    var resource = new Resource(app, num - 2)
+                    resource.__cellsStatus['-1'] = cell;
+                }
                 cell.__sprite.zIndex = -999;
                 cell.setPositionsInIsometric(500 + 20 * i, -500 + 20 * j);
                 if (i % 2 == 0) {
                     cell.setPositionsInIsometric(500 + 20 * i, -500 + 20 * j);
+                }
+                if (resource)
+                {
+                    resource.setPosition(cell.getBounds().x + cell.getBounds().width / 2, cell.getBounds().y + cell.getBounds().height / 2 - 7)
+                    resource.setZIndex(resource.getBounds().y - 15);
+                    resources.push(resource);
                 }
                 cells.push(cell);
                 j += 1
@@ -98,7 +115,7 @@ import { Cell } from "./classes/Cell.js";
         }
     })
     document.addEventListener('mousemove', (e) => hummer.followMouse(e))
-    document.addEventListener('pointerdown', (e) => hummer.click(e, buildings))
+    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources))
     
     async function DrawBlockBuildings(container, app) {
         const textureBackground = await PIXI.Assets.load(
@@ -213,6 +230,11 @@ import { Cell } from "./classes/Cell.js";
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x - 50, build.getBounds().y)
             })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x - 50, resource.getBounds().y);
+                resource.setAnchor(0.5);
+            })
         }
         else if (key === 'w') {
             cells.forEach(cell => {
@@ -220,6 +242,11 @@ import { Cell } from "./classes/Cell.js";
             })
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x, build.getBounds().y - 50)
+            })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x, resource.getBounds().y - 50)
+                resource.setAnchor(0.5);
             })
         }
         else if (key === 'd') {
@@ -229,6 +256,11 @@ import { Cell } from "./classes/Cell.js";
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x + 50, build.getBounds().y)
             })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x + 50, resource.getBounds().y)
+                resource.setAnchor(0.5);
+            })
         }
         else if (key === 's') {
             cells.forEach(cell => {
@@ -236,6 +268,11 @@ import { Cell } from "./classes/Cell.js";
             })
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x, build.getBounds().y + 50)
+            })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x, resource.getBounds().y + 50)
+                resource.setAnchor(0.5);
             })
         }
     };
@@ -268,14 +305,13 @@ import { Cell } from "./classes/Cell.js";
             buildingMoment = false;
         }
       });
+    
+    
 
     return {
         stage: app.stage,
     };
 })();
 
-function startBuildingsEventListners()
-{
-    
-}
+
 

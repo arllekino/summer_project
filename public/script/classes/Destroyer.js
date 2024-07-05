@@ -27,7 +27,7 @@ export class Destroyer
             this.activation = false;
         }
 
-        click(e, buildings)
+        click(e, objects, buildings, resources)
         {
             if (!this.activation)
             {
@@ -40,26 +40,34 @@ export class Destroyer
                 return;
             }
             var min = 999999999999;
-            var minDistBuilding = null;
-            buildings.forEach((building) => {
-                if (intersects(this.__sprite, building) && distance(this.__sprite, building) < min)
+            var minDistObject = null;
+            objects.forEach((object) => {
+                if (intersects(this.__sprite, object) && distance(this.__sprite, object) < min)
                 {
-                    minDistBuilding = building;
-                    min = distance(this.__sprite, building);
+                    minDistObject = object;
+                    min = distance(this.__sprite, object);
                 }
             })
-            if (minDistBuilding)
+            if (minDistObject)
             {
-                for (const cellId in minDistBuilding.__cellsStatus)
-                    {
-                        minDistBuilding.__cellsStatus[cellId].setPtrTower(-1);
-                        console.log(minDistBuilding.__cellsStatus);
-                    }
-                    this.deactivate();
-                    minDistBuilding.__sprite.destroy();
-                    buildings.splice(buildings.indexOf(minDistBuilding), 1);
-                    this.__sprite.destroy();
+                this.__sprite.destroy();
+                this.deactivate();
+                console.log(minDistObject.__cellsStatus);
+                if (minDistObject.__cellsStatus['-1'])
+                {
+                    minDistObject.sprite.destroy();
+                    minDistObject.__cellsStatus['-1'].setPtrTower(-1)
+                    resources.splice(resources.indexOf(minDistObject), 1);
                     return;
+                }
+                for (const cellId in minDistObject.__cellsStatus)
+                {
+                    minDistObject.__cellsStatus[cellId].setPtrTower(-1);
+                    console.log(minDistObject.__cellsStatus);
+                }
+                minDistObject.__sprite.destroy();
+                buildings.splice(buildings.indexOf(minDistObject), 1);
+                return;
             }
             
         }
