@@ -195,9 +195,8 @@ export class Building
                 cell = null;
             }
         })
-        console.log(this.__cellsStatus);
         Object.values(this.__cellsStatus).forEach(cell => {
-            if (cell !== null) { console.log(cell.getType()); cell.changeType(cell.getType());}
+            if (cell !== null) { cell.changeType(cell.getType());}
         })
         this.__eCells = [];
     }

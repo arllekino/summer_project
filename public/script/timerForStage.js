@@ -49,7 +49,7 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
 
         wheelBlock.addEventListener("click", function Ready() {
             clearInterval(timer);
-            resolve();
+            RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
             textTimer.text = "";
             Game.playerReady = true;
             this.removeEventListener("click", Ready);

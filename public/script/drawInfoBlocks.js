@@ -185,7 +185,6 @@ export async function DrawBlockBuildings(container, app, selectedBuilding, cells
 				t.buldingObject.renderMatrixPattern(app);
 				buildingMoment.isContctructionGoingNow = true
 			}
-			console.log(buildingMoment)
 		});
 
 		buildingsContainer.addChild(buildingSprite);

@@ -290,11 +290,11 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     }, 1000);
 
     setTimeout(() => {
-        ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources, app);
+        ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources);
     }, 1000);
 }
 
-function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources, app) {
+function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources) {
     blockButtonReRoll.interactive = true;
     blockButtonReRoll.buttonMode = true;
     blockButtonReRoll.cursor = "pointer";
@@ -304,7 +304,10 @@ function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources, app) {
             ReRoll(containerDiceRoll, resources, resolve);
         });
         await Promise.all([promise]);
-        stateOfReRollCube.hasCubeBeenMoved = true;
+        if (arrCubesRight.length !== 0) {
+            arrCubesRight = [];
+            stateOfReRollCube.hasCubeBeenMoved = true;
+        }
     }
 
     blockButtonReRoll.on("pointerdown", ReRollMain);
@@ -415,7 +418,6 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             }, 1000);
         }
     });
-    arrCubesRight = [];
     POSITION_LAST_CUBE_RIGHT.x = POSITION_LAST_CUBE_RIGHT.startX;
     POSITION_LAST_CUBE_RIGHT.cubeInRow = 0;
     POSITION_LAST_CUBE_RIGHT.y = POSITION_LAST_CUBE_RIGHT.startY;

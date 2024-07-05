@@ -53,7 +53,6 @@ export class Destroyer
                 for (const cellId in minDistBuilding.__cellsStatus)
                     {
                         minDistBuilding.__cellsStatus[cellId].setPtrTower(-1);
-                        console.log(minDistBuilding.__cellsStatus);
                     }
                     this.deactivate();
                     minDistBuilding.__sprite.destroy();
