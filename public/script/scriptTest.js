@@ -13,6 +13,7 @@ import { main } from "./stages.js";
     const buildingMoment = {
         isContctructionGoingNow: false,
     };
+    let resources = []
 
     const t = {
         buldingObject: null,
@@ -32,10 +33,11 @@ import { main } from "./stages.js";
     texturess = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
     texturess = await PIXI.Assets.load('/../imageParser/greenCastle.json');
     texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
+    texturess = await PIXI.Assets.load('/../imageParser/resources.json');
 
-    mapReader(worldMatrix, app);
+    mapReader(worldMatrix, app, resources);
 
-    main(allContainer, app, selectedBuilding, cells, buildings, buildingMoment, t);
+    main(allContainer, app, selectedBuilding, cells, buildings, buildingMoment, t, resources);    
 
     return {
         stage: app.stage,

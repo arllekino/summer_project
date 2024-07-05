@@ -20,10 +20,10 @@ export function stageDisasters() {
     console.log("disasters");
 }
 
-export async function stageBuilding(app, selectedBuilding, cells, buildings, buildingMoment, t) {
+export async function stageBuilding(app, selectedBuilding, cells, buildings, buildingMoment, t, resources) {
 
     const hummer = new Destroyer(app)
-    AddEventListenersForHammer(hummer, buildings, buildingMoment, app, Game.stage);
+    AddEventListenersForHammer(hummer, buildings, buildingMoment, app, Game.stage, resources);
 
     const handleKeyDown = (event) => {
         const key = event.key;
@@ -64,7 +64,7 @@ export function stageBattles() {
     console.log("battles");
 }
 
-export async function main(allContainer, app, selectedBuilding, cells, buildings, buildingMoment, t) {
+export async function main(allContainer, app, selectedBuilding, cells, buildings, buildingMoment, t, resources) {
     allContainer.wheelBlock.interactive = true;
     allContainer.wheelBlock.buttonMode = true;
     allContainer.wheelBlock.cursor = "pointer";
@@ -78,6 +78,11 @@ export async function main(allContainer, app, selectedBuilding, cells, buildings
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x - 50, build.getBounds().y)
             })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x - 50, resource.getBounds().y);
+                resource.setAnchor(0.5);
+            })
         }
         else if (key === 'w' && Game.stage !== 1) {
             cells.forEach(cell => {
@@ -85,6 +90,11 @@ export async function main(allContainer, app, selectedBuilding, cells, buildings
             })
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x, build.getBounds().y - 50)
+            })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x, resource.getBounds().y - 50)
+                resource.setAnchor(0.5);
             })
         }
         else if (key === 'd' && Game.stage !== 1) {
@@ -94,6 +104,11 @@ export async function main(allContainer, app, selectedBuilding, cells, buildings
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x + 50, build.getBounds().y)
             })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x + 50, resource.getBounds().y)
+                resource.setAnchor(0.5);
+            })
         }
         else if (key === 's' && Game.stage !== 1) {
             cells.forEach(cell => {
@@ -101,6 +116,11 @@ export async function main(allContainer, app, selectedBuilding, cells, buildings
             })
             buildings.forEach(build => {
                 build.setPosition(build.getBounds().x, build.getBounds().y + 50)
+            })
+            resources.forEach(resource => {
+                resource.setAnchor(0);
+                resource.setPosition(resource.getBounds().x, resource.getBounds().y + 50)
+                resource.setAnchor(0.5);
             })
         }
     }
@@ -141,7 +161,7 @@ export async function main(allContainer, app, selectedBuilding, cells, buildings
 
         Game.stage++;
 
-        stageBuilding(app, selectedBuilding, cells, buildings, buildingMoment, t);
+        stageBuilding(app, selectedBuilding, cells, buildings, buildingMoment, t, resources);
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app);
         })

@@ -1,0 +1,24 @@
+{
+    "frames": {
+        "resource_1.png": {
+            "frame": { "x": 0, "y": 0, "w": 105, "h": 100 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 105, "h": 100 },
+            "sourceSize": { "w": 105, "h": 100 }
+        },
+        "resource_2.png": {
+            "frame": { "x": 105, "y": 0, "w": 105, "h": 100 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 105, "h": 100 },
+            "sourceSize": { "w": 105, "h": 100 }
+        }
+    },
+    "meta": {
+        "image": "/../assets/resourcesSprite.png",
+        "format": "RGBA8888",
+        "size": { "w": 210, "h": 100 },
+        "scale": "1"
+    }
+}
