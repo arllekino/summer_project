@@ -61,7 +61,6 @@ export class Destroyer
                     this.__sprite.destroy();
                     return;
             }
-            
         }
 
         followMouse(e)
@@ -73,6 +72,24 @@ export class Destroyer
                 this.__sprite.y = position.y - this.__sprite.getBounds().height - 25;
             }
         }
+}
 
-
-    }
+export function AddEventListenersForHammer(hummer, buildings, buildingMoment, app, stage) {
+    document.addEventListener('keypress', (e) => {
+        const key = e.key;
+        if (key === 'z' && !hummer.activation && stage === 3) {
+            hummer.initSprite(app);
+            hummer.activate();
+        }
+    })
+    window.addEventListener('keydown', (event) => {
+        const key = event.key
+        if (key === 'r' && !buildingMoment.isContctructionGoingNow && stage === 3)
+        {
+            hummer.initSprite();
+            hummer.activate();
+        }
+    })
+    document.addEventListener('mousemove', (e) => hummer.followMouse(e), true)
+    document.addEventListener('pointerdown', (e) => hummer.click(e, buildings), true)
+}

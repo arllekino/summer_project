@@ -9,6 +9,10 @@ const POSITION_LAST_CUBE_RIGHT = {
     cubeInRow: 0,
 }
 
+const stateOfReRollCube = {
+    hasCubeBeenMoved: false,
+}
+
 let arrCubesRight = [];
 
 function ChooseRandomFaceOFCube() {
@@ -199,7 +203,7 @@ async function AddIconInInfoBlock(
 	containerCubes.addChild(icon);
 }
 
-export async function GetResources(buildings, containerCubes, containerDiceRoll, blockButtonReRoll) {
+export async function GetResources(buildings, containerCubes, containerDiceRoll, blockButtonReRoll, app) {
     const resources = {
         wheat: 0,
         wood: 0,
@@ -286,17 +290,21 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     }, 1000);
 
     setTimeout(() => {
-        ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources);
+        ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources, app);
     }, 1000);
 }
 
-function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources) {
+function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources, app) {
     blockButtonReRoll.interactive = true;
     blockButtonReRoll.buttonMode = true;
     blockButtonReRoll.cursor = "pointer";
 
-    function ReRollMain() {
-        ReRoll(containerDiceRoll, resources);
+    async function ReRollMain() {
+        const promise = new Promise((resolve) => {
+            ReRoll(containerDiceRoll, resources, resolve);
+        });
+        await Promise.all([promise]);
+        stateOfReRollCube.hasCubeBeenMoved = true;
     }
 
     blockButtonReRoll.on("pointerdown", ReRollMain);
@@ -333,17 +341,17 @@ function MoveCubeOnItsPosition(serialNumberInContainer, sprite, containerDiceRol
         if (thisCubeBelow && !thisCubeSameHeight) {
             mainCondition = condiotionOnX && condiotionOnYBelow;
             if (!condiotionOnYBelow) {
-                sprite.y -= 2 * time.deltaTime;
+                sprite.y -= 5 * time.deltaTime;
             }
         }
         else if (!thisCubeBelow && !thisCubeSameHeight) {
             mainCondition = condiotionOnX && condiotionOnYNotBelow;
             if (!condiotionOnYNotBelow) {
-                sprite.y += 2 * time.deltaTime;
+                sprite.y += 5 * time.deltaTime;
             }
         }
         if (!condiotionOnX) {
-            sprite.x -= 4 * time.deltaTime;
+            sprite.x -= 8 * time.deltaTime;
         }
 
 		if (mainCondition) {
@@ -353,7 +361,7 @@ function MoveCubeOnItsPosition(serialNumberInContainer, sprite, containerDiceRol
     ticker.start();
 }
 
-function ReRoll(containerDiceRoll, resources) {
+function ReRoll(containerDiceRoll, resources, resolve) {
     arrCubesRight.forEach(el => {
         if (el.typeCube === "cubeOfVillage") {
             DeleteResourcesFromVillage(el.numberOfFace, resources);
@@ -411,6 +419,7 @@ function ReRoll(containerDiceRoll, resources) {
     POSITION_LAST_CUBE_RIGHT.x = POSITION_LAST_CUBE_RIGHT.startX;
     POSITION_LAST_CUBE_RIGHT.cubeInRow = 0;
     POSITION_LAST_CUBE_RIGHT.y = POSITION_LAST_CUBE_RIGHT.startY;
+    resolve();
 }
 
 function containerCubesMove(containerCubes) {
@@ -431,6 +440,15 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
     const limitX = containerDiceRoll.width * POSITION_LAST_CUBE_RIGHT.x;
     const limitY = containerDiceRoll.height * POSITION_LAST_CUBE_RIGHT.y;
 
+    POSITION_LAST_CUBE_RIGHT.x += STEP_WIDTH;
+        POSITION_LAST_CUBE_RIGHT.cubeInRow += 1;
+
+    if (POSITION_LAST_CUBE_RIGHT.cubeInRow === 6) {
+        POSITION_LAST_CUBE_RIGHT.cubeInRow = 0;
+        POSITION_LAST_CUBE_RIGHT.y += STEP_HEIGHT;
+        POSITION_LAST_CUBE_RIGHT.x = POSITION_LAST_CUBE_RIGHT.startX;
+    }
+
     let thisCubeBelow;
     let thisCubeSameHeight = false;
     if (spriteCube.y > POSITION_LAST_CUBE_RIGHT.y) {
@@ -441,15 +459,6 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
     }
     else if (spriteCube.y === POSITION_LAST_CUBE_RIGHT.y) {
         thisCubeSameHeight = true;
-    }
-
-    POSITION_LAST_CUBE_RIGHT.x += STEP_WIDTH;
-    POSITION_LAST_CUBE_RIGHT.cubeInRow += 1;
-
-    if (POSITION_LAST_CUBE_RIGHT.cubeInRow === 6) {
-        POSITION_LAST_CUBE_RIGHT.cubeInRow = 0;
-        POSITION_LAST_CUBE_RIGHT.y += STEP_HEIGHT;
-        POSITION_LAST_CUBE_RIGHT.x = POSITION_LAST_CUBE_RIGHT.startX;
     }
 
     const arrPathTexture = spriteCube._texture.label.split("/");
@@ -485,29 +494,33 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
         }
 
 		if (mainCondition) {
-            
             // blockButtonReRoll.interactive = true;
             // blockButtonReRoll.buttonMode = true;
             // blockButtonReRoll.cursor = "pointer";
 
             spriteCube.addEventListener('click', function handlerForMoveCubeOnItsPosition() {
-                MoveCubeOnItsPosition(index, spriteCube, containerDiceRoll);
-                // blockButtonReRoll.interactive = false;
-                // blockButtonReRoll.buttonMode = false;
-                // blockButtonReRoll.cursor = "default";
-                arrCubesRight = arrCubesRight.filter(item => {
-                    return item.serialNumberInContainer !== index;
-                });
-                if ((POSITION_LAST_CUBE_RIGHT.cubeInRow === 0) && (POSITION_LAST_CUBE_RIGHT.y !== POSITION_LAST_CUBE_RIGHT.startY)) {
-                    POSITION_LAST_CUBE_RIGHT.x += STEP_WIDTH * 6;
-                    POSITION_LAST_CUBE_RIGHT.y -= STEP_HEIGHT;
-                    POSITION_LAST_CUBE_RIGHT.cubeInRow = 6;
+                if (!stateOfReRollCube.hasCubeBeenMoved) {
+                    MoveCubeOnItsPosition(index, spriteCube, containerDiceRoll);
+                    // blockButtonReRoll.interactive = false;
+                    // blockButtonReRoll.buttonMode = false;
+                    // blockButtonReRoll.cursor = "default";
+                    arrCubesRight = arrCubesRight.filter(item => {
+                        return item.serialNumberInContainer !== index;
+                    });
+                    if ((POSITION_LAST_CUBE_RIGHT.cubeInRow === 0) && (POSITION_LAST_CUBE_RIGHT.y !== POSITION_LAST_CUBE_RIGHT.startY)) {
+                        POSITION_LAST_CUBE_RIGHT.x += STEP_WIDTH * 6;
+                        POSITION_LAST_CUBE_RIGHT.y -= STEP_HEIGHT;
+                        POSITION_LAST_CUBE_RIGHT.cubeInRow = 6;
+
+                        POSITION_LAST_CUBE_RIGHT.x -= STEP_WIDTH;
+                        POSITION_LAST_CUBE_RIGHT.cubeInRow -= 1;
+                    }
+                    else {
+                        POSITION_LAST_CUBE_RIGHT.x -= STEP_WIDTH;
+                        POSITION_LAST_CUBE_RIGHT.cubeInRow -= 1;
+                    }
+                    ButtonCube(spriteCube, containerDiceRoll, index, blockButtonReRoll);
                 }
-                else {
-                    POSITION_LAST_CUBE_RIGHT.x -= STEP_WIDTH;
-                    POSITION_LAST_CUBE_RIGHT.cubeInRow -= 1;
-                }
-                ButtonCube(spriteCube, containerDiceRoll, index, blockButtonReRoll);
                 this.removeEventListener('click', handlerForMoveCubeOnItsPosition);
             });
             ticker.destroy();
@@ -520,14 +533,15 @@ function ButtonCube(sprite, containerDiceRoll, index, blockButtonReRoll) {
     sprite.buttonMode = true;
     sprite.interactive = true;
 
-    // console.log(blockButtonReRoll, "12132");
-
     // blockButtonReRoll.interactive = true;
     // blockButtonReRoll.buttonMode = true;
     // blockButtonReRoll.cursor = "pointer";
 
     sprite.addEventListener('click', function handlerForSpriteCubeMove() {
-        spriteCubeMove(sprite, containerDiceRoll, index, blockButtonReRoll);
+        if (!stateOfReRollCube.hasCubeBeenMoved) {
+            spriteCubeMove(sprite, containerDiceRoll, index, blockButtonReRoll);
+        }
+        
         // blockButtonReRoll.interactive = false;
         // blockButtonReRoll.buttonMode = false;
         // blockButtonReRoll.cursor = "default";

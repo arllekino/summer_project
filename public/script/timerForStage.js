@@ -1,3 +1,5 @@
+import { Game } from "./classes/game.js";
+
 function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     const ticker = new PIXI.Ticker;
     let rotation = 0;
@@ -36,6 +38,7 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
 
     const textTimer = new PIXI.Text();
+    textTimer.style.fill = 0xFFFFFF;
     const percentageScreenWidthLeft = 0.494;
 	const percentageScreenHeightLeft = 0.02;
     textTimer.x = app.screen.width * percentageScreenWidthLeft;
@@ -43,6 +46,15 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
     app.stage.addChild(textTimer);
 
     const timer = setInterval(() => {
+
+        wheelBlock.addEventListener("click", function Ready() {
+            clearInterval(timer);
+            resolve();
+            textTimer.text = "";
+            Game.playerReady = true;
+            this.removeEventListener("click", Ready);
+        })
+
         const now = new Date();
         const remain = stopTime - now;
 

@@ -44,7 +44,7 @@ export class Building
     }
     initSprite(app) {
         this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
-        this.__sprite.zIndex = 10000;
+        this.__sprite.zIndex = 100;
         this.__sprite.alpha = 0.3;
         app.stage.addChild(this.__sprite);
     }

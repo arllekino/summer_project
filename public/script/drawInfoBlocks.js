@@ -1,4 +1,5 @@
-// import * as PIXI from "../../../pixi/pixi.mjs";
+import { Building } from "./classes/Building.js";
+import { Game } from "./classes/game.js";
 
 async function AddIconInInfoBlock(
 	container,
@@ -75,6 +76,8 @@ async function DrawBlockTimer(container, app) {
 }
 
 export async function DrawBlockForDiceRoll(container, app, containerCubes, blockButtonReRoll) {
+	container.visible = true;
+	container.zIndex = 10000;
 	const textureBackgroundLeft = await PIXI.Assets.load(
 		"/../assets/textures/diceRoll.svg",
 	);
@@ -102,6 +105,102 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	const percentageScreenHeightButtonReRoll = 0.85;
 	blockButtonReRoll.x = container.width * percentageScreenWidthButtonReRoll;
 	blockButtonReRoll.y = container.height * percentageScreenHeightButtonReRoll;
+}
+
+export async function DrawBlockBuildings(container, app, selectedBuilding, cells, buildings, buildingMoment, t) {
+	const textureBackground = await PIXI.Assets.load(
+		"/../assets/textures/BuildingsPanel.svg",
+	);
+	const buildingBlock = new PIXI.Sprite(textureBackground);
+	container.addChild(buildingBlock);
+
+	const percentageScreenWidth = 0.3;
+	const percentageScreenHeight = 0.77;
+	container.x = app.screen.width * percentageScreenWidth;
+	container.y = app.screen.height * percentageScreenHeight;
+
+	const textures = await PIXI.Assets.load('/../imageParser/panelBuildings.json');
+	let buildingX = 20;
+	let buildingY = 20;
+
+	const buildingsContainer = new PIXI.Container();
+	container.addChild(buildingsContainer);
+
+	for (const textureName in textures.textures) {
+		const buildingSprite = new PIXI.Sprite(textures.textures[textureName]);
+
+		buildingSprite.x = buildingX;
+		buildingSprite.y = buildingY;
+
+		buildingSprite.interactive = true;
+		buildingSprite.buttonMode = true;
+
+		buildingSprite.on('pointerdown', () => {
+			if (Game.stage !== 3) {
+				return;
+			}
+			if (selectedBuilding.buildingSprite) {
+				selectedBuilding.buildingSprite.tint = 0xffffff;
+			}
+			selectedBuilding.buildingSprite = buildingSprite;
+			selectedBuilding.buildingSprite.tint = 0x00ff00
+
+			if ((textureName === 'richHouse.png')) {
+				t.buldingObject = new Building(app, cells, buildings, 100, 0, 2, 5, buildingMoment.isContctructionGoingNow);
+				t.buldingObject.setMatrixPattern([
+					[0, 0, 0],
+					[0, 1, 0],
+					[1, 1, 0],
+				])
+				t.buldingObject.renderMatrixPattern(app);
+				buildingMoment.isContctructionGoingNow = true
+			}
+			if ((textureName === 'farm.png')) {
+				t.buldingObject = new Building(app, cells, buildings, 100, 0, 1, 1, buildingMoment.isContctructionGoingNow);
+				t.buldingObject.setMatrixPattern([
+					[1, 1, 0],
+					[1, 1, 0],
+					[1, 1, 0],
+				])
+				t.buldingObject.renderMatrixPattern(app);
+				buildingMoment.isContctructionGoingNow = true
+			}
+			if ((textureName === 'warehouse.png')) {
+				t.buldingObject = new Building(app, cells, buildings, 100, 0, 3, 9, buildingMoment.isContctructionGoingNow);
+				t.buldingObject.setMatrixPattern([
+					[1, 1, 0],
+					[1, 1, 0],
+					[1, 1, 0],
+				])
+				t.buldingObject.renderMatrixPattern(app);
+				buildingMoment.isContctructionGoingNow = true
+			}
+			if ((textureName === 'house.png')) {
+				t.buldingObject = new Building(app, cells, buildings, 100, 0, 3, 13, buildingMoment.isContctructionGoingNow);
+				t.buldingObject.setMatrixPattern([
+					[0, 0, 0],
+					[0, 1, 0],
+					[0, 0, 0],
+				])
+				t.buldingObject.renderMatrixPattern(app);
+				buildingMoment.isContctructionGoingNow = true
+			}
+			console.log(buildingMoment)
+		});
+
+		buildingsContainer.addChild(buildingSprite);
+		buildingX += buildingSprite.width + 20;
+		if (buildingX + buildingSprite.width > buildingBlock.width) {
+			buildingX = 20;
+			buildingY += buildingSprite.height + 20;
+		}
+	}
+}
+
+export function DrawBuildingsBlock(app, selectedBuilding, cells, buildings, buildingMoment, t) {
+	const containerForBuilding = new PIXI.Container();
+	app.stage.addChild(containerForBuilding);
+	DrawBlockBuildings(containerForBuilding, app, selectedBuilding, cells, buildings, buildingMoment, t);
 }
 
 export function DrawInfoBlocks(app) {
