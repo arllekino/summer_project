@@ -143,9 +143,18 @@ export async function DrawBlockBuildings(container, app, island) {
 				island.buildingSprite.tint = 0xffffff;
 			}
 			island.buildingSprite = buildingSprite;
-			island.buildingSprite.tint = 0x00ff00
+			island.buildingSprite.tint = 0x00ff00;
 
-			if ((textureName === 'richHouse.png')) {
+			if (island.buldingObject)
+			{
+				if (island.buldingObject.getStopMovingFlag())
+				{
+					island.buildingMoment = false;
+				}
+			}
+
+			if ((textureName === 'richHouse.png') && !island.buildingMoment) {
+				island.buildingMoment = true
 				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 2, 5, island.buildingMoment);
 				island.buldingObject.setMatrixPattern([
 					[0, 0, 0],
@@ -153,9 +162,9 @@ export async function DrawBlockBuildings(container, app, island) {
 					[1, 1, 0],
 				])
 				island.buldingObject.renderMatrixPattern(app);
-				island.buildingMoment = true
 			}
-			if ((textureName === 'farm.png')) {
+			if ((textureName === 'farm.png') && !island.buildingMoment) {
+				island.buildingMoment = true
 				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 1, 1, island.buildingMoment);
 				island.buldingObject.setMatrixPattern([
 					[1, 1, 0],
@@ -163,9 +172,9 @@ export async function DrawBlockBuildings(container, app, island) {
 					[1, 1, 0],
 				])
 				island.buldingObject.renderMatrixPattern(app);
-				island.buildingMoment = true
 			}
-			if ((textureName === 'warehouse.png')) {
+			if ((textureName === 'warehouse.png') && !island.buildingMoment) {
+				island.buildingMoment = true
 				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 9, island.buildingMoment);
 				island.buldingObject.setMatrixPattern([
 					[1, 1, 0],
@@ -173,9 +182,9 @@ export async function DrawBlockBuildings(container, app, island) {
 					[1, 1, 0],
 				])
 				island.buldingObject.renderMatrixPattern(app);
-				island.buildingMoment = true
 			}
-			if ((textureName === 'house.png')) {
+			if ((textureName === 'house.png') && !island.buildingMoment) {
+				island.buildingMoment = true
 				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 13, island.buildingMoment);
 				island.buldingObject.setMatrixPattern([
 					[0, 0, 0],
@@ -183,7 +192,6 @@ export async function DrawBlockBuildings(container, app, island) {
 					[0, 0, 0],
 				])
 				island.buldingObject.renderMatrixPattern(app);
-				island.buildingMoment = true
 			}
 		});
 

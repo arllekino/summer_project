@@ -92,14 +92,14 @@ export function AddEventListenersForHammer(hummer, buildings, resources, buildin
             hummer.activate();
         }
     })
-    window.addEventListener('keydown', (event) => {
-        const key = event.key
-        if (key === 'r' && !buildingMoment.isContctructionGoingNow && Game.stage === 3)
-        {
-            hummer.initSprite();
-            hummer.activate();
-        }
-    })
+    // window.addEventListener('keydown', (event) => {
+    //     const key = event.key
+    //     if (key === 'r' && !buildingMoment && Game.stage === 3)
+    //     {
+    //         hummer.initSprite();
+    //         hummer.activate();
+    //     }
+    // })
     document.addEventListener('mousemove', (e) => hummer.followMouse(e), true)
     document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources))
 }

@@ -29,11 +29,16 @@ export async function stageBuilding(app, island) {
 
     const handleKeyDown = (event) => {
         const key = event.key;
+
         if (island.buildingSprite) {
+            if (island.buldingObject.getStopMovingFlag())
+            {
+                island.buildingMoment = false;
+            }
             if (key === 'f' && island.buildingMoment && island.buldingObject && Game.stage === 3) {
                 island.buldingObject.clearPatterns();
                 island.buldingObject.clearCellsStatus()
-                island.buldingObject.rotateMatrix(-1);
+                island.buldingObject.rotateMatrix(-1); 
                 island.buldingObject.renderMatrixPattern(app);
             } 
             else if (key === 'g' && island.buildingMoment && island.buldingObject && Game.stage === 3) {
