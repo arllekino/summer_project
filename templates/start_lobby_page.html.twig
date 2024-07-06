@@ -1,22 +1,36 @@
 {% extends 'base.html.twig' %}
-{% block title %}Регистрация{% endblock %}
+{% block title %}Меню
+{% endblock %}
+{% block head %}
+	<link rel="stylesheet" href="/style/styleStartLobbyPage.css">
+{% endblock %}
 {% block content %}
-	<div>
-		<span class="user-name">{{ userName }}</span>
-		<form action="">
-			<button type"submit" class="settings">Settings</button>
-		</form>
-		<form action="/logout">
-			<button type="submit" class="logout">Log out</button>
-		</form>
+	<div class="container">
+		<div class="intro">
+			<div class="intro__block">
+				<div class="intro__head">
+					<h1 class="intro__header">Edge of Fate</h1>
+					<form action="">
+						<button type"submit" class="intro__settings"></button>
+					</form>
+				</div>
+				<div class="intro__content">
+					<form action="" class="intro__content-user">
+						<span class="user-name">{{ userName }}</span>
+						<button type="submit" class="intro__but add-lobby">Создать лобби</button>
+					</form>
+					<form action="/join_lobby" class="intro__content-lobby">
+						<input type="text" name="key_room" id="key-room" class="key__room" placeholder="Введите код" maxlength="6"> 
+						<button type="submit" class="intro__but enter-lobby">Войти в лобби</button>
+					</form>
+				</div>
+				<form action="/logout" class="intro__content-logout">
+					<button type="submit" class="intro__but logout">
+						<span class="button-text"> Выйти</span>
+  						<img src="../images/home.jpg" alt="Описание картинки" class="button-image">
+					</button>
+				</form>
+			</div>
+		</div>
 	</div>
-	<form action="/create_lobby">
-		<button type="submit">Создать лобби</button>
-	</form>
-	<form action="/join_lobby">
-		<label for="key-room"></label>
-		<input type="text" name="keyRoom" id="key-room">
-		<button type="submit">Войти в лобби</button>
-	</form>
-
 {% endblock %}

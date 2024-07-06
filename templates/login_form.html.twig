@@ -1,23 +1,43 @@
 {% extends 'base.html.twig' %}
-{% block title %}Вход{% endblock %}
-{% block content %}
-
-	<form action="/login_user">
-		{% set error = error|default({}) %}
-        {% if error %}     
-            <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-		<div>
-			<label for="email">Email</label>
-			<input type="email" name="email" id="email">
-		</div>
-		<div>
-			<label for="password">Password</label>
-			<input type="password" name="password" id="password">
-		</div>
-		<button type="submit">OK</button>
-		<span>Нет аккаунта?</span>
-		<a href="/register_form">Регистрация</a>
-	</form>
-	
+{% block title %}Вход
 {% endblock %}
+{% block head %}
+	<link rel="stylesheet" href="/style/styleLoginForm.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+{% block content %}
+	<form action="/login_user" class="container" name="logForm" id="logForm">
+		<div class="intro">
+			<div class="intro__block">
+				<h1 class="intro__header">Войти</h1>
+				{% set error = error|default({}) %}
+				{% if error %}
+					<div class="status-of-form">
+						<span class="status-of-form__mess">{{ error }}</span>
+					</div>
+				{% endif %}
+				<div class="intro__login">
+					<div class="intro__form-group">
+						<input type="email" name="email" id="email" class="intro__input intro__input-email" placeholder="Почта">
+					</div>
+					<div class="intro__form-group intro__pass">
+						<input type="password" name="password" id="password" class="intro__input intro__input-password" placeholder="Пароль">
+						<span class="show-password" id="show-password">
+							<i class="fa fa-eye-slash"></i>
+						</div>
+					</div>
+					<div class="intro__section">
+						<button type="submit" class="intro__but intro__but-login">OK</button>
+						<div class="intro__registrate">
+							<label class="intro__subtitle">Нет аккаунта?</label>
+							<a href="/register_form" class="intro__but-registrate">Регистрация</a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</form>
+	{% endblock %}
+	{% block javascripts %}
+		<script defer src="/script/showPassword.js"></script>
+	{% endblock %}
