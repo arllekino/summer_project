@@ -8,8 +8,6 @@ use App\Repository\UserRepository;
 use App\Service\Input\LoginUserInputInterface;
 use App\Service\Input\RegisterUserInputInterface;
 use App\Service\PasswordHasher;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Constraints\Email;
 
 class UserService
 {

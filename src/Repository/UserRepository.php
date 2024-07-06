@@ -6,7 +6,6 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Config\Framework\HttpClient\DefaultOptions\RetryFailedConfig;
 
 class UserRepository
 {

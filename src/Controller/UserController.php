@@ -12,8 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
-    const MIN_LENGTH_USER_NAME = 3; 
-    const MIN_LENGTH_PASSWORD = 8; 
+    private const MIN_LENGTH_USER_NAME = 3; 
+    private const MIN_LENGTH_PASSWORD = 8; 
+    private const SESSION_NAME = 'userId';
 
     private UserService $userService;
     private SessionController $session;
@@ -53,7 +54,21 @@ class UserController extends AbstractController
                 'error' => $e->getMessage()
             ]);
         }
+        $this->session->clearSession();
         return $this->redirect('login_form');
+    }
+
+    public function logInForm(Request $request): Response
+    {       
+        $userSession = $this->session->getSession('userId');
+        if ($userSession)
+        {
+            return $this->redirectToRoute('start_lobby_page');
+        } 
+        $error = $request->get('error');
+        return $this->render('login_form.html.twig', [
+            'error' => $error
+        ]);
     }
 
     public function logInUser(Request $request): Response
@@ -78,39 +93,30 @@ class UserController extends AbstractController
                 'error' => $e->getMessage()
             ]);
         }   
-        $this->session->setSession($userId, $userName);
+        $this->session->setSession(self::SESSION_NAME, $userId);
 
-        return $this->redirectToRoute('start_lobby_page', [
-            'userId' => $userId
-        ]);
+        return $this->redirectToRoute('start_lobby_page');
     }
 
-    public function startLobbyPage(Request $request): Response
+    public function logout(): Response
     {
-        $userId = $request->get('userId');
-        $sessionUserId = $this->session->getSession('userId');
-        if ($userId != $sessionUserId)
-        {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-        ]);
-        }
-        try {
-            $userName = $this->userService->findUserName((int) $userId);
-        } catch (\UnexpectedValueException $e) {
-            return $this->redirectToRoute(
-                'error_page',
-                ['message' => $e->getMessage(),
-            ]);
-        }
-        return $this->render(
-            'start_lobby_page.html.twig',
-            ['userName' => $userName
-        ]);
+        $this->session->removeSession('userId');
+        return $this->redirectToRoute('login_form');
     }
 
     public function mainGame(): Response
     {
+        // пока что проверяем на наличие сессии юзера
+        // в дальнейшем надо проверять на наличие сессии игры
+        $sessionUserId = $this->session->getSession('userId');
+        if (!$sessionUserId)
+        {
+            return $this->redirectToRoute(
+                'login_form', 
+                ['error' => 'You must log in first']
+            );
+        }
+        
         return $this->render('main_game.html.twig');    
     }
 
@@ -118,7 +124,6 @@ class UserController extends AbstractController
     {
         $email = filter_var($input->getEmail(), FILTER_SANITIZE_EMAIL);
 
-        // Проверяем, является ли email действительным
         if (preg_match('/\s/', $input->getPassword()) ||
            strlen($input->getPassword()) < self::MIN_LENGTH_PASSWORD    
         ) 

@@ -11,8 +11,9 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240626132301 extends AbstractMigration
+final class Version20240705125219 extends AbstractMigration
 {
+
     public function getDescription(): string
     {
         return '';
@@ -22,18 +23,18 @@ final class Version20240626132301 extends AbstractMigration
     {
         $tableUser = $schema->createTable('user');
     
-        $tableUser->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $tableUser->addColumn('user_id', Types::INTEGER, ['autoincrement' => true]);
         $tableUser->addColumn('user_name', Types::STRING, ['length' => 200, 'notnull' => true]);
         $tableUser->addColumn('email', Types::STRING, ['length' => 200, 'notnull' => true]);
         $tableUser->addColumn('password', Types::STRING, ['length' => 200, 'notnull' => false]);
     
-        $tableUser->setPrimaryKey(['id']);
+        $tableUser->setPrimaryKey(['user_id']);
         $tableUser->addUniqueIndex(['email']); 
 
 
         $tableIsland = $schema->createTable('island');
 
-        $tableIsland->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $tableIsland->addColumn('island_id', Types::INTEGER, ['autoincrement' => true]);
         $tableIsland->addColumn('food', Types::INTEGER, ['notnull' => true]);
         $tableIsland->addColumn('max_food', Types::INTEGER, ['notnull' => true]);
         $tableIsland->addColumn('wood', Types::INTEGER, ['notnull' => true]);
@@ -46,13 +47,27 @@ final class Version20240626132301 extends AbstractMigration
         $tableIsland->addColumn('hammers', Types::INTEGER, ['notnull' => true]);
         $tableIsland->addColumn('money', Types::INTEGER, ['notnull' => true]);
         $tableIsland->addColumn('knowledge', Types::INTEGER, ['notnull' => true]);
+        $tableIsland->addColumn('user_id', Types::INTEGER, ['notnull' => true]);
 
-        $tableIsland->setPrimaryKey(['id']);
+        $tableIsland->setPrimaryKey(['island_id']);
+
+
+        $tableLobby = $schema->createTable('lobby');
+
+        $tableLobby->addColumn('lobby_id', Types::INTEGER, ['autoincrement' => true]);
+        $tableLobby->addColumn('key_room', Types::STRING, ['length' => 5, 'notnull' => false]);
+        $tableLobby->addColumn('player_id_1', Types::INTEGER, ['notnull' => false]);
+        $tableLobby->addColumn('player_id_2', Types::INTEGER, ['notnull' => false]);
+        $tableLobby->addColumn('player_id_3', Types::INTEGER, ['notnull' => false]);
+        $tableLobby->addColumn('player_id_4', Types::INTEGER, ['notnull' => false]);
+    
+        $tableLobby->setPrimaryKey(['lobby_id']);
     }
 
     public function down(Schema $schema): void
     {
         $schema->dropTable('user');
         $schema->dropTable('island');
+        $schema->dropTable('lobby');
     }
 }

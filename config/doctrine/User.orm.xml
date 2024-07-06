@@ -13,9 +13,11 @@
         <id name="id" type="integer" column="user_id">
             <generator strategy="IDENTITY" />
         </id>
-        <field name="email" column="email" type="string" length="200" nullable="false" />   
-        <field name="hashPassword" column="password" type="string" length="200" nullable="true" />
-        <field name="userName" column="user_name" type="string" length="200" nullable="false" />
+        <field name="email" column="email" type="string" length="255" nullable="false" />   
+        <field name="hashPassword" column="password" type="string" length="255" nullable="true" />
+        <field name="userName" column="user_name" type="string" length="255" nullable="false" />
+
+        <one-to-one field="island" target-entity="App\Entity\Island" mapped-by="user" />
     </entity>
 
 </doctrine-mapping>
