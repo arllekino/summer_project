@@ -15,18 +15,18 @@
 					</form>
 				</div>
 				<div class="intro__content">
-					<form action="" class="intro__content-user">
+					<form action="/create_lobby" class="intro__content-user">
 						<span class="user-name">{{ userName }}</span>
 						<button type="submit" class="intro__but add-lobby">Создать лобби</button>
 					</form>
 					<form action="/join_lobby" class="intro__content-lobby">
-						<input type="text" name="key_room" id="key-room" class="key__room" placeholder="Введите код" maxlength="6"> 
+						<input type="text" name="keyRoom" id="key-room" class="key__room" placeholder="Введите код" maxlength="6"> 
 						<button type="submit" class="intro__but enter-lobby">Войти в лобби</button>
 					</form>
 				</div>
 				<form action="/logout" class="intro__content-logout">
 					<button type="submit" class="intro__but logout">
-						<span class="button-text"> Выйти</span>
+						<span class="button-text">Выйти</span>
   						<img src="../images/home.jpg" alt="Описание картинки" class="button-image">
 					</button>
 				</form>

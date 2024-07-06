@@ -8,30 +8,14 @@
 	<div class="container">
 		<div class="intro">
 			<div class="intro__players">
-				<div class="intro__player">
+                {% for userName in userNames %}
+                    <div class="intro__player">
 					<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
 					<div class="block__user-name">
 						<span class="user-name">{{ userName }}</span>
 					</div>
-				</div>
-				<div class="intro__player">
-					<img src="../images/greenFlag200x200.png" alt="Описание картинки" class="flag-image">
-					<div class="block__user-name">
-						<span class="user-name"></span>
-					</div>
-				</div>
-				<div class="intro__player">
-					<img src="../images/redFlag200x200.png" alt="Описание картинки" class="flag-image">
-					<div class="block__user-name">
-						<span class="user-name"></span>
-					</div>
-				</div>
-				<div class="intro__player">
-					<img src="../images/yellowFlag200x200.png" alt="Описание картинки" class="flag-image">
-					<div class="block__user-name">
-						<span class="user-name"></span>
-					</div>
-				</div>
+				</div>                    
+                {% endfor %}
 			</div>
 			<div class="intro__block">
 				<div class="intro__lobby">
@@ -41,7 +25,8 @@
 							<form action="">
 								<button type"submit" class="intro__settings"></button>
 							</form>
-							<form action="/logout" class="intro__logout">
+							<form action="/quit_lobby" class="intro__logout">
+                                <input type="hidden" name="keyRoom" value="{{ keyRoom }}"/>
 								<button type="submit" class="intro__but logout">
 									<span class="button-text">Выйти</span>
 									<img src="../images/home.jpg" alt="Описание картинки" class="button-image">
@@ -50,7 +35,7 @@
 						</div>
 					</div>
 					<div class="intro__block-code">
-						<p class="intro__code">КОД</p>
+						<p class="intro__code">{{ keyRoom }}</p>
 					</div>
 				</div>
 				<form action="" class="intro__play">

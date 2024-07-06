@@ -51,7 +51,7 @@ class LobbyPlaceService
         }
         $lobbyPlace = new LobbyPlace(
             null,
-            $lobbyPlaces[0]->getLobbyId,
+            $lobbyPlaces[0]->getLobbyId(),
             $userId,
             $keyRoom
         );
