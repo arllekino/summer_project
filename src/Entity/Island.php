@@ -30,7 +30,7 @@ class Island
 
     public function __construct(
         ?int $id,
-        string $islandMaxtrix,
+        string $islandMatrix,
         int $food,
         int $maxFood,
         int $wood,
@@ -47,7 +47,7 @@ class Island
     )
     {
         $this->id = $id;      
-        $this->islandMatrix = $islandMaxtrix;  
+        $this->islandMatrix = $islandMatrix;  
         $this->food = $food;
         $this->maxFood = $maxFood;
         $this->wood = $wood;

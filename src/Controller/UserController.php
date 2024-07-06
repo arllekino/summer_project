@@ -104,65 +104,6 @@ class UserController extends AbstractController
         return $this->redirectToRoute('login_form');
     }
 
-    public function startLobbyPage(): Response
-    {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
-        if (!$sessionUserId)
-        {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-            ]);
-        }
-
-        try {
-            $userName = $this->userService->findUserName($sessionUserId);
-        } catch (\UnexpectedValueException $e) {
-            return $this->redirectToRoute(
-                'error_page',
-                ['message' => $e->getMessage(),
-            ]);
-        }
-        return $this->render(
-            'start_lobby_page.html.twig',
-            ['userName' => $userName]
-        );
-    }
-
-    public function joinLobby(): Response
-    {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
-        if (!$sessionUserId)
-        {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-            ]);
-        }
-        return $this->redirectToRoute('lobby_page');       
-    }
-
-    public function lobbyPage(): Response
-    {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
-        if (!$sessionUserId)
-        {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-            ]);
-        }
-        
-        try {
-            $userName = $this->userService->findUserName($sessionUserId);
-        } catch (\UnexpectedValueException $e) {
-            return $this->redirectToRoute(
-                'error_page',
-                ['message' => $e->getMessage(),
-            ]);
-        }
-        return $this->render('lobby_page.html.twig', [
-            'userName' => $userName
-        ]);
-    }
-
     public function mainGame(): Response
     {
         // пока что проверяем на наличие сессии юзера
@@ -170,9 +111,10 @@ class UserController extends AbstractController
         $sessionUserId = $this->session->getSession('userId');
         if (!$sessionUserId)
         {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-            ]);
+            return $this->redirectToRoute(
+                'login_form', 
+                ['error' => 'You must log in first']
+            );
         }
         
         return $this->render('main_game.html.twig');    

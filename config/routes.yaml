@@ -20,13 +20,20 @@ logout:
   controller: App\Controller\UserController::logout  
 start_lobby_page:
   path: /start_lobby_page
-  controller: App\Controller\UserController::startLobbyPage
+  controller: App\Controller\LobbyController::startLobbyPage
+create_lobby:
+  path: /create_lobby
+  controller: App\Controller\LobbyController::createLobby  
 join_lobby:
   path: /join_lobby
-  controller: App\Controller\UserController::joinLobby
+  controller: App\Controller\LobbyController::joinLobby
 lobby_page:
-  path: /lobby_page
-  controller: App\Controller\UserController::lobbyPage    
+  path: /lobby_page/{keyRoom}
+  methods: GET
+  controller: App\Controller\LobbyController::lobbyPage    
+quit_lobby:
+  path: /quit_lobby
+  controller: App\Controller\LobbyController::quitFromLooby
 
 main_game:
   path: /main_game

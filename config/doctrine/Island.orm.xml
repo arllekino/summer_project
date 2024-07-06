@@ -9,6 +9,8 @@
         <id name="id" type="integer" column="island_id">
             <generator strategy="IDENTITY" />
         </id>
+        
+        <field name="islandMatrix" column="island_matrix" type="text" nullable="false" />   
         <field name="food" column="food" type="integer" nullable="false" />   
         <field name="maxFood" column="max_food" type="integer" nullable="false" />   
         <field name="wood" column="wood" type="integer" nullable="false" />   
