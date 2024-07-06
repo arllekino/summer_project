@@ -3,9 +3,13 @@ import { Resource } from "./Resource.js";
 
 const TResources = {
     wheat: 0,
+    maxWheat: 15,
     wood: 0,
+    maxWood: 10,
     stone: 0,
+    maxStone: 10,
     wars: 0,
+    maxWars: 10,
     inhabitants: 0,
     hammer: 0,
     money: 0,

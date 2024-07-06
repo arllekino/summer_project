@@ -10,8 +10,6 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
     document.body.appendChild(app.canvas);
 
     const island = CreateIsland(worldMatrix);
-    console.log(island.resourcesOfUser, "01253789");
-    const island123 = CreateIsland(worldMatrix);
     
     DrawBuildingsBlock(app, island);
     const allContainer = DrawInfoBlocks(app);
@@ -27,7 +25,6 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
     texturess = await PIXI.Assets.load('/../imageParser/resources.json');
 
     island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland);
-    //island123.mapReader(island123.matrixOfIsland, island123.cells, app, island123.resourcesOnIsland);
 
     main(allContainer, app, island);    
 
