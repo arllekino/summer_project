@@ -8,34 +8,32 @@
 {% block content %}
 	<form action="/register_user" class="container" name="Form" id="Form">
 		<div class="intro">
-			<div class="intro__block-container">
-				<div class="intro__block">>
-					<h1 class="intro__header">Регистрация</h1>
-					{% set error = error|default({}) %}
-					{% if error %}
-						<div class="status-of-form">
-							<span class="status-of-form__mess">{{ error }}</span>
+			<div class="intro__block">
+				<h1 class="intro__header">Регистрация</h1>
+				{% set error = error|default({}) %}
+				{% if error %}
+					<div class="status-of-form">
+						<span class="status-of-form__mess">{{ error }}</span>
+					</div>
+				{% endif %}
+				<div class="intro__registrate">
+					<div class="intro__form-group">
+						<input type="text" name="username" id="username" class="intro__input intro__input-username" placeholder="Имя пользователя">
+					</div>
+					<div class="intro__form-group">
+						<input type="email" name="email" id="email" class="intro__input intro__input-email" placeholder="Почта">
+					</div>
+					<div class="intro__form-group intro__pass">
+						<input type="password" name="password" id="password" class="intro__input intro__input-password" placeholder="Пароль (не менее 8 символов)">
+						<span class="show-password" id="show-password">
+							<i class="fa fa-eye-slash"></i>
 						</div>
-					{% endif %}
-					<div class="intro__registrate">
-						<div class="intro__form-group">
-							<input type="text" name="username" id="username" class="intro__input intro__input-username" placeholder="Имя пользователя">
-						</div>
-						<div class="intro__form-group">
-							<input type="email" name="email" id="email" class="intro__input intro__input-email" placeholder="Почта">
-						</div>
-						<div class="intro__form-group intro__pass">
-							<input type="password" name="password" id="password" class="intro__input intro__input-password" placeholder="Пароль">
-							<span class="show-password" id="show-password">
-								<i class="fa fa-eye-slash"></i>
-							</div>
-						</div>
-						<div class="intro__section">
-							<button type="submit" class="intro__but intro__but-registrate">OK</button>
-							<div class="intro__autorizate">
-								<label class="intro__subtitle">Уже есть аккаунт?</label>
-								<a href="/login_form" class="intro__but-autorizate">Вход</a>
-							</div>
+					</div>
+					<div class="intro__section">
+						<button type="submit" class="intro__but intro__but-registrate">OK</button>
+						<div class="intro__autorizate">
+							<label class="intro__subtitle">Уже есть аккаунт?</label>
+							<a href="/login_form" class="intro__but-autorizate">Вход</a>
 						</div>
 					</div>
 				</div>
