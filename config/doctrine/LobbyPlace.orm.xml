@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\LobbyPlace" table="lobby">
+
+        <unique-constraints>
+            <unique-constraint columns="lobby_id,player_id" name="search_id" />
+        </unique-constraints>
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY" />
+        </id>
+        <field name="lobbyId" column="lobby_id" type="integer" nullable="true" />   
+        <field name="playerId" column="player_id" type="integer" nullable="true" />   
+        <field name="keyRoom" column="key_room" type="string" nullable="true" />   
+
+    </entity>
+
+</doctrine-mapping>

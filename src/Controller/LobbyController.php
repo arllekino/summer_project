@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\LobbyService;
+use App\Service\LobbyPlaceService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,13 +13,13 @@ class LobbyController extends AbstractController
 {
     private const SESSION_NAME = 'userId';
     private SessionController $session;
-    private LobbyService $lobbyService;
+    private LobbyPlaceService $lobbyService;
     private UserService $userService;
     
     public function __construct(
         SessionController $session,
         UserService $userService,
-        LobbyService $lobbyService
+        LobbyPlaceService $lobbyService
     )
     {
         $this->session = $session;
@@ -60,7 +60,14 @@ class LobbyController extends AbstractController
                 'error' => 'You must log in first'
             ]);
         }
-        $keyRoom = $this->lobbyService->create($sessionUserId);
+        try {
+            $keyRoom = $this->lobbyService->create($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return $this->redirectToRoute(
+                'start_lobby_page',
+                ['message' => $e]
+            );
+        }
 
         return $this->redirectToRoute('lobby_page', [
             'keyRoom' => $keyRoom

@@ -11,9 +11,8 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240706080809 extends AbstractMigration
+final class Version20240706102632 extends AbstractMigration
 {
-
     public function getDescription(): string
     {
         return '';
@@ -34,8 +33,8 @@ final class Version20240706080809 extends AbstractMigration
 
         $tableIsland = $schema->createTable('island');
 
-        $tableIsland->addColumn('island_matrix', Types::TEXT, ['notnull' => true]);
         $tableIsland->addColumn('island_id', Types::INTEGER, ['autoincrement' => true]);
+        $tableIsland->addColumn('island_matrix', Types::TEXT, ['notnull' => true]);
         $tableIsland->addColumn('food', Types::INTEGER, ['notnull' => true]);
         $tableIsland->addColumn('max_food', Types::INTEGER, ['notnull' => true]);
         $tableIsland->addColumn('wood', Types::INTEGER, ['notnull' => true]);
