@@ -10,6 +10,7 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
     document.body.appendChild(app.canvas);
 
     const island = CreateIsland(worldMatrix);
+    console.log(island.resourcesOfUser, "01253789");
     const island123 = CreateIsland(worldMatrix);
     
     DrawBuildingsBlock(app, island);

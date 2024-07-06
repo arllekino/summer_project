@@ -1,4 +1,4 @@
-import { DrawBlockForDiceRoll } from "./drawInfoBlocks.js";
+import { DrawBlockForDiceRoll, UpdateNumberOfResources, DrawNumberOfResources } from "./drawInfoBlocks.js";
 import { startTimerForStage } from "./timerForStage.js";
 import { GetResources } from "./stages/resources.js";
 import { Destroyer, AddEventListenersForHammer } from "./classes/destroyer.js"; 
@@ -7,11 +7,13 @@ import { Game } from "./classes/game.js";
 export function stageResources(containerForDiceRoll, app, resources) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
+    console.log(resources, "asohgdyaushdjias");
 
     DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
     const buildings = {
         houseVillage: 4,
         houseGrendee: 7,
+        farm: 3,
     }
     GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
@@ -65,6 +67,8 @@ export function stageBattles() {
 }
 
 export async function main(allContainer, app, island) {
+    console.log(island.resourcesOfUser, "mnbvcxzsdfghj");
+
     allContainer.wheelBlock.interactive = true;
     allContainer.wheelBlock.buttonMode = true;
     allContainer.wheelBlock.cursor = "pointer";
@@ -127,7 +131,10 @@ export async function main(allContainer, app, island) {
 
     window.addEventListener('keydown', handleKeyDown);
 
+    const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
+
     while (true) {
+        console.log(island.resourcesOfUser, "qwertyui");
         stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser);
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app);
@@ -141,8 +148,10 @@ export async function main(allContainer, app, island) {
             await Promise.all([promiseForReady]);
             Game.playerReady = false;
         }
-        
-        allContainer.containerForDiceRoll.visible = false;
+        UpdateNumberOfResources(allTextResources, island.resourcesOfUser);
+        setTimeout(() => {
+            allContainer.containerForDiceRoll.visible = false;
+        }, 1500);
         Game.stage++;
 
         stageDisasters();

@@ -153,7 +153,7 @@ export async function DrawBlockBuildings(container, app, island) {
 					[1, 1, 0],
 				])
 				island.buldingObject.renderMatrixPattern(app);
-				island.buildingMoment.isContctructionGoingNow = true
+				island.buildingMoment = true
 			}
 			if ((textureName === 'farm.png')) {
 				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 1, 1, island.buildingMoment);
@@ -163,7 +163,7 @@ export async function DrawBlockBuildings(container, app, island) {
 					[1, 1, 0],
 				])
 				island.buldingObject.renderMatrixPattern(app);
-				island.buildingMoment.isContctructionGoingNow = true
+				island.buildingMoment = true
 			}
 			if ((textureName === 'warehouse.png')) {
 				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 9, island.buildingMoment);
@@ -200,6 +200,55 @@ export function DrawBuildingsBlock(app, island) {
 	const containerForBuilding = new PIXI.Container();
 	app.stage.addChild(containerForBuilding);
 	DrawBlockBuildings(containerForBuilding, app, island);
+}
+
+function DrawTextOnContainer(text, containerForResources, numberOfResources, percentageScreenWidth, percentageScreenHeight) {
+	containerForResources.addChild(text);
+    text.style.fill = 0xFFFFFF;
+	text.text = `${numberOfResources}`;
+
+	text.x = containerForResources.width * percentageScreenWidth;
+    text.y = containerForResources.height * percentageScreenHeight;
+}
+
+export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
+	const textForWheat = new PIXI.Text();
+	DrawTextOnContainer(textForWheat, containerForResources, resourcesOfUser.wheat, 0.25, 0.05);
+	const textForWood = new PIXI.Text();
+	DrawTextOnContainer(textForWood, containerForResources, resourcesOfUser.wood, 0.25, 0.25);
+	const textForStone = new PIXI.Text();
+	DrawTextOnContainer(textForStone, containerForResources, resourcesOfUser.stone, 0.25, 0.46);
+	const textForHammer = new PIXI.Text();
+	DrawTextOnContainer(textForHammer, containerForResources, resourcesOfUser.hammer, 0.75, 0.3);
+	const textForInhabitants = new PIXI.Text();
+	DrawTextOnContainer(textForInhabitants, containerForResources, resourcesOfUser.hammer, 0.75, 0.07);
+    
+	const allTextResources = {
+		textForWheat: textForWheat,
+		textForWood: textForWood,
+		textForStone: textForStone,
+		textForHammer: textForHammer,
+		textForInhabitants: textForInhabitants,
+	}
+
+	return allTextResources;
+}
+
+export function UpdateNumberOfResources(allTextResources, resourcesOfUser) {
+	for (let key in allTextResources) {
+		if (key === "textForWheat") {
+			allTextResources[key].text = `${resourcesOfUser.wheat}`;
+		}
+		if (key === "textForWood") {
+			allTextResources[key].text = `${resourcesOfUser.wood}`;
+		}
+		if (key === "textForStone") {
+			allTextResources[key].text = `${resourcesOfUser.stone}`;
+		}
+		if (key === "textForHammer") {
+			allTextResources[key].text = `${resourcesOfUser.hammer}`;
+		}
+	}
 }
 
 export function DrawInfoBlocks(app) {
