@@ -21,10 +21,15 @@ export class Building
         app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells));
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
+    getStopMovingFlag() {
+        return this.__stopMovingFlag;
+    }
+
     getHp() {
         return this.__hp;
     }
-    setHp(hp) {
+    setHp(hp) 
+    {
         this.__hp = hp;
     }
     getECells() {
@@ -164,7 +169,7 @@ export class Building
         }
     }
 
-    buildBuilding(app, buildings, buildingMoment) {
+    buildBuilding(app, buildings) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -177,9 +182,6 @@ export class Building
             this.clearPatterns();
             this.__sprite.zIndex = this.__sprite.y;
             this.__sprite.alpha = 1;
-            if (buildingMoment) {
-                buildingMoment = false;
-            };
             buildings.push(this);
             // selectedBuilding.tint = 0xffffff;
         }
@@ -206,9 +208,9 @@ export class Building
         this.__cellsStatus = {};
     }
 
-    mouseClick(app, buildings, buildingMoment) {
+    mouseClick(app, buildings) {
         if (!this.__stopMovingFlag) {
-            this.buildBuilding(app, buildings, buildingMoment);
+            this.buildBuilding(app, buildings);
         }
     }
 }
