@@ -155,7 +155,7 @@ export async function DrawBlockBuildings(container, app, island) {
 
 			if ((textureName === 'richHouse.png') && !island.buildingMoment) {
 				island.buildingMoment = true
-				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 2, 5, island.buildingMoment);
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 2, 5, {stone: 2, hammer: 1}, island.resourcesOfUser);
 				island.buldingObject.setMatrixPattern([
 					[0, 0, 0],
 					[0, 1, 0],
@@ -165,7 +165,7 @@ export async function DrawBlockBuildings(container, app, island) {
 			}
 			if ((textureName === 'farm.png') && !island.buildingMoment) {
 				island.buildingMoment = true
-				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 1, 1, island.buildingMoment);
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 1, 1, {wood: 1, hammer: 1}, island.resourcesOfUser);
 				island.buldingObject.setMatrixPattern([
 					[1, 1, 0],
 					[1, 1, 0],
@@ -175,7 +175,7 @@ export async function DrawBlockBuildings(container, app, island) {
 			}
 			if ((textureName === 'warehouse.png') && !island.buildingMoment) {
 				island.buildingMoment = true
-				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 9, island.buildingMoment);
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 9, {wood: 4, stone: 2, hammer: 1}, island.resourcesOfUser);
 				island.buldingObject.setMatrixPattern([
 					[1, 1, 0],
 					[1, 1, 0],
@@ -185,7 +185,7 @@ export async function DrawBlockBuildings(container, app, island) {
 			}
 			if ((textureName === 'house.png') && !island.buildingMoment) {
 				island.buildingMoment = true
-				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 13, island.buildingMoment);
+				island.buldingObject = new Building(app, island.cells, island.buildings, 100, 0, 3, 13, {wood: 2, hammer: 1}, island.resourcesOfUser);
 				island.buldingObject.setMatrixPattern([
 					[0, 0, 0],
 					[0, 1, 0],
@@ -208,6 +208,7 @@ export function DrawBuildingsBlock(app, island) {
 	const containerForBuilding = new PIXI.Container();
 	app.stage.addChild(containerForBuilding);
 	DrawBlockBuildings(containerForBuilding, app, island);
+	allTextResources = DrawNumberOfResources()
 }
 
 function DrawTextOnContainer(text, containerForResources, numberOfResources, percentageScreenWidth, percentageScreenHeight) {

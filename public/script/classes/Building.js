@@ -2,7 +2,7 @@ import { Cell } from "./Cell.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, hp, defense, buildType, buildPtr, buildingMoment)
+    constructor(app, cells, buildings, hp, defense, buildType, buildPtr, requiredResources, resources)
     {
         this.__hp = hp;
         this.__defense = defense;
@@ -10,6 +10,7 @@ export class Building
         this.__buildPtr = buildPtr;
         this.__sprite;
         this.__peopleCount;
+        this.requiredResources = requiredResources;
         this.__droppingResources = [];
         this.__matrixPattern = [];
         this.__eCells = [];
@@ -17,7 +18,7 @@ export class Building
         this.__stopMovingFlag = false;
         this.__bounds;
         this.initSprite(app);
-        window.addEventListener('click', () => this.mouseClick(app, buildings));
+        window.addEventListener('click', () => this.mouseClick(app, buildings, resources));
         app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells));
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
@@ -169,7 +170,7 @@ export class Building
         }
     }
 
-    buildBuilding(app, buildings) {
+    buildBuilding(app, buildings, resources) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -183,6 +184,11 @@ export class Building
             this.__sprite.zIndex = this.__sprite.y;
             this.__sprite.alpha = 1;
             buildings.push(this);
+            for (const resource in this.requiredResources)
+            {
+                resources[resource] -= this.requiredResources[resource];
+            }
+            console.log(resources);
             // selectedBuilding.tint = 0xffffff;
         }
     }
@@ -208,9 +214,9 @@ export class Building
         this.__cellsStatus = {};
     }
 
-    mouseClick(app, buildings) {
+    mouseClick(app, buildings, resources) {
         if (!this.__stopMovingFlag) {
-            this.buildBuilding(app, buildings);
+            this.buildBuilding(app, buildings, resources);
         }
     }
 }

@@ -22,7 +22,7 @@ export function stageDisasters() {
     console.log("disasters");
 }
 
-export async function stageBuilding(app, island) {
+export async function stageBuilding(app, island, allTextResources) {
     const hummer = new Destroyer(app)
     console.log(island.buildings);
     AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland, island.buildingMoment, app);
@@ -175,7 +175,7 @@ export async function main(allContainer, app, island) {
 
         Game.stage++;
 
-        stageBuilding(app, island);
+        stageBuilding(app, island, allTextResources);
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app);
         })
