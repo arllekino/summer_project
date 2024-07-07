@@ -1,4 +1,4 @@
-import { DrawBlockForDiceRoll, UpdateNumberOfResources, DrawNumberOfResources } from "./drawInfoBlocks.js";
+import { DrawBlockForDiceRoll, UpdateNumberOfResources, DrawNumberOfResources, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { startTimerForStage } from "./timerForStage.js";
 import { GetResources } from "./stages/resources.js";
 import { Destroyer, AddEventListenersForHammer } from "./classes/destroyer.js"; 
@@ -22,12 +22,14 @@ export function stageDisasters() {
     console.log("disasters");
 }
 
-export async function stageBuilding(app, island, allTextResources) {
-    const hummer = new Destroyer(app)
-    console.log(island.buildings);
-    AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland, island.buildingMoment, app);
-
-    const handleKeyDown = (event) => {
+export async function stageBuilding(app, island, allTextResources, flags) {
+    if (!flags['hummer'])
+    {
+        const hummer = new Destroyer(app)
+        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland, island.buildingMoment, app, island.resourcesOfUser, allTextResources);
+        flags['hummer'] = true;
+    }
+      const handleKeyDown = (event) => {
         const key = event.key;
 
         if (island.buildingSprite) {
@@ -50,7 +52,11 @@ export async function stageBuilding(app, island, allTextResources) {
         }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    if (!flags['rotations'])
+    {
+        window.addEventListener('keydown', handleKeyDown);
+        flags['rotations'] = true;
+    }
 
     document.addEventListener("pointerdown", function(event) {
         if (event.button === 2 && island.buildingMoment && Game.stage === 3) 
@@ -137,6 +143,12 @@ export async function main(allContainer, app, island) {
     window.addEventListener('keydown', handleKeyDown);
 
     const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
+    DrawBuildingsBlock(app, island, allTextResources);
+
+    let flags = {
+        hummer: false,
+        rotations: false,
+    };
 
     while (true) {
         console.log(island.resourcesOfUser, "qwertyui");
@@ -174,8 +186,8 @@ export async function main(allContainer, app, island) {
         }
 
         Game.stage++;
-
-        stageBuilding(app, island, allTextResources);
+        console.log(island.resourcesOfUser, "HELLO");
+        stageBuilding(app, island, allTextResources, flags);
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app);
         })

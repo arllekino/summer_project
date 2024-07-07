@@ -1,5 +1,6 @@
 import { intersects, distance } from "./CommonFunctions.js";
 import { Game } from "./game.js";
+import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 
 export class Destroyer
     {
@@ -28,7 +29,7 @@ export class Destroyer
             this.activation = false;
         }
 
-        click(e, objects, buildings, resources)
+        click(e, objects, buildings, resources, resourcesOfUser, allTextResources)
         {
             if (!this.activation)
             {
@@ -53,21 +54,26 @@ export class Destroyer
             {
                 this.__sprite.destroy();
                 this.deactivate();
-                console.log(minDistObject.__cellsStatus);
+                resourcesOfUser['hammer'] -= 1;
+                for (const resource in minDistObject.getDroppingResources())
+                {
+                    resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
+                }
+                UpdateNumberOfResources(allTextResources, resourcesOfUser)
                 if (minDistObject.__cellsStatus['-1'])
                 {
                     minDistObject.sprite.destroy();
-                    minDistObject.__cellsStatus['-1'].setPtrTower(-1)
+                    minDistObject.__cellsStatus['-1'].setPtrTower(-1);
                     resources.splice(resources.indexOf(minDistObject), 1);
+                    
                     return;
                 }
                 for (const cellId in minDistObject.__cellsStatus)
                 {
                     minDistObject.__cellsStatus[cellId].setPtrTower(-1);
-                    console.log(minDistObject.__cellsStatus);
                 }
                 minDistObject.__sprite.destroy();
-                buildings.splice(buildings.indexOf(minDistObject), 1);
+                buildings.splice(buildings.indexOf(minDistObject), 1); 
                 return;
             }
         }
@@ -77,17 +83,16 @@ export class Destroyer
             if (this.activation)
             {
                 const position = {'x': e.clientX, 'y': e.clientY};
-                this.__sprite.x = position.x - this.__sprite.getBounds().width - 10;
-                this.__sprite.y = position.y - this.__sprite.getBounds().height - 25;
+                this.__sprite.x = position.x - this.__sprite.getBounds().width;
+                this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
             }
         }
 }
 
-export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app) {
-    console.log(resources);
+export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, resourcesOfUser, allTextResources) {
     document.addEventListener('keypress', (e) => {
         const key = e.key;
-        if (key === 'z' && !hummer.activation && Game.stage === 3) {
+        if (key === 'z' && !hummer.activation && Game.stage === 3 && resourcesOfUser['hammer'] > 0) {
             hummer.initSprite(app);
             hummer.activate();
         }
@@ -101,5 +106,5 @@ export function AddEventListenersForHammer(hummer, buildings, resources, buildin
     //     }
     // })
     document.addEventListener('mousemove', (e) => hummer.followMouse(e), true)
-    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources))
+    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources, resourcesOfUser, allTextResources))
 }
