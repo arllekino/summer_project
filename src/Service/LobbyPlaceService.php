@@ -10,10 +10,12 @@ class LobbyPlaceService
 {
     private const MAX_PLAYERS = 4;
     private LobbyPlaceRepository $repository;
+    private UserService $userService;
     
-    public function __construct(LobbyPlaceRepository $repository)
+    public function __construct(LobbyPlaceRepository $repository, UserService $userService)
     {
         $this->repository = $repository;
+        $this->userService = $userService;
     }
 
     public function create(int $userId): string
@@ -68,10 +70,11 @@ class LobbyPlaceService
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {
-            $playerIds[] = $lobbyPlace->getPlayerId();
+            $playerId = $lobbyPlace->getPlayerId();
+            $playerNames[]= $this->userService->findUserName($playerId);
         }
 
-        return $playerIds;
+        return $playerNames;
     }   
     
     public function deleteUserFromLobby(string $keyRoom, int $userId): void

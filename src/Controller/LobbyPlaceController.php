@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class LobbyPlaceController extends AbstractController
 {
     private const SESSION_NAME = 'userId';
+    private const KEY_LENGTH = 4;
     private SessionController $session;
     private LobbyPlaceService $lobbyService;
     private UserService $userService;
@@ -33,17 +34,19 @@ class LobbyPlaceController extends AbstractController
         $sessionUserId = $this->session->getSession(self::SESSION_NAME);
         if (!$sessionUserId)
         {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-            ]);
+            return $this->redirectToRoute(
+                'login_form',
+                ['message' => 'You must log in first']
+            );
         }
         
         try {
             $userName = $this->userService->findUserName($sessionUserId);
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
-                'error_page',
-                ['message' => $e->getMessage(),
+                'error_page', [
+                    'message' => $e->getMessage(),
+                    'messageCode' => $e->getCode()
             ]);
         }
         return $this->render(
@@ -56,9 +59,10 @@ class LobbyPlaceController extends AbstractController
         $sessionUserId = $this->session->getSession(self::SESSION_NAME);
         if ($sessionUserId === null)
         {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-            ]);
+            return $this->redirectToRoute(
+                'login_form',
+                ['message' => 'Сначала вы должны войти в аккаунт']
+            );
         }
         try {
             $keyRoom = $this->lobbyService->create($sessionUserId);
@@ -78,12 +82,21 @@ class LobbyPlaceController extends AbstractController
         $sessionUserId = $this->session->getSession(self::SESSION_NAME);
         if ($sessionUserId === null)
         {
-            return $this->redirectToRoute('login_form', [
-                'error' => 'You must log in first'
-            ]);
+            return $this->redirectToRoute(
+                'login_form',
+                ['message' => 'Сначала вы должны войти в аккаунт']
+            );
         }
         
         $keyRoom = $request->get('keyRoom');
+        if (!$this->isKeyRoomValid($keyRoom))
+        {
+            return $this->redirectToRoute(
+                'start_lobby_page',
+                ['message' => 'Некорректный ключ']
+            );
+        }
+
         try {
             $this->lobbyService->addUserToLobby($keyRoom, $sessionUserId);
         } catch (\UnexpectedValueException $e) {
@@ -104,7 +117,7 @@ class LobbyPlaceController extends AbstractController
         {
             return $this->redirectToRoute(
                 'login_form', 
-                ['error' => 'You must log in first']
+                ['message' => 'Сначала вы должны войти в аккаунт']
             );
         }
 
@@ -130,7 +143,7 @@ class LobbyPlaceController extends AbstractController
         {
             return $this->redirectToRoute(
                 'login_form', 
-                ['error' => 'You must log in first']
+                ['message' => 'Сначала вы должны войти в аккаунт']
             );
         }
         try {
@@ -146,5 +159,14 @@ class LobbyPlaceController extends AbstractController
             'start_lobby_page',
             ['message' => null]
         );
+    }
+
+    private function isKeyRoomValid(string $keyRoom): bool
+    {
+        if (strlen($keyRoom) === self::KEY_LENGTH)
+        {
+            return true;
+        }   
+        return false;
     }
 }
