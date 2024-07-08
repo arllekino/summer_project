@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+{% block title %}Лобби
+{% endblock %}
+{% block head %}
+	<link rel="stylesheet" href="/style/styleLobbyPage.css">
+{% endblock %}
+{% block content %}
+	<div class="container">
+		<div class="intro">
+			<div class="intro__players">
+                {% for userName in userNames %}
+                    <div class="intro__player">
+					<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
+					<div class="block__user-name">
+						<span class="user-name">{{ userName }}</span>
+					</div>
+				</div>                    
+                {% endfor %}
+			</div>
+			<div class="intro__block">
+				<div class="intro__lobby">
+					<div class="intro__head">
+						<h1 class="intro__header">Лобби</h1>
+						<div class="intro__menu">
+							<form action="">
+								<button type"submit" class="intro__settings"></button>
+							</form>
+							<form action="/quit_lobby" class="intro__logout">
+                                <input type="hidden" name="keyRoom" value="{{ keyRoom }}"/>
+								<button type="submit" class="intro__but logout">
+									<span class="button-text">Выйти</span>
+									<img src="../images/home.jpg" alt="Описание картинки" class="button-image">
+								</button>
+							</form>
+						</div>
+					</div>
+					<div class="intro__block-code">
+						<p class="intro__code">{{ keyRoom }}</p>
+					</div>
+				</div>
+				<form action="/main_game" class="intro__play">
+					<button type="submit" class="intro__but play">
+						<span class="button-text2">Начать игру</span>
+						<img src="../images/sword.svg" alt="Описание картинки" class="button-image2">
+					</button>
+				</form>
+			</div>
+		</div>
+	{% endblock %}

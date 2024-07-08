@@ -1,0 +1,45 @@
+{
+    "frames": {
+        "richHouse.png": {
+            "frame": { "x": 0, "y": 0, "w": 50, "h": 50 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 50 },
+            "sourceSize": { "w": 50, "h": 50 }
+        },
+        "wall.png": {
+            "frame": { "x": 50, "y": 0, "w": 50, "h": 50 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 105, "h": 100 },
+            "sourceSize": { "w": 50, "h": 50 }
+        },
+        "warehouse.png": {
+            "frame": { "x": 100, "y": 0, "w": 50, "h": 50 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 50 },
+            "sourceSize": { "w": 50, "h": 50 }
+        },
+        "house.png": {
+            "frame": { "x": 150, "y": 0, "w": 50, "h": 50 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 50 },
+            "sourceSize": { "w": 50, "h": 50 }
+        },
+        "farm.png": {
+            "frame": { "x": 200, "y": 0, "w": 50, "h": 50 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 50 },
+            "sourceSize": { "w": 50, "h": 50 }
+        }
+    },
+    "meta": {
+        "image": "/../assets/textures/panelBuildingSprites.png",
+        "format": "RGBA8888",
+        "size": { "w": 250, "h": 50 },
+        "scale": "1"
+    }
+}

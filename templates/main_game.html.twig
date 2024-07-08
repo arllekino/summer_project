@@ -1,8 +1,10 @@
 {% extends 'base.html.twig' %}
+{% block title %}Edge of Fates{% endblock %}
 {% block head %}
-	{% block title %}Game{% endblock %}
+	<link rel="stylesheet" href="/style/reset.css">
 	{% block javascripts %}
 		<script type="text/javascript" src="/script/pixi.js"></script>
+		<script type="module" src="/script/classes/CommonFunctions.js"></script>
 		<script type="module" src="/script/scriptTest.js"></script>
 	{% endblock %}
 {% endblock %}

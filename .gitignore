@@ -1,10 +1,16 @@
 
 ###> symfony/framework-bundle ###
 /.env.local
+/.env
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
-/var/
-/vendor/
+#/var/
+#/vendor/
+<<<<<<< HEAD
+.env
+=======
+/.env
+>>>>>>> stageResources
 ###< symfony/framework-bundle ###
