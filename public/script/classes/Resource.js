@@ -5,6 +5,17 @@ export class Resource
         this.sprite;
         this.resourceType = type;
         this.bounds;
+        switch (type)
+        {
+            case 1:
+                this.__droppingResources = {wood: 1};
+                break;
+            case 2:
+                this.__droppingResources = {stone: 1};
+                break;
+            default:
+                this.__droppingResources = {}
+        }
         this.__cellsStatus = {
             '-1': cell,
         }
@@ -19,6 +30,11 @@ export class Resource
         this.sprite.anchor.set(0.5);
         
         this.sprite.scale = Math.random() * (1 - 0.7) + 0.6;
+    }
+
+    getDroppingResources()
+    {
+        return this.__droppingResources;
     }
 
     setResourceType(type)

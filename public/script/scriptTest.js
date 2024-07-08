@@ -11,7 +11,6 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
 
     const island = CreateIsland(worldMatrix);
     
-    DrawBuildingsBlock(app, island);
     const allContainer = DrawInfoBlocks(app);
     
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
