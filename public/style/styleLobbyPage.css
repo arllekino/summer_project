@@ -21,8 +21,8 @@
     text-align: center;
     display: flex;
     justify-content: space-between;
-    padding-right: 150px;
-    padding-left: 150px;
+    padding-right: 10%;
+    padding-left: 10%;
 }
 
 .intro__block {
@@ -33,11 +33,13 @@
 
 .intro__lobby {
     background-color: #141623;
-    width: 560px;
-    height: 400px;
+    width: 100%;
+    max-width: 560px; 
+    height: auto;
     opacity: 95%;
     border: 1px solid #ffffff;
     text-align: center;
+    padding: 70px;
 }
 
 .intro__head {
@@ -58,7 +60,7 @@
     font-size: 36px;
     margin-top: 20px;
     color: #FFEEEE;
-    margin-left: 60px;
+    margin-left: 5%;
 }
 
 .intro__settings {
@@ -104,10 +106,9 @@
 .intro__block-code {
     background-color: #222B3C;
     border: 1px solid #ffffff;
-    width: 350px;
-    height: 150px;
+    min-width: 350px;
+    min-height: 150px;
     margin: 0 auto;
-    display: flex;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -127,7 +128,8 @@
     align-items: center;
     padding: 10px 20px;
     height: 70px;
-    width: 560px;
+    width: 100%;
+    max-width: 560px;
     background-color: #141623;
     cursor: pointer;
     border: none;
@@ -173,7 +175,7 @@
     display: flex;
     align-items: center;
     position: absolute;
-    top: 330px;
+    bottom: 20px;
     justify-content: center;
 }
 
@@ -185,4 +187,73 @@
 .flag-image {
     width: 250px;
     height: 250px;
+}
+
+@media (max-width: 1000px) {
+    .intro__header {
+        font-size: 24px;
+    }
+
+    .user-name {
+        font-size: 18px;
+    }
+
+    .intro__players {
+        column-gap: 20px;
+        row-gap: 10px;
+    }
+
+    .intro__player {
+        width: 150px;
+        height: 200px;
+    }
+
+    .block__user-name {
+        width: 100px;
+        height: 30px;
+    }
+
+    .flag-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .intro__lobby {
+        max-width: 360px; 
+        padding: 40px;
+    }
+    
+    .intro__head {
+        margin-right: 10px;
+        margin-bottom: 40px;
+        align-items: center;
+    }
+    
+    .intro__header {
+        font-size: 24px;
+        margin-left: 20px;
+    }
+    
+    .logout {
+        padding: 10px 20px;
+        min-height: 40px;
+        min-width: 80px;
+    }
+    
+    .button-text {
+        font-size: 18px;
+    }
+    
+    .intro__block-code {
+        min-width: 300px;
+        min-height: 120px;
+    }
+    
+    .intro__play {
+        margin-top: 20px;
+    }
+    
+    .button-text2 {
+        font-size: 24px;
+    }
 }
