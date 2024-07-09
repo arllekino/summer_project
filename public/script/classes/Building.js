@@ -3,18 +3,23 @@ import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources)
+    constructor(app, cells, buildings, name, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources)
     {
         this.__hp = hp;
         this.__defense = defense;
+        this.name = name;
         this.__buildType = buildType;
         this.__buildPtr = buildPtr;
+        this.givingResource = givingResource;
         this.__sprite;
         this.__peopleCount;
         this.requiredResources = requiredResources;
         this.__droppingResources = {}
-        Object.entries(requiredResources).forEach(([key, value]) => { value = Math.floor(value / 2); this.__droppingResources[key] = value; });
-        console.log(this.__droppingResources);
+        Object.entries(requiredResources).forEach(([key, value]) => { 
+            if (value !== 1) { value = Math.floor(value / 2); } 
+            if (key == 'hammer') { value = 0}
+            if (value !== 0) {this.__droppingResources[key] = value;} 
+        });
         this.__matrixPattern = [];
         this.__eCells = [];
         this.__cellsStatus = {};
@@ -29,8 +34,15 @@ export class Building
         return this.__stopMovingFlag;
     }
 
+    getGivingResource() {
+        return this.givingResource;
+    }
+
     getHp() {
         return this.__hp;
+    }
+    getName() {
+        return this.name;
     }
     setHp(hp) 
     {
@@ -51,6 +63,9 @@ export class Building
     setTowerType(buildType) {
         this.__buildType = buildType;
     }
+    getTexture() {
+        return PIXI.Texture.from(`building_${this.__buildPtr}.png`);
+    }
     initSprite(app) {
         this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
         this.__sprite.zIndex = 100;
@@ -61,6 +76,7 @@ export class Building
     changeTexture(ptr) {
         this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
     }
+
     setPosition(x, y) {
         this.__sprite.position.set(x, y);
         this.__sprite.zIndex = y;
