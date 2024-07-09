@@ -7,7 +7,6 @@ import { Game } from "./classes/game.js";
 export function stageResources(containerForDiceRoll, app, resources) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
-    console.log(resources, "asohgdyaushdjias");
 
     DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
     const buildings = {
@@ -78,8 +77,6 @@ export function stageBattles() {
 }
 
 export async function main(allContainer, app, island) {
-    console.log(island.resourcesOfUser, "mnbvcxzsdfghj");
-
     allContainer.wheelBlock.interactive = true;
     allContainer.wheelBlock.buttonMode = true;
     allContainer.wheelBlock.cursor = "pointer";
@@ -145,13 +142,12 @@ export async function main(allContainer, app, island) {
     const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
     DrawBuildingsBlock(app, island, allTextResources);
 
-    let flags = {
+    const flags = {
         hummer: false,
         rotations: false,
     };
 
     while (true) {
-        console.log(island.resourcesOfUser, "qwertyui");
         stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser);
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app);
@@ -186,7 +182,6 @@ export async function main(allContainer, app, island) {
         }
 
         Game.stage++;
-        console.log(island.resourcesOfUser, "HELLO");
         stageBuilding(app, island, allTextResources, flags);
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app);
@@ -202,7 +197,6 @@ export async function main(allContainer, app, island) {
         }
 
         Game.stage++;
-
         stageBattles();
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app);
