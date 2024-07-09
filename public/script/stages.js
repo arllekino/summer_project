@@ -3,18 +3,19 @@ import { startTimerForStage } from "./timerForStage.js";
 import { GetResources } from "./stages/resources.js";
 import { Destroyer, AddEventListenersForHammer } from "./classes/destroyer.js"; 
 import { Game } from "./classes/game.js";
+import { MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 
 export function stageResources(containerForDiceRoll, app, resources) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
 
-    DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
+    // DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
     const buildings = {
         houseVillage: 4,
         houseGrendee: 7,
         farm: 3,
     }
-    GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
+    // GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
 
 export function stageDisasters() {
@@ -72,8 +73,16 @@ export async function stageBuilding(app, island, allTextResources, flags) {
       });
 }
 
-export function stageBattles() {
-    console.log("battles");
+export function stageBattles(app, cells, ships, worldMatrix) {
+    const coordsEnd = {
+        x: 0,
+        y: 0,
+    }
+    const coordsStart = {
+        x: 14,
+        y: 14,
+    }
+    MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
 }
 
 export async function main(allContainer, app, island) {
@@ -95,6 +104,9 @@ export async function main(allContainer, app, island) {
                 resource.setPosition(resource.getBounds().x - 50, resource.getBounds().y);
                 resource.setAnchor(0.5);
             })
+            island.ships.forEach(ship => {
+                SetPositionShip(ship.getBounds().x - 50, ship.getBounds().y, ship)
+            })
         }
         else if (key === 'w' && Game.stage !== 1) {
             island.cells.forEach(cell => {
@@ -107,6 +119,9 @@ export async function main(allContainer, app, island) {
                 resource.setAnchor(0);
                 resource.setPosition(resource.getBounds().x, resource.getBounds().y - 50)
                 resource.setAnchor(0.5);
+            })
+            island.ships.forEach(ship => {
+                SetPositionShip(ship.getBounds().x, ship.getBounds().y - 50, ship)
             })
         }
         else if (key === 'd' && Game.stage !== 1) {
@@ -121,6 +136,9 @@ export async function main(allContainer, app, island) {
                 resource.setPosition(resource.getBounds().x + 50, resource.getBounds().y)
                 resource.setAnchor(0.5);
             })
+            island.ships.forEach(ship => {
+                SetPositionShip(ship.getBounds().x + 50, ship.getBounds().y, ship)
+            })
         }
         else if (key === 's' && Game.stage !== 1) {
             island.cells.forEach(cell => {
@@ -133,6 +151,9 @@ export async function main(allContainer, app, island) {
                 resource.setAnchor(0);
                 resource.setPosition(resource.getBounds().x, resource.getBounds().y + 50)
                 resource.setAnchor(0.5);
+            })
+            island.ships.forEach(ship => {
+                SetPositionShip(ship.getBounds().x, ship.getBounds().y + 50, ship)
             })
         }
     }
@@ -197,7 +218,7 @@ export async function main(allContainer, app, island) {
         }
 
         Game.stage++;
-        stageBattles();
+        stageBattles(app, island.cells, island.ships, island.matrixOfIsland);
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app);
         })

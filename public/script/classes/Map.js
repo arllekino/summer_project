@@ -85,5 +85,6 @@ export function CreateIsland(worldMatrix) {
         buildingMoment: false,
         buldingObject: null,
         buildingSprite: null,
+        ships: [],
     }
 }
