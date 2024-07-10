@@ -151,6 +151,6 @@ class __TwigTemplate_7a0ba384c314f3a3b940ed2981939d1d extends Template
 \t{% endblock %}
 {% endblock %}
 {% block content %}{% endblock %}
-", "main_game.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\main_game.html.twig");
+", "main_game.html.twig", "D:\\GameProject\\summer_project\\templates\\main_game.html.twig");
     }
 }

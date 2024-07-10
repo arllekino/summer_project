@@ -29,16 +29,6 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
 
     main(allContainer, app, island);    
 
-    const timer = new Timer(5000);
-
-    app.ticker.add(() => {
-        timer.update(app.ticker.elapsedMS);
-
-        if (timer.isExpired()) {
-            timer.pause();
-        }
-    });
-
     return {
         stage: app.stage,
     };
