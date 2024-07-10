@@ -88,6 +88,7 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
             'React\\Stream\\' => 13,
             'React\\Socket\\' => 13,
             'React\\Promise\\' => 14,
+            'React\\Http\\' => 11,
             'React\\EventLoop\\' => 16,
             'React\\Dns\\' => 10,
             'React\\Cache\\' => 12,
@@ -106,6 +107,10 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
+        ),
+        'F' => 
+        array (
+            'Fig\\Http\\Message\\' => 17,
         ),
         'E' => 
         array (
@@ -348,6 +353,10 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
         array (
             0 => __DIR__ . '/..' . '/react/promise/src',
         ),
+        'React\\Http\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/react/http/src',
+        ),
         'React\\EventLoop\\' => 
         array (
             0 => __DIR__ . '/..' . '/react/event-loop/src',
@@ -374,8 +383,8 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\EventDispatcher\\' => 
         array (
@@ -396,6 +405,10 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
         'GuzzleHttp\\Psr7\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
+        ),
+        'Fig\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fig/http-message-util/src',
         ),
         'Evenement\\' => 
         array (
@@ -495,6 +508,7 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
         'App\\Service\\LobbyPlaceService' => __DIR__ . '/../..' . '/src/Service/LobbyPlaceService.php',
         'App\\Service\\PasswordHasher' => __DIR__ . '/../..' . '/src/Service/PasswordHasher.php',
         'App\\Service\\UserService' => __DIR__ . '/../..' . '/src/Service/UserService.php',
+        'App\\WebSocket\\LobbyWebSocketHandler' => __DIR__ . '/../..' . '/src/WebSocket/LobbyWebSocketHandler.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'CURLStringFile' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
         'Collator' => __DIR__ . '/..' . '/symfony/polyfill-intl-icu/Resources/stubs/Collator.php',
@@ -1608,6 +1622,8 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
         'Evenement\\EventEmitter' => __DIR__ . '/..' . '/evenement/evenement/src/EventEmitter.php',
         'Evenement\\EventEmitterInterface' => __DIR__ . '/..' . '/evenement/evenement/src/EventEmitterInterface.php',
         'Evenement\\EventEmitterTrait' => __DIR__ . '/..' . '/evenement/evenement/src/EventEmitterTrait.php',
+        'Fig\\Http\\Message\\RequestMethodInterface' => __DIR__ . '/..' . '/fig/http-message-util/src/RequestMethodInterface.php',
+        'Fig\\Http\\Message\\StatusCodeInterface' => __DIR__ . '/..' . '/fig/http-message-util/src/StatusCodeInterface.php',
         'GuzzleHttp\\Psr7\\AppendStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/AppendStream.php',
         'GuzzleHttp\\Psr7\\BufferStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/BufferStream.php',
         'GuzzleHttp\\Psr7\\CachingStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/CachingStream.php',
@@ -2018,6 +2034,42 @@ class ComposerStaticInitfd0115627e097aebd3ce530b8a36e4bb
         'React\\EventLoop\\TimerInterface' => __DIR__ . '/..' . '/react/event-loop/src/TimerInterface.php',
         'React\\EventLoop\\Timer\\Timer' => __DIR__ . '/..' . '/react/event-loop/src/Timer/Timer.php',
         'React\\EventLoop\\Timer\\Timers' => __DIR__ . '/..' . '/react/event-loop/src/Timer/Timers.php',
+        'React\\Http\\Browser' => __DIR__ . '/..' . '/react/http/src/Browser.php',
+        'React\\Http\\Client\\Client' => __DIR__ . '/..' . '/react/http/src/Client/Client.php',
+        'React\\Http\\HttpServer' => __DIR__ . '/..' . '/react/http/src/HttpServer.php',
+        'React\\Http\\Io\\AbstractMessage' => __DIR__ . '/..' . '/react/http/src/Io/AbstractMessage.php',
+        'React\\Http\\Io\\AbstractRequest' => __DIR__ . '/..' . '/react/http/src/Io/AbstractRequest.php',
+        'React\\Http\\Io\\BufferedBody' => __DIR__ . '/..' . '/react/http/src/Io/BufferedBody.php',
+        'React\\Http\\Io\\ChunkedDecoder' => __DIR__ . '/..' . '/react/http/src/Io/ChunkedDecoder.php',
+        'React\\Http\\Io\\ChunkedEncoder' => __DIR__ . '/..' . '/react/http/src/Io/ChunkedEncoder.php',
+        'React\\Http\\Io\\ClientConnectionManager' => __DIR__ . '/..' . '/react/http/src/Io/ClientConnectionManager.php',
+        'React\\Http\\Io\\ClientRequestState' => __DIR__ . '/..' . '/react/http/src/Io/ClientRequestState.php',
+        'React\\Http\\Io\\ClientRequestStream' => __DIR__ . '/..' . '/react/http/src/Io/ClientRequestStream.php',
+        'React\\Http\\Io\\Clock' => __DIR__ . '/..' . '/react/http/src/Io/Clock.php',
+        'React\\Http\\Io\\CloseProtectionStream' => __DIR__ . '/..' . '/react/http/src/Io/CloseProtectionStream.php',
+        'React\\Http\\Io\\EmptyBodyStream' => __DIR__ . '/..' . '/react/http/src/Io/EmptyBodyStream.php',
+        'React\\Http\\Io\\HttpBodyStream' => __DIR__ . '/..' . '/react/http/src/Io/HttpBodyStream.php',
+        'React\\Http\\Io\\IniUtil' => __DIR__ . '/..' . '/react/http/src/Io/IniUtil.php',
+        'React\\Http\\Io\\LengthLimitedStream' => __DIR__ . '/..' . '/react/http/src/Io/LengthLimitedStream.php',
+        'React\\Http\\Io\\MiddlewareRunner' => __DIR__ . '/..' . '/react/http/src/Io/MiddlewareRunner.php',
+        'React\\Http\\Io\\MultipartParser' => __DIR__ . '/..' . '/react/http/src/Io/MultipartParser.php',
+        'React\\Http\\Io\\PauseBufferStream' => __DIR__ . '/..' . '/react/http/src/Io/PauseBufferStream.php',
+        'React\\Http\\Io\\ReadableBodyStream' => __DIR__ . '/..' . '/react/http/src/Io/ReadableBodyStream.php',
+        'React\\Http\\Io\\RequestHeaderParser' => __DIR__ . '/..' . '/react/http/src/Io/RequestHeaderParser.php',
+        'React\\Http\\Io\\Sender' => __DIR__ . '/..' . '/react/http/src/Io/Sender.php',
+        'React\\Http\\Io\\StreamingServer' => __DIR__ . '/..' . '/react/http/src/Io/StreamingServer.php',
+        'React\\Http\\Io\\Transaction' => __DIR__ . '/..' . '/react/http/src/Io/Transaction.php',
+        'React\\Http\\Io\\UploadedFile' => __DIR__ . '/..' . '/react/http/src/Io/UploadedFile.php',
+        'React\\Http\\Message\\Request' => __DIR__ . '/..' . '/react/http/src/Message/Request.php',
+        'React\\Http\\Message\\Response' => __DIR__ . '/..' . '/react/http/src/Message/Response.php',
+        'React\\Http\\Message\\ResponseException' => __DIR__ . '/..' . '/react/http/src/Message/ResponseException.php',
+        'React\\Http\\Message\\ServerRequest' => __DIR__ . '/..' . '/react/http/src/Message/ServerRequest.php',
+        'React\\Http\\Message\\Uri' => __DIR__ . '/..' . '/react/http/src/Message/Uri.php',
+        'React\\Http\\Middleware\\LimitConcurrentRequestsMiddleware' => __DIR__ . '/..' . '/react/http/src/Middleware/LimitConcurrentRequestsMiddleware.php',
+        'React\\Http\\Middleware\\RequestBodyBufferMiddleware' => __DIR__ . '/..' . '/react/http/src/Middleware/RequestBodyBufferMiddleware.php',
+        'React\\Http\\Middleware\\RequestBodyParserMiddleware' => __DIR__ . '/..' . '/react/http/src/Middleware/RequestBodyParserMiddleware.php',
+        'React\\Http\\Middleware\\StreamingRequestMiddleware' => __DIR__ . '/..' . '/react/http/src/Middleware/StreamingRequestMiddleware.php',
+        'React\\Http\\Server' => __DIR__ . '/..' . '/react/http/src/Server.php',
         'React\\Promise\\Deferred' => __DIR__ . '/..' . '/react/promise/src/Deferred.php',
         'React\\Promise\\Exception\\CompositeException' => __DIR__ . '/..' . '/react/promise/src/Exception/CompositeException.php',
         'React\\Promise\\Exception\\LengthException' => __DIR__ . '/..' . '/react/promise/src/Exception/LengthException.php',

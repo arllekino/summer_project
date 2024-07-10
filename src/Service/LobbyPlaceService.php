@@ -42,7 +42,7 @@ class LobbyPlaceService
     public function addUserToLobby(string $keyRoom, int $userId): void
     {
         $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
-        if ($lobbyPlaces === null)
+        if (empty($lobbyPlaces))
         {
             throw new \UnexpectedValueException('Лобби не найдено');
         }
@@ -57,6 +57,7 @@ class LobbyPlaceService
             $userId,
             $keyRoom
         );
+        $this->repository->store($lobbyPlace);
 
     }
 

@@ -29,6 +29,7 @@ class __TwigTemplate_118fe3c6b6e13e26ee81087937bf4d68 extends Template
             'title' => [$this, 'block_title'],
             'head' => [$this, 'block_head'],
             'content' => [$this, 'block_content'],
+            'javascripts' => [$this, 'block_javascripts'],
         ];
     }
 
@@ -108,7 +109,7 @@ class __TwigTemplate_118fe3c6b6e13e26ee81087937bf4d68 extends Template
 \t\t\t\t\t\t<button type=\"submit\" class=\"intro__but add-lobby\">Создать лобби</button>
 \t\t\t\t\t</form>
 \t\t\t\t\t<form action=\"/join_lobby\" class=\"intro__content-lobby\">
-\t\t\t\t\t\t<input type=\"text\" name=\"keyRoom\" id=\"key-room\" class=\"key__room\" placeholder=\"Введите код\" maxlength=\"6\"> 
+\t\t\t\t\t\t<input type=\"text\" name=\"keyRoom\" id=\"key-room\" class=\"key__room\" placeholder=\"Введите код\" maxlength=\"4\"> 
 \t\t\t\t\t\t<button type=\"submit\" class=\"intro__but enter-lobby\">Войти в лобби</button>
 \t\t\t\t\t</form>
 \t\t\t\t</div>
@@ -121,6 +122,22 @@ class __TwigTemplate_118fe3c6b6e13e26ee81087937bf4d68 extends Template
 \t\t\t</div>
 \t\t</div>
 \t</div>
+";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        return; yield '';
+    }
+
+    // line 37
+    public function block_javascripts($context, array $blocks = [])
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "javascripts"));
+
+        // line 38
+        yield "\t<script type=\"text/javascript\" src=\"/script/websocket/startLobby.js\"></script>
 ";
         
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
@@ -149,7 +166,7 @@ class __TwigTemplate_118fe3c6b6e13e26ee81087937bf4d68 extends Template
      */
     public function getDebugInfo()
     {
-        return array (  106 => 19,  93 => 8,  86 => 7,  77 => 5,  70 => 4,  55 => 2,  38 => 1,);
+        return array (  140 => 38,  133 => 37,  107 => 19,  94 => 8,  87 => 7,  78 => 5,  71 => 4,  56 => 2,  39 => 1,);
     }
 
     public function getSourceContext()
@@ -176,7 +193,7 @@ class __TwigTemplate_118fe3c6b6e13e26ee81087937bf4d68 extends Template
 \t\t\t\t\t\t<button type=\"submit\" class=\"intro__but add-lobby\">Создать лобби</button>
 \t\t\t\t\t</form>
 \t\t\t\t\t<form action=\"/join_lobby\" class=\"intro__content-lobby\">
-\t\t\t\t\t\t<input type=\"text\" name=\"keyRoom\" id=\"key-room\" class=\"key__room\" placeholder=\"Введите код\" maxlength=\"6\"> 
+\t\t\t\t\t\t<input type=\"text\" name=\"keyRoom\" id=\"key-room\" class=\"key__room\" placeholder=\"Введите код\" maxlength=\"4\"> 
 \t\t\t\t\t\t<button type=\"submit\" class=\"intro__but enter-lobby\">Войти в лобби</button>
 \t\t\t\t\t</form>
 \t\t\t\t</div>
@@ -190,6 +207,8 @@ class __TwigTemplate_118fe3c6b6e13e26ee81087937bf4d68 extends Template
 \t\t</div>
 \t</div>
 {% endblock %}
-", "start_lobby_page.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\start_lobby_page.html.twig");
+{% block javascripts %}
+\t<script type=\"text/javascript\" src=\"/script/websocket/startLobby.js\"></script>
+{% endblock %}", "start_lobby_page.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\start_lobby_page.html.twig");
     }
 }

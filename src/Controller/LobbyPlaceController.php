@@ -27,7 +27,6 @@ class LobbyPlaceController extends AbstractController
         $this->userService = $userService;
         $this->lobbyService = $lobbyService;
     }
-
     
     public function startLobbyPage(): Response
     {
@@ -106,9 +105,12 @@ class LobbyPlaceController extends AbstractController
             );
         }
 
-        return $this->redirectToRoute('lobby_page', [
-            'keyRoom' => $keyRoom
-        ]);       
+        $userName = $this->userService->findUserName($sessionUserId);
+
+        return $this->redirectToRoute(
+            'lobby_page', 
+            ['keyRoom' => $keyRoom]
+    );       
     }
     public function lobbyPage(Request $request): Response
     {
