@@ -22,6 +22,8 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
     texturess = await PIXI.Assets.load('/../imageParser/greenCastle.json');
     texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
     texturess = await PIXI.Assets.load('/../imageParser/resources.json');
+    textures = await PIXI.Assets.load("/../imageParser/backgroundInfobox.json");
+    textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
 
     island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland);
 

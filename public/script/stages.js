@@ -4,46 +4,38 @@ import { GetResources } from "./stages/resources.js";
 import { Destroyer, AddEventListenersForHammer } from "./classes/destroyer.js"; 
 import { Game } from "./classes/game.js";
 import { MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
+import { Building } from "./classes/Building.js";
+import { Infobox } from "./classes/Infobox.js";
+import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 
-export function stageResources(containerForDiceRoll, app, resources) {
+export function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
-
-    // DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
-    const buildings = {
-        houseVillage: 4,
-        houseGrendee: 7,
-        farm: 3,
-    }
-    // GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
+    DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
+    GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
 
 export function stageDisasters() {
     console.log("disasters");
 }
 
-export async function stageBuilding(app, island, allTextResources, flags) {
-    if (!flags['hummer'])
-    {
-        const hummer = new Destroyer(app)
-        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland, island.buildingMoment, app, island.resourcesOfUser, allTextResources);
-        flags['hummer'] = true;
-    }
-      const handleKeyDown = (event) => {
+export async function StartStage(app, island, allTextResources, flags, blocks)
+{
+    const handleKeyDown = (event) => {
         const key = event.key;
-
-        if (island.buildingSprite) {
+        if (island.buldingObject)
+        {
             if (island.buldingObject.getStopMovingFlag())
             {
                 island.buildingMoment = false;
             }
-            if (key === 'f' && island.buildingMoment && island.buldingObject && Game.stage === 3) {
+            if (key === 'f' && island.buildingMoment && island.buldingObject && (Game.stage === 3 || Game.stage === 0)) {
                 island.buldingObject.clearPatterns();
                 island.buldingObject.clearCellsStatus()
                 island.buldingObject.rotateMatrix(-1); 
                 island.buldingObject.renderMatrixPattern(app);
             } 
-            else if (key === 'g' && island.buildingMoment && island.buldingObject && Game.stage === 3) {
+            else if (key === 'g' && island.buildingMoment && island.buldingObject && (Game.stage === 3 || Game.stage === 0)) {
                 island.buldingObject.clearPatterns();
                 island.buldingObject.clearCellsStatus();
                 island.buldingObject.rotateMatrix(1);
@@ -58,8 +50,103 @@ export async function stageBuilding(app, island, allTextResources, flags) {
         flags['rotations'] = true;
     }
 
+    await buildCastle(app, island, allTextResources, blocks);
+    await buildFarmerHouse(app, island, allTextResources, blocks);
+    await buildFarmerHouse(app, island, allTextResources, blocks);
+    await buildFarmerHouse(app, island, allTextResources, blocks);
+    await buildFarm(app, island, allTextResources, blocks);
+    Game.stage += 1;
+}
+
+async function buildCastle(app, island, allTextResources, blocks) {
+    return new Promise((resolve) => {
+        const requiredResources = {};
+        island.buildingMoment = true;
+        island.buldingObject = new Building(app, island.cells, island.buildings, 'Castle', 'Castle', {}, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+        island.buldingObject.setMatrixPattern([
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ])
+        island.buldingObject.renderMatrixPattern(app);
+        const checkCondition = () => {
+            if (!island.buldingObject.getStopMovingFlag())
+            {
+                setTimeout(checkCondition, 100);
+            }
+            else
+            {
+                resolve();
+            }
+        }
+        checkCondition();
+        
+    })
+}
+async function buildFarmerHouse(app, island, allTextResources, blocks) {
+    return new Promise((resolve) => {
+        const requiredResources = {};
+        island.buildingMoment = true;
+        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farmer House', 'houseVillage', {}, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+        island.buldingObject.setMatrixPattern([
+            [0, 0, 0],
+            [0, 1, 0],
+            [0, 0, 0],
+        ])
+        island.buldingObject.renderMatrixPattern(app);
+        island.buldingObject.__droppingResources = {wood: 1}
+        blocks.infoBox.show(island.buldingObject);
+        const checkCondition = () => {
+            if (!island.buldingObject.getStopMovingFlag())
+            {
+                setTimeout(checkCondition, 100);
+            }
+            else
+            {
+                resolve();
+            }
+        }
+        checkCondition();
+    })
+}
+
+async function buildFarm(app, island, allTextResources, blocks) {
+    return new Promise((resolve) => {
+        const requiredResources = {};
+        island.buildingMoment = true;
+        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+        island.buldingObject.setMatrixPattern([
+            [1, 1, 0],
+            [1, 1, 0],
+            [1, 1, 0],
+        ])
+        island.buldingObject.renderMatrixPattern(app);
+        island.buldingObject.__droppingResources = {wood: 1}
+        blocks.infoBox.show(island.buldingObject);
+        const checkCondition = () => {
+            if (!island.buldingObject.getStopMovingFlag())
+            {
+                setTimeout(checkCondition, 100);
+            }
+            else
+            {
+                resolve();
+            }
+        }
+        checkCondition();
+    })
+}
+
+export async function stageBuilding(app, island, allTextResources, flags, blocks) {
+    if (!flags['hummer'])
+    {
+        const hummer = new Destroyer(app)
+        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland, island.buildingMoment, app, island.resourcesOfUser, allTextResources, blocks);
+        flags['hummer'] = true;
+    }
+
     document.addEventListener("pointerdown", function(event) {
-        if (event.button === 2 && island.buildingMoment && Game.stage === 3) 
+        if (event.button === 2 && !island.buldingObject.getStopMovingFlag() && Game.stage === 3) 
         {
             event.preventDefault();
             island.buildingSprite.tint = 0xffffff;
@@ -69,6 +156,23 @@ export async function stageBuilding(app, island, allTextResources, flags) {
             app.stage.removeChild(island.buldingObject.__sprite);
             island.buldingObject.__sprite.destroy();
             island.buildingMoment = false;
+        }
+        console.log(event.button)
+        if (event.button === 0 && island.buldingObject.getStopMovingFlag() && Game.stage === 3)
+        {
+            let minDist = 99999;
+            let minDistObject = null;
+            island.buildings.forEach((building) => {
+                if (mouseDistance(event, building) < minDist && mouseIntersects(event, building))
+                {
+                    minDist = mouseDistance(event, building);
+                    minDistObject = building;
+                }
+            })
+            if (minDistObject)
+            {
+                blocks.infoBox.show(minDistObject);
+            }
         }
       });
 }
@@ -160,16 +264,29 @@ export async function main(allContainer, app, island) {
 
     window.addEventListener('keydown', handleKeyDown);
 
+    let blocks = {
+        infoBox: new Infobox(app),
+        buildings: {
+            houseVillage: 0,
+            houseGrendee: 0,
+            farm: 0,
+            Warehouse: 0
+        }
+    }
+
     const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
-    DrawBuildingsBlock(app, island, allTextResources);
+    DrawBuildingsBlock(app, island, allTextResources, blocks);
 
     const flags = {
         hummer: false,
         rotations: false,
     };
 
+    await StartStage(app, island, allTextResources, flags, blocks);
+
     while (true) {
-        stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser);
+
+        stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, blocks.buildings);
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app);
         });
@@ -203,7 +320,8 @@ export async function main(allContainer, app, island) {
         }
 
         Game.stage++;
-        stageBuilding(app, island, allTextResources, flags);
+
+        stageBuilding(app, island, allTextResources, flags, blocks);
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app);
         })

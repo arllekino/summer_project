@@ -1,0 +1,17 @@
+{
+    "frames": {
+        "infobox.png": {
+            "frame": { "x": 0, "y": 0, "w": 360, "h": 164 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 360, "h": 164 },
+            "sourceSize": { "w": 360, "h": 164 }
+        }
+    },
+    "meta": {
+        "image": "/../assets/ResourceBlock.png",
+        "format": "RGBA8888",
+        "size": { "w": 360, "h": 164 },
+        "scale": "1"
+    }
+}

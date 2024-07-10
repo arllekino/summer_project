@@ -29,7 +29,7 @@ export class Destroyer
             this.activation = false;
         }
 
-        click(e, objects, buildings, resources, resourcesOfUser, allTextResources)
+        click(e, objects, buildings, resources, resourcesOfUser, allTextResources, blocks)
         {
             if (!this.activation)
             {
@@ -55,6 +55,7 @@ export class Destroyer
                 this.__sprite.destroy();
                 this.deactivate();
                 resourcesOfUser['hammer'] -= 1;
+                blocks.buildings[minDistObject.getAlias()] -= 1;
                 for (const resource in minDistObject.getDroppingResources())
                 {
                     resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
@@ -89,7 +90,7 @@ export class Destroyer
         }
 }
 
-export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, resourcesOfUser, allTextResources) {
+export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, resourcesOfUser, allTextResources, blocks) {
     document.addEventListener('keypress', (e) => {
         const key = e.key;
         if (key === 'z' && !hummer.activation && Game.stage === 3 && resourcesOfUser['hammer'] > 0) {
@@ -106,5 +107,5 @@ export function AddEventListenersForHammer(hummer, buildings, resources, buildin
     //     }
     // })
     document.addEventListener('mousemove', (e) => hummer.followMouse(e), true)
-    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources, resourcesOfUser, allTextResources))
+    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources, resourcesOfUser, allTextResources, blocks))
 }

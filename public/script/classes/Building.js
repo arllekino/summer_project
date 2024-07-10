@@ -3,34 +3,53 @@ import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources)
+    constructor(app, cells, buildings, name, alias, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks)
     {
         this.__hp = hp;
         this.__defense = defense;
+        this.name = name;
+        this.alias = alias;
         this.__buildType = buildType;
         this.__buildPtr = buildPtr;
+        this.givingResource = givingResource;
         this.__sprite;
         this.__peopleCount;
         this.requiredResources = requiredResources;
         this.__droppingResources = {}
-        Object.entries(requiredResources).forEach(([key, value]) => { value = Math.floor(value / 2); this.__droppingResources[key] = value; });
-        console.log(this.__droppingResources);
+        Object.entries(requiredResources).forEach(([key, value]) => { 
+            if (value !== 1) { value = Math.floor(value / 2); } 
+            if (key == 'hammer') { value = 0}
+            if (value !== 0) {this.__droppingResources[key] = value;} 
+        });
         this.__matrixPattern = [];
         this.__eCells = [];
         this.__cellsStatus = {};
         this.__stopMovingFlag = false;
         this.__bounds;
         this.initSprite(app);
-        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources));
+        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources, blocks));
         app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells));
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
+
+    getAlias()
+    {
+        return this.alias;
+    }
+
     getStopMovingFlag() {
         return this.__stopMovingFlag;
     }
 
+    getGivingResource() {
+        return this.givingResource;
+    }
+
     getHp() {
         return this.__hp;
+    }
+    getName() {
+        return this.name;
     }
     setHp(hp) 
     {
@@ -51,6 +70,9 @@ export class Building
     setTowerType(buildType) {
         this.__buildType = buildType;
     }
+    getTexture() {
+        return PIXI.Texture.from(`building_${this.__buildPtr}.png`);
+    }
     initSprite(app) {
         this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
         this.__sprite.zIndex = 100;
@@ -61,6 +83,7 @@ export class Building
     changeTexture(ptr) {
         this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
     }
+
     setPosition(x, y) {
         this.__sprite.position.set(x, y);
         this.__sprite.zIndex = y;
@@ -173,7 +196,7 @@ export class Building
         }
     }
 
-    buildBuilding(app, buildings, resources, allTextResources) {
+    buildBuilding(app, buildings, resources, allTextResources, blocks) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -192,6 +215,7 @@ export class Building
                 resources[resource] -= this.requiredResources[resource];
             }
             UpdateNumberOfResources(allTextResources, resources);
+            blocks.buildings[this.getAlias()] += 1;
             // selectedBuilding.tint = 0xffffff;
         }
     }
@@ -217,9 +241,9 @@ export class Building
         this.__cellsStatus = {};
     }
 
-    mouseClick(app, buildings, resources, allTextResources) {
+    mouseClick(app, buildings, resources, allTextResources, blocks) {
         if (!this.__stopMovingFlag) {
-            this.buildBuilding(app, buildings, resources, allTextResources);
+            this.buildBuilding(app, buildings, resources, allTextResources, blocks);
         }
     }
 }
