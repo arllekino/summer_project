@@ -18,6 +18,7 @@ login_user:
 logout:
   path: /logout
   controller: App\Controller\UserController::logout  
+
 start_lobby_page:
   path: /start_lobby_page
   controller: App\Controller\LobbyPlaceController::startLobbyPage
@@ -34,6 +35,11 @@ lobby_page:
 quit_lobby:
   path: /quit_lobby
   controller: App\Controller\LobbyPlaceController::quitFromLooby
+
+error_page:
+  path: /error_page/{messageCode}
+  methods: GET
+  controller: App\Controller\ErrorController::onError
 
 main_game:
   path: /main_game

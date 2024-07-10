@@ -43,7 +43,7 @@ class IslandService
         $island = $this->repository->findByUserId($input->getUserId());
         if ($island === null)
         {
-            throw new \UnexpectedValueException('Island not found');
+            throw new \UnexpectedValueException('Остров не найден');
         }  
 
         $island->setIslandMatrix($input->getIslandMatrix());

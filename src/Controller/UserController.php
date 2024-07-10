@@ -26,10 +26,11 @@ class UserController extends AbstractController
 
     public function registerForm(Request $request): Response
     {
-        $error = $request->get('error');
-        return $this->render('register_form.html.twig', [
-            'error' => $error
-        ]); 
+        $message = $request->get('message');
+        return $this->render(
+            'register_form.html.twig',
+            ['message' => $message]
+        ); 
     }
 
     public function registerUser(Request $request): Response
@@ -42,16 +43,16 @@ class UserController extends AbstractController
         if (!$this->isValid($input))
         {
             return $this->redirectToRoute(
-                'register_form', [
-                'error' => 'Check all fields'
-            ]);
+                'register_form', 
+                ['message' => 'Не все поля заполнены']
+            );
         }
         try {
             $this->userService->register($input);
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'register_form', [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ]);
         }
         $this->session->clearSession();
@@ -60,15 +61,16 @@ class UserController extends AbstractController
 
     public function logInForm(Request $request): Response
     {       
-        $userSession = $this->session->getSession('userId');
+        $userSession = $this->session->getSession(self::SESSION_NAME);
         if ($userSession)
         {
             return $this->redirectToRoute('start_lobby_page');
         } 
-        $error = $request->get('error');
-        return $this->render('login_form.html.twig', [
-            'error' => $error
-        ]);
+        $message = $request->get('message');
+        return $this->render(
+            'login_form.html.twig', 
+            ['message' => $message]
+        );
     }
 
     public function logInUser(Request $request): Response
@@ -80,9 +82,9 @@ class UserController extends AbstractController
         if (!$this->isValid($input))
         {
             return $this->redirectToRoute(
-                'login_form', [
-                'error' => 'Check all fields'
-            ]);
+                'login_form', 
+                ['message' => 'Не все поля заполнены']
+            );
         }
         try {
             $userId = $this->userService->logIn($input);
@@ -90,7 +92,7 @@ class UserController extends AbstractController
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'login_form', [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ]);
         }   
         $this->session->setSession(self::SESSION_NAME, $userId);
@@ -100,7 +102,7 @@ class UserController extends AbstractController
 
     public function logout(): Response
     {
-        $this->session->removeSession('userId');
+        $this->session->removeSession(self::SESSION_NAME);
         return $this->redirectToRoute('login_form');
     }
 
@@ -108,12 +110,12 @@ class UserController extends AbstractController
     {
         // пока что проверяем на наличие сессии юзера
         // в дальнейшем надо проверять на наличие сессии игры
-        $sessionUserId = $this->session->getSession('userId');
+        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
         if (!$sessionUserId)
         {
             return $this->redirectToRoute(
                 'login_form', 
-                ['error' => 'You must log in first']
+                ['message' => 'Сначала вы должны войти в аккаунт']
             );
         }
         

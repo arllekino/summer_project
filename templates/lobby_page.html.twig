@@ -8,14 +8,14 @@
 	<div class="container">
 		<div class="intro">
 			<div class="intro__players">
-                {% for userName in userNames %}
-                    <div class="intro__player">
-					<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
-					<div class="block__user-name">
-						<span class="user-name">{{ userName }}</span>
+				{% for userName in userNames %}
+					<div class="intro__player">
+						<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
+						<div class="block__user-name">
+							<span class="user-name" id="{{ userName }}">{{ userName }}</span>
+						</div>
 					</div>
-				</div>                    
-                {% endfor %}
+				{% endfor %}
 			</div>
 			<div class="intro__block">
 				<div class="intro__lobby">
@@ -26,7 +26,7 @@
 								<button type"submit" class="intro__settings"></button>
 							</form>
 							<form action="/quit_lobby" class="intro__logout">
-                                <input type="hidden" name="keyRoom" value="{{ keyRoom }}"/>
+								<input type="hidden" name="keyRoom" value="{{ keyRoom }}"/>
 								<button type="submit" class="intro__but logout">
 									<span class="button-text">Выйти</span>
 									<img src="../images/home.jpg" alt="Описание картинки" class="button-image">
@@ -46,4 +46,8 @@
 				</form>
 			</div>
 		</div>
-	{% endblock %}
+	</div>	
+{% endblock %}
+{% block javascripts %}
+	<script type="text/javascript" src="/script/websocket/lobby.js"></script>
+{% endblock %}

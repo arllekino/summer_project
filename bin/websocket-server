@@ -1,0 +1,30 @@
+<?php
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+use Ratchet\Http\HttpServer;
+use Ratchet\Server\IoServer;
+use Ratchet\WebSocket\WsServer;
+use React\EventLoop\Loop;
+use React\Socket\SocketServer;
+use App\WebSocket\WebSocketHandler;
+
+$loop = Loop::get();
+
+//10.250.104.24 IP института
+//10.10.24.51   IP коливинга
+
+$ipAndPort = '10.250.104.24:8080';
+
+$webSock = new SocketServer($ipAndPort, [], $loop);
+$webServer = new IoServer(
+    new HttpServer(
+        new WsServer(
+            new WebSocketHandler()
+        )
+    ),
+    $webSock,
+    $loop
+);
+
+echo "WebSocket server started on {$ipAndPort}\n";
+$loop->run();

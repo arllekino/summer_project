@@ -23,7 +23,7 @@ class UserService
         $extantEmailUser = $this->repository->findByEmail($input->getEmail());
         if ($extantEmailUser)
         {
-            throw new \UnexpectedValueException('User with this email is already exist');
+            throw new \UnexpectedValueException('Пользователь с такой почтой уже существует');
         }
 
         $hashPassword = $this->passwordHasher->hash($input->getPassword());
@@ -50,7 +50,7 @@ class UserService
                 return $extantEmailUser->getId();
             }
         }
-        throw new \UnexpectedValueException('Incorrect email or password');
+        throw new \UnexpectedValueException('Неправильная почта или пароль');
     }
 
     public function findUserName(int $id): string 
@@ -58,7 +58,7 @@ class UserService
         $user = $this->repository->findById($id);
         if ($user === null)
         {
-            throw new \UnexpectedValueException('User is not exist');
+            throw new \UnexpectedValueException('Пользователь не найден');
         }
         return $user->getUserName();
     }
