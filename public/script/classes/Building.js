@@ -79,11 +79,9 @@ export class Building
         this.__sprite.alpha = 0.3;
         app.stage.addChild(this.__sprite);
     }
-
     changeTexture(ptr) {
         this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
     }
-
     setPosition(x, y) {
         this.__sprite.position.set(x, y);
         this.__sprite.zIndex = y;

@@ -55,7 +55,10 @@ export class Destroyer
                 this.__sprite.destroy();
                 this.deactivate();
                 resourcesOfUser['hammer'] -= 1;
-                blocks.buildings[minDistObject.getAlias()] -= 1;
+                if (minDistObject in buildings)
+                {
+                    blocks.buildings[minDistObject.getAlias()] -= 1;
+                }
                 for (const resource in minDistObject.getDroppingResources())
                 {
                     resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
