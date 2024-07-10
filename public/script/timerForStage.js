@@ -19,11 +19,14 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
         default:
             rotation = wheelBlock.rotation;
     }
+    console.log(stage)
 	ticker.add((time) => {
 		wheelBlock.rotation -= 0.03 * time.deltaTime;
 		if (wheelBlock.rotation <= rotation) {
-            if (stage == 4) {
+            if (stage >= 4) {
                 wheelBlock.rotation = 0;
+                rotation = -Math.PI / 2
+                stage = 1;
             }
 			ticker.destroy();
             resolve();
@@ -47,12 +50,13 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
 
     const timer = setInterval(() => {
 
-        wheelBlock.addEventListener("click", function Ready() {
+        wheelBlock.addEventListener("pointerdown", function Ready() {
+            console.log('TIK TAK');
             clearInterval(timer);
             RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
             textTimer.text = "";
             Game.playerReady = true;
-            this.removeEventListener("click", Ready);
+            this.removeEventListener("pointerdown", Ready);
         })
 
         const now = new Date();

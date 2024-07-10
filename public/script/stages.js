@@ -8,10 +8,14 @@ import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 
-export function stageResources(containerForDiceRoll, app, resources, buildings) {
+export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
-    DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
+    const promise = new Promise(function(resolve) {
+        DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll, resolve);
+    });
+    await Promise.all([promise]);
+    
     GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
 

@@ -75,7 +75,7 @@ async function DrawBlockTimer(container, app) {
 	container.y = app.screen.height * percentageScreenHeight;
 }
 
-export async function DrawBlockForDiceRoll(container, app, containerCubes, blockButtonReRoll) {
+export async function DrawBlockForDiceRoll(container, app, containerCubes, blockButtonReRoll, resolve) {
 	container.visible = true;
 	container.zIndex = 10000;
 	const textureBackgroundLeft = await PIXI.Assets.load(
@@ -105,6 +105,9 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	const percentageScreenHeightButtonReRoll = 0.85;
 	blockButtonReRoll.x = container.width * percentageScreenWidthButtonReRoll;
 	blockButtonReRoll.y = container.height * percentageScreenHeightButtonReRoll;
+
+	console.log(container.width, "45678765456789");
+	resolve();
 }
 
 export async function DrawBlockBuildings(container, app, island, allTextResources, blocks) {

@@ -195,9 +195,10 @@ async function AddIconInInfoBlock(
 	pathToFile,
     icon,
 ) {
-	const textureIcon = await PIXI.Assets.load(pathToFile);
-    icon.texture = textureIcon;
-	   
+    // console.log(containerCubes, containerDiceRoll, percentageScreenWidth, percentageScreenHeight, pathToFile, icon, 'iagdyuasgudgas');
+	// const textureIcon = await PIXI.Assets.load(pathToFile);
+    icon.texture = pathToFile;
+    console.log(pathToFile);
     icon.x = containerDiceRoll.width * percentageScreenWidth;
 	icon.y = containerDiceRoll.height * percentageScreenHeight;
 	containerCubes.addChild(icon);
@@ -231,7 +232,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         const icon = new PIXI.Sprite();
         arrCubes.push(icon);
         AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, `/../assets/textures/cubeOfVillage/${numberFace}face.svg`, icon);
+            percentageScreenHeight, PIXI.Texture.from(`${numberFace}face.png`), icon);
     }
 
     for (let i = 0; i < buildings.houseGrendee; i++) {
@@ -249,7 +250,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         const icon = new PIXI.Sprite();
         arrCubes.push(icon);
         AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, `/../assets/textures/cubeOfGrandee/${numberFace}face.svg`, icon);
+            percentageScreenHeight, PIXI.Texture.from(`${numberFace + 6}face.png`), icon);
     }
     const numberFace = ChooseRandomFaceOFCube();
     GetResourcesFromMainHouse(numberFace, resources);
@@ -265,7 +266,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     const icon = new PIXI.Sprite();
     arrCubes.push(icon);
     AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-        percentageScreenHeight, `/../assets/textures/cubeOfMainBuilding/${numberFace}face.svg`, icon);
+        percentageScreenHeight, PIXI.Texture.from(`${numberFace + 12}face.png`), icon);
     resources.wheat += buildings.farm;
 
     setTimeout(() => {
