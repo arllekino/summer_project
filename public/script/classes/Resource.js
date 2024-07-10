@@ -60,7 +60,7 @@ export class Resource
     setPosition(x, y)
     {
         this.sprite.position.set(x, y);
-        this.sprite.zIndex = y - 15;
+        this.sprite.zIndex = y + 15;
         this.updateBounds();
     }
 

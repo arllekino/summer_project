@@ -7,15 +7,10 @@ import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 
-export function stageResources(containerForDiceRoll, app, resources) {
+export function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
     DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll);
-    const buildings = {
-        houseVillage: 4,
-        houseGrendee: 7,
-        farm: 1,
-    }
     GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
 
@@ -66,7 +61,7 @@ async function buildCastle(app, island, allTextResources, blocks) {
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, 'Castle', {}, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources);
+        island.buldingObject = new Building(app, island.cells, island.buildings, 'Castle', 'Castle', {}, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks);
         island.buldingObject.setMatrixPattern([
             [1, 1, 1],
             [1, 1, 1],
@@ -91,7 +86,7 @@ async function buildFarmerHouse(app, island, allTextResources, blocks) {
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farmer House', {}, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources);
+        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farmer House', 'houseVillage', {}, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks);
         island.buldingObject.setMatrixPattern([
             [0, 0, 0],
             [0, 1, 0],
@@ -118,7 +113,7 @@ async function buildFarm(app, island, allTextResources, blocks) {
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources);
+        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks);
         island.buldingObject.setMatrixPattern([
             [1, 1, 0],
             [1, 1, 0],
@@ -252,6 +247,12 @@ export async function main(allContainer, app, island) {
 
     let blocks = {
         infoBox: new Infobox(app),
+        buildings: {
+            houseVillage: 0,
+            houseGrendee: 0,
+            farm: 0,
+            Warehouse: 0
+        }
     }
 
     const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
@@ -266,7 +267,7 @@ export async function main(allContainer, app, island) {
 
     while (true) {
 
-        stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser);
+        stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, blocks.buildings);
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app);
         });

@@ -3,11 +3,12 @@ import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, name, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources)
+    constructor(app, cells, buildings, name, alias, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks)
     {
         this.__hp = hp;
         this.__defense = defense;
         this.name = name;
+        this.alias = alias;
         this.__buildType = buildType;
         this.__buildPtr = buildPtr;
         this.givingResource = givingResource;
@@ -26,10 +27,16 @@ export class Building
         this.__stopMovingFlag = false;
         this.__bounds;
         this.initSprite(app);
-        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources));
+        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources, blocks));
         app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells));
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
+
+    getAlias()
+    {
+        return this.alias;
+    }
+
     getStopMovingFlag() {
         return this.__stopMovingFlag;
     }
@@ -189,7 +196,7 @@ export class Building
         }
     }
 
-    buildBuilding(app, buildings, resources, allTextResources) {
+    buildBuilding(app, buildings, resources, allTextResources, blocks) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -208,6 +215,7 @@ export class Building
                 resources[resource] -= this.requiredResources[resource];
             }
             UpdateNumberOfResources(allTextResources, resources);
+            blocks.buildings[this.getAlias()] += 1;
             // selectedBuilding.tint = 0xffffff;
         }
     }
@@ -233,9 +241,9 @@ export class Building
         this.__cellsStatus = {};
     }
 
-    mouseClick(app, buildings, resources, allTextResources) {
+    mouseClick(app, buildings, resources, allTextResources, blocks) {
         if (!this.__stopMovingFlag) {
-            this.buildBuilding(app, buildings, resources, allTextResources);
+            this.buildBuilding(app, buildings, resources, allTextResources, blocks);
         }
     }
 }
