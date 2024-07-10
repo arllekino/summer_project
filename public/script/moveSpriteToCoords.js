@@ -245,7 +245,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
 
 function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, sprite, resolve) {
     const ticker = new PIXI.Ticker;
-    const speed = 2;
+    const speed = 0.8;
     
     const xCoord = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 5;
     const yCoord = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 7;
@@ -324,8 +324,8 @@ export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, shi
     });
     await Promise.all([promiseForward]);
 
-    const promiseBack = new Promise(function(resolve) {
-        MoveSprite(rect, shortWay, cells, true, resolve);
-    });
-    await Promise.all([promiseBack]);
+    // const promiseBack = new Promise(function(resolve) {
+    //     MoveSprite(rect, shortWay, cells, true, resolve);
+    // });
+    // await Promise.all([promiseBack]);
 }
