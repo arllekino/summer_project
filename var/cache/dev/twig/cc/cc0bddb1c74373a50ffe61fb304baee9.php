@@ -45,24 +45,25 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
         yield "<!DOCTYPE html>
 <html>
 \t<head>
+\t\t <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
 \t\t<title>";
-        // line 4
+        // line 5
         yield from $this->unwrap()->yieldBlock('title', $context, $blocks);
         yield "</title>
 \t\t";
-        // line 5
-        yield from $this->unwrap()->yieldBlock('head', $context, $blocks);
         // line 6
+        yield from $this->unwrap()->yieldBlock('head', $context, $blocks);
+        // line 7
         yield "\t\t";
         yield from $this->unwrap()->yieldBlock('javascripts', $context, $blocks);
-        // line 9
+        // line 10
         yield "\t</head>
 \t<body>
 \t\t<div id=\"content\">
 \t\t\t";
-        // line 12
-        yield from $this->unwrap()->yieldBlock('content', $context, $blocks);
         // line 13
+        yield from $this->unwrap()->yieldBlock('content', $context, $blocks);
+        // line 14
         yield "\t\t</div>
 \t</body>
 </html>
@@ -73,7 +74,7 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
         return; yield '';
     }
 
-    // line 4
+    // line 5
     public function block_title($context, array $blocks = [])
     {
         $macros = $this->macros;
@@ -86,7 +87,7 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
         return; yield '';
     }
 
-    // line 5
+    // line 6
     public function block_head($context, array $blocks = [])
     {
         $macros = $this->macros;
@@ -99,14 +100,14 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
         return; yield '';
     }
 
-    // line 6
+    // line 7
     public function block_javascripts($context, array $blocks = [])
     {
         $macros = $this->macros;
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "javascripts"));
 
-        // line 7
+        // line 8
         yield "\t\t\t";
         yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getFunction('encore_entry_script_tags')->getCallable()("app"), "html", null, true);
         yield "
@@ -117,7 +118,7 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
         return; yield '';
     }
 
-    // line 12
+    // line 13
     public function block_content($context, array $blocks = [])
     {
         $macros = $this->macros;
@@ -143,7 +144,7 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
      */
     public function getDebugInfo()
     {
-        return array (  121 => 12,  110 => 7,  103 => 6,  90 => 5,  77 => 4,  66 => 13,  64 => 12,  59 => 9,  56 => 6,  54 => 5,  50 => 4,  45 => 1,);
+        return array (  122 => 13,  111 => 8,  104 => 7,  91 => 6,  78 => 5,  67 => 14,  65 => 13,  60 => 10,  57 => 7,  55 => 6,  51 => 5,  45 => 1,);
     }
 
     public function getSourceContext()
@@ -151,6 +152,7 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
         return new Source("<!DOCTYPE html>
 <html>
 \t<head>
+\t\t <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
 \t\t<title>{% block title %}{% endblock %}</title>
 \t\t{% block head %}{% endblock %}
 \t\t{% block javascripts %}
@@ -163,6 +165,6 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
 \t\t</div>
 \t</body>
 </html>
-", "base.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\base.html.twig");
+", "base.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\base.html.twig");
     }
 }

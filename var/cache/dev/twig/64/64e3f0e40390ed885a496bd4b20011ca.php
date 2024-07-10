@@ -209,6 +209,6 @@ class __TwigTemplate_118fe3c6b6e13e26ee81087937bf4d68 extends Template
 {% endblock %}
 {% block javascripts %}
 \t<script type=\"text/javascript\" src=\"/script/websocket/startLobby.js\"></script>
-{% endblock %}", "start_lobby_page.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\start_lobby_page.html.twig");
+{% endblock %}", "start_lobby_page.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\start_lobby_page.html.twig");
     }
 }
