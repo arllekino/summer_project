@@ -9,10 +9,10 @@
 		<div class="intro">
 			<div class="intro__players">
 				{% for userName in userNames %}
-					<div class="intro__player">
+					<div class="intro__player" id="{{ userName }}">
 						<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
 						<div class="block__user-name">
-							<span class="user-name" id="{{ userName }}">{{ userName }}</span>
+							<span class="user-name">{{ userName }}</span>
 						</div>
 					</div>
 				{% endfor %}

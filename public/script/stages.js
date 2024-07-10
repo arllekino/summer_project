@@ -7,6 +7,7 @@ import { MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
+import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 
 export function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -177,15 +178,26 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
       });
 }
 
-export function stageBattles(app, cells, ships, worldMatrix) {
+export async function stageBattles(app, cells, buildings, ships, worldMatrix) {
     const coordsEnd = {
         x: 0,
         y: 0,
     }
     const coordsStart = {
-        x: 14,
-        y: 14,
+        x: 0,
+        y: 0,
     }
+    const isBuildingPressed = {
+        state: false,
+    };
+    while (!isBuildingPressed.state) {
+        console.log(isBuildingPressed.state);
+        const promise = new Promise(function(resolve) {
+            GetCoordsOfBuildings(cells, coordsEnd, buildings, resolve, isBuildingPressed);
+        });
+        await Promise.all([promise]);
+    }
+
     MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
 }
 
@@ -336,7 +348,7 @@ export async function main(allContainer, app, island) {
         }
 
         Game.stage++;
-        stageBattles(app, island.cells, island.ships, island.matrixOfIsland);
+        stageBattles(app, island.cells, island.buildings, island.ships, island.matrixOfIsland);
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app);
         })

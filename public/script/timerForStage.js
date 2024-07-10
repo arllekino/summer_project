@@ -53,7 +53,7 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
             textTimer.text = "";
             Game.playerReady = true;
             this.removeEventListener("click", Ready);
-        })
+        }, true);
 
         const now = new Date();
         const remain = stopTime - now;

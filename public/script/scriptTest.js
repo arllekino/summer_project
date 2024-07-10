@@ -27,17 +27,7 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
 
     island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland);
 
-    main(allContainer, app, island);    
-
-    const timer = new Timer(5000);
-
-    app.ticker.add(() => {
-        timer.update(app.ticker.elapsedMS);
-
-        if (timer.isExpired()) {
-            timer.pause();
-        }
-    });
+    main(allContainer, app, island);
 
     return {
         stage: app.stage,

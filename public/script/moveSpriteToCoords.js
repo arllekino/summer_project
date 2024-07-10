@@ -1,3 +1,6 @@
+import { cartesianToIsometric, mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
+import { Game } from "./classes/game.js";
+
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
     return cells[numberOfCellY * 20 + numberOfCellX].getBounds().x + cells[numberOfCellY * 20 + numberOfCellX].getBounds().width / 2;
 }
@@ -236,9 +239,9 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
         }
     }
     
-    shortWay.forEach((cellShortWay) => {
-        cells[cellShortWay.y * 20 + cellShortWay.x].errorField();
-    });
+    // shortWay.forEach((cellShortWay) => {
+    //     cells[cellShortWay.y * 20 + cellShortWay.x].errorField();
+    // });
 
     return shortWay;
 }
@@ -312,6 +315,33 @@ async function MoveSprite(sprite, shortWay, cells, isShipSailingBack, resolve) {
         }
     }
     resolve();
+}
+
+export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildingPressed) {
+    document.addEventListener("pointerdown", function getCoordsOfMatrix(event) {
+        if (Game.stage === 4) {
+            let minDist = 99999;
+            let minDistObject = null;
+            buildings.forEach((building) => {
+                if (mouseDistance(event, building) < minDist && mouseIntersects(event, building))
+                {
+                    minDist = mouseDistance(event, building);
+                    minDistObject = building;
+                }
+            })
+            if (minDistObject) {
+                isBuildingPressed.state = true;
+                console.log(isBuildingPressed);
+                minDistObject.__cellsStatus[0].errorField();
+                const index = cells.indexOf(minDistObject.__cellsStatus[0]);
+                coords.x = index % 20;
+                coords.y = (index - coords.x) / 20;
+                resolve();
+            }
+            resolve();
+        }
+        this.removeEventListener("pointerdown", getCoordsOfMatrix);
+    });
 }
 
 export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix) {
