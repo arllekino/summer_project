@@ -142,7 +142,8 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     if (!flags['hummer'])
     {
         const hummer = new Destroyer(app)
-        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland, island.buildingMoment, app, island.resourcesOfUser, allTextResources, blocks);
+        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland,
+             island.buildingMoment, app, island.resourcesOfUser, allTextResources, blocks);
         flags['hummer'] = true;
     }
 
@@ -179,26 +180,30 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
 }
 
 export async function stageBattles(app, cells, buildings, ships, worldMatrix) {
-    const coordsEnd = {
-        x: 0,
-        y: 0,
-    }
-    const coordsStart = {
-        x: 0,
-        y: 0,
-    }
-    const isBuildingPressed = {
-        state: false,
-    };
-    while (!isBuildingPressed.state) {
-        console.log(isBuildingPressed.state);
-        const promise = new Promise(function(resolve) {
-            GetCoordsOfBuildings(cells, coordsEnd, buildings, resolve, isBuildingPressed);
-        });
-        await Promise.all([promise]);
-    }
-
-    MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
+    // const coordsStart = {
+    //     x: 0,
+    //     y: 0,
+    // }
+    // const isBuildingPressed = {
+    //     state: false,
+    // };
+    // const coordsOfBuilding = {
+    //     x: 0,
+    //     y: 0,
+    // } 
+    // while (!isBuildingPressed.state) {
+    //     const promise = new Promise(function(resolve) {
+    //         GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed);
+    //     });
+    //     await Promise.all([promise]);
+    //     if (Game.stage !== 4) {
+    //         isBuildingPressed.state = true;
+    //     }
+    // }
+    // if (isBuildingPressed.state && Game.stage === 4) {
+    //     MoveSpriteToCoords(coordsStart, cells, app, ships, worldMatrix);
+    // }
+    console.log("battles");
 }
 
 export async function main(allContainer, app, island) {
@@ -292,6 +297,7 @@ export async function main(allContainer, app, island) {
     const flags = {
         hummer: false,
         rotations: false,
+        choiceTower: false,
     };
 
     await StartStage(app, island, allTextResources, flags, blocks);

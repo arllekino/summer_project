@@ -65,11 +65,8 @@ export class Infobox
             hpText.position.set(text2.getBounds().x, text2.getBounds().y + text2.getBounds().height + 5);
             this.container.addChild(hpText);
             let givingResourceText = new PIXI.Text({text: `Dropping resources:`, style: textStyle});
-            console.log(building.getDroppingResources());
             for (const key in building.getDroppingResources()) {
-                console.log(key, building.getDroppingResources()[key])
                 givingResourceText.text += `\n${key}: ${building.getDroppingResources()[key]}`;
-                console.log(givingResourceText.text)
             }
             givingResourceText.position.set(hpText.getBounds().x, hpText.getBounds().y + hpText.getBounds().height + 10);
             this.container.addChild(givingResourceText);
@@ -87,7 +84,6 @@ export class Infobox
     }
 
     hide(e) {
-        console.log('What');
         if (this.visibility) {
             this.visibility = false
             this.app.stage.removeChild(this.container);
