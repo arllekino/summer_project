@@ -7,6 +7,7 @@ import { MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
+import { Rules } from "./classes/Rules.js";
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -271,6 +272,7 @@ export async function main(allContainer, app, island) {
 
     let blocks = {
         infoBox: new Infobox(app),
+        
         buildings: {
             houseVillage: 0,
             houseGrendee: 0,
@@ -288,6 +290,7 @@ export async function main(allContainer, app, island) {
         rotations: false,
     };
 
+    //const rules = new Rules(app);
     await StartStage(app, island, allTextResources, flags, blocks);
 
     while (true) {
