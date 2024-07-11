@@ -8,6 +8,7 @@ import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 import { Rules } from "./classes/Rules.js";
+import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -147,7 +148,8 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     if (!flags['hummer'])
     {
         const hummer = new Destroyer(app)
-        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland, island.buildingMoment, app, island.resourcesOfUser, allTextResources, blocks);
+        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland,
+             island.buildingMoment, app, island.resourcesOfUser, allTextResources, blocks);
         flags['hummer'] = true;
     }
 
@@ -183,16 +185,31 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
       });
 }
 
-export function stageBattles(app, cells, ships, worldMatrix) {
-    const coordsEnd = {
-        x: 0,
-        y: 0,
-    }
-    const coordsStart = {
-        x: 14,
-        y: 14,
-    }
-    MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
+export async function stageBattles(app, cells, buildings, ships, worldMatrix) {
+    // const coordsStart = {
+    //     x: 0,
+    //     y: 0,
+    // }
+    // const isBuildingPressed = {
+    //     state: false,
+    // };
+    // const coordsOfBuilding = {
+    //     x: 0,
+    //     y: 0,
+    // } 
+    // while (!isBuildingPressed.state) {
+    //     const promise = new Promise(function(resolve) {
+    //         GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed);
+    //     });
+    //     await Promise.all([promise]);
+    //     if (Game.stage !== 4) {
+    //         isBuildingPressed.state = true;
+    //     }
+    // }
+    // if (isBuildingPressed.state && Game.stage === 4) {
+    //     MoveSpriteToCoords(coordsStart, cells, app, ships, worldMatrix);
+    // }
+    console.log("battles");
 }
 
 export async function main(allContainer, app, island) {
@@ -288,6 +305,7 @@ export async function main(allContainer, app, island) {
         wheelFlag: false,
         hummer: false,
         rotations: false,
+        choiceTower: false,
     };
 
     //const rules = new Rules(app);
@@ -343,7 +361,7 @@ export async function main(allContainer, app, island) {
         // }
 
         Game.stage++;
-        stageBattles(app, island.cells, island.ships, island.matrixOfIsland);
+        stageBattles(app, island.cells, island.buildings, island.ships, island.matrixOfIsland);
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })

@@ -6,4 +6,5 @@ export const Game = {
     timeStageForDisasters: 10,
     warehouseAmountOfAdding: 6,
     playerReady: false,
+    timeStage: 0,
 }

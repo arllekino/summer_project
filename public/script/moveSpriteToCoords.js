@@ -1,3 +1,7 @@
+import { Cell } from "./classes/Cell.js";
+import { cartesianToIsometric, mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
+import { Game } from "./classes/game.js";
+
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
     return cells[numberOfCellY * 20 + numberOfCellX].getBounds().x + cells[numberOfCellY * 20 + numberOfCellX].getBounds().width / 2;
 }
@@ -228,7 +232,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
                 cellWithTheSmallestPath = cell;
             }
         })
-        if (previousCell.approximateCostPath <= cellWithTheSmallestPath.approximateCostPath) {
+        if (cellWithTheSmallestPath.x === coordsEnd.x && cellWithTheSmallestPath.y === coordsEnd.y) {
             pathHasBeenFound = true;
         }
         else {
@@ -280,6 +284,7 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, sprite, resolve) {
                 isSpriteMoveUp = !isSpriteMoveUp;
             }
         }
+        sprite.zIndex = sprite.y;
         
         if (!isSpriteMoveRight && !isSpriteMoveLeft && !isSpriteMoveDown && !isSpriteMoveUp) {
             ticker.destroy();
@@ -314,15 +319,90 @@ async function MoveSprite(sprite, shortWay, cells, isShipSailingBack, resolve) {
     resolve();
 }
 
-export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix) {
+export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildingPressed) {
+    document.addEventListener("pointerdown", function getCoordsOfMatrix(event) {
+        if (Game.stage === 4) {
+            let minDist = 99999;
+            let minDistObject = null;
+            buildings.forEach((building) => {
+                if (mouseDistance(event, building) < minDist && mouseIntersects(event, building))
+                {
+                    minDist = mouseDistance(event, building);
+                    minDistObject = building;
+                }
+            })
+            if (minDistObject) {
+                isBuildingPressed.state = true;
+                console.log(minDistObject);
+                minDistObject.__cellsStatus[4].errorField();
+                const index = cells.indexOf(minDistObject.__cellsStatus[4]);
+                coords.x = index % 20;
+                coords.y = (index - coords.x) / 20;
+                resolve();
+            }
+            resolve();
+        }
+        else {
+            resolve();
+        }
+        this.removeEventListener("pointerdown", getCoordsOfMatrix);
+    });
+}
+
+function MouseFollowingForShip(app, event, cells, sprite, coords) {
+    let position = event.data.global;
+    const cellForShip = new Cell(app, -1, 5);
+
+    sprite.x = position.x - sprite.getBounds().width / 2;
+    sprite.y = position.y - sprite.getBounds().height / 2;
+
+    cellForShip.setDirectPositions(position.x + 20 - 50, position.y + 20 - 50);
+
+    cells.forEach((cell) => {
+        cell.changeType(cell.getType());
+        if (cell.intersectWithCell(cellForShip)) {
+            cell.errorField();
+            if ((cell.getType() == 0) && (cell.getPtrTower() == -1)) {
+                cell.okField();
+                const index = cells.indexOf(cell);
+                coords.x = index % 20;
+                coords.y = (index - coords.x) / 20;
+            }
+        }
+    });
+}
+
+function ChoicePlaceForShip(app, stopMoving) {
+    app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");
+    stopMoving.state = true;
+}
+
+export async function MoveSpriteToCoords(coordsStart, cells, app, ships, worldMatrix) {
     const rect = new PIXI.Sprite();
     DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y);
-    const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells);
 
-    const promiseForward = new Promise(function(resolve) {
-        MoveSprite(rect, shortWay, cells, false, resolve);
-    });
-    await Promise.all([promiseForward]);
+    const coordsEnd = {
+        x: 0,
+        y: 0,
+    }
+
+    const stopMoving = {
+        state: false,
+    };
+
+    setTimeout(() => {
+        window.addEventListener("click", () => ChoicePlaceForShip(app, stopMoving));
+        app.stage.on("pointermove", (event) => MouseFollowingForShip(app, event, cells, rect, coordsEnd));
+    }, 250);
+    
+    if (stopMoving) {
+        const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells);
+        const promiseForward = new Promise(function(resolve) {
+           MoveSprite(rect, shortWay, cells, false, resolve);
+        });
+        await Promise.all([promiseForward]);
+    }
+    
 
     // const promiseBack = new Promise(function(resolve) {
     //     MoveSprite(rect, shortWay, cells, true, resolve);

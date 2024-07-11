@@ -220,38 +220,44 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     for (let i = 0; i < buildings.houseVillage; i++) {
         let numberFace = ChooseRandomFaceOFCube();
         GetResourcesFromVillage(numberFace, resources);
-        if (i != 0) {
+        if (cubesInRow != 0) {
             percentageScreenWidth += STEP_WIDTH;
         }
-        cubesInRow = i;
-        if (i == 6) {
+        cubesInRow += 1;
+
+        const icon = new PIXI.Sprite();
+        arrCubes.push(icon);
+        AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
+            percentageScreenHeight, `/../assets/textures/cubeOfVillage/${numberFace}face.svg`, icon);
+
+        if (cubesInRow === 6) {
             percentageScreenWidth = startPositionWidth;
             percentageScreenHeight += STEP_HEIGHT;
             cubesInRow = 0;
         }
-        const icon = new PIXI.Sprite();
-        arrCubes.push(icon);
-        AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, PIXI.Texture.from(`${numberFace}face.png`), icon);
     }
 
     for (let i = 0; i < buildings.houseGrendee; i++) {
         let numberFace = ChooseRandomFaceOFCube();
         GetResourcesFromGrandee(numberFace, resources);
 
-        percentageScreenWidth += STEP_WIDTH;
+        if (cubesInRow !== 0) {
+            percentageScreenWidth += STEP_WIDTH;
+        }
+        
         cubesInRow += 1;
+        const icon = new PIXI.Sprite();
+        arrCubes.push(icon);
+        AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
+            percentageScreenHeight, `/../assets/textures/cubeOfGrandee/${numberFace}face.svg`, icon);
 
-        if (cubesInRow == 6) {
+        if (cubesInRow === 6) {
             percentageScreenWidth = startPositionWidth;
             percentageScreenHeight += STEP_HEIGHT;
             cubesInRow = 0;
         }
-        const icon = new PIXI.Sprite();
-        arrCubes.push(icon);
-        AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, PIXI.Texture.from(`${numberFace + 6}face.png`), icon);
     }
+
     const numberFace = ChooseRandomFaceOFCube();
     GetResourcesFromMainHouse(numberFace, resources);
     if (cubesInRow == 6) {
@@ -259,8 +265,9 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         percentageScreenHeight += STEP_HEIGHT;
         cubesInRow = 0;
     }
-    else {
+    if (cubesInRow !== 0) {
         percentageScreenWidth += STEP_WIDTH;
+        cubesInRow += 1;
     }
     
     const icon = new PIXI.Sprite();
@@ -300,6 +307,9 @@ function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources) {
         if (arrCubesRight.length !== 0) {
             arrCubesRight = [];
             stateOfReRollCube.hasCubeBeenMoved = true;
+            POSITION_LAST_CUBE_RIGHT.cubeInRow = 0;
+            POSITION_LAST_CUBE_RIGHT.x = POSITION_LAST_CUBE_RIGHT.startX;
+            POSITION_LAST_CUBE_RIGHT.y = POSITION_LAST_CUBE_RIGHT.startY;
         }
     }
 
