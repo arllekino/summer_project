@@ -63,7 +63,7 @@ export class Destroyer
                 {
                     resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
                 }
-                UpdateNumberOfResources(allTextResources, resourcesOfUser)
+                UpdateNumberOfResources(allTextResources, resourcesOfUser, blocks.buildings)
                 if (minDistObject.__cellsStatus['-1'])
                 {
                     minDistObject.sprite.destroy();

@@ -189,7 +189,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, 'Warehouse', 'Warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, 'Warehouse', 'warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -263,16 +263,27 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 	return allTextResources;
 }
 
-export function UpdateNumberOfResources(allTextResources, resourcesOfUser) {
+export function UpdateNumberOfResources(allTextResources, resourcesOfUser, buildings) {
+	const addingAmount = 5;
 	for (let key in allTextResources) {
 		if (key === "textForWheat") {
-			allTextResources[key].text = `${resourcesOfUser.wheat}`;
+			if (resourcesOfUser.wheat > resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse) {
+				resourcesOfUser.wheat = resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse;
+			}
+			allTextResources[key].text = `${resourcesOfUser.wheat}/${resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
 		if (key === "textForWood") {
-			allTextResources[key].text = `${resourcesOfUser.wood}`;
+			if (resourcesOfUser.wood > resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse) {
+				resourcesOfUser.wood = resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse;
+			}
+			allTextResources[key].text = `${resourcesOfUser.wood}/${resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
+		console.log(buildings.warehouse)
 		if (key === "textForStone") {
-			allTextResources[key].text = `${resourcesOfUser.stone}`;
+			if (resourcesOfUser.stone > resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse) {
+				resourcesOfUser.stone = resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse;
+			}
+			allTextResources[key].text = `${resourcesOfUser.stone}/${resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
 		if (key === "textForHammer") {
 			allTextResources[key].text = `${resourcesOfUser.hammer}`;

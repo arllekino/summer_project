@@ -274,7 +274,7 @@ export async function main(allContainer, app, island) {
             houseVillage: 0,
             houseGrendee: 0,
             farm: 0,
-            Warehouse: 0
+            warehouse: 0
         }
     }
 
@@ -295,7 +295,6 @@ export async function main(allContainer, app, island) {
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         });
-        console.log('asd');
         await Promise.all([promiseForResources]);
 
         // if (Game.playerReady) {
@@ -305,7 +304,7 @@ export async function main(allContainer, app, island) {
         //     await Promise.all([promiseForReady]);
         //     Game.playerReady = false;
         // }
-        UpdateNumberOfResources(allTextResources, island.resourcesOfUser);
+        UpdateNumberOfResources(allTextResources, island.resourcesOfUser, blocks.buildings);
         setTimeout(() => {
             allContainer.containerForDiceRoll.visible = false;
         }, 1500);
@@ -315,7 +314,6 @@ export async function main(allContainer, app, island) {
         const promiseForDisasters = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForDisasters, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })
-        console.log('asd');
         await Promise.all([promiseForDisasters]);
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -331,7 +329,6 @@ export async function main(allContainer, app, island) {
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })
-        console.log('asd');
         await Promise.all([promiseForBuildings]);
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {

@@ -214,8 +214,8 @@ export class Building
             {
                 resources[resource] -= this.requiredResources[resource];
             }
-            UpdateNumberOfResources(allTextResources, resources);
             blocks.buildings[this.getAlias()] += 1;
+            UpdateNumberOfResources(allTextResources, resources, blocks.buildings);
             // selectedBuilding.tint = 0xffffff;
         }
     }

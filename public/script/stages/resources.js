@@ -365,7 +365,7 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             GetResourcesFromVillage(numberFace, resources);
 
             setTimeout(async () => {
-                const textureIconCube = await PIXI.Assets.load(`/../assets/textures/cubeOfVillage/${numberFace}face.svg`);
+                const textureIconCube = PIXI.Texture.from(`${numberFace}face.png`);
                 el.cube.texture = textureIconCube;
                 el.cube.visible = true;
             }, 1000);
@@ -382,7 +382,7 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             GetResourcesFromVillage(numberFace, resources);
 
             setTimeout(async () => {
-                const textureIconCube = await PIXI.Assets.load(`/../assets/textures/cubeOfGrandee/${numberFace}face.svg`);
+                const textureIconCube = PIXI.Texture.from(`${numberFace + 12}face.png`);
                 el.cube.texture = textureIconCube;
                 el.cube.visible = true;
             }, 1000);
@@ -399,7 +399,7 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             GetResourcesFromVillage(numberFace, resources);
 
             setTimeout(async () => {
-                const textureIconCube = await PIXI.Assets.load(`/../assets/textures/cubeOfMainBuilding/${numberFace}face.svg`);
+                const textureIconCube = PIXI.Texture.from(`${numberFace + 6}face.png`);
                 el.cube.texture = textureIconCube;
                 el.cube.visible = true;
             }, 1000);
@@ -455,13 +455,19 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
     }
 
     const arrPathTexture = spriteCube._texture.label.split("/");
+    const numberOfFace = Number(arrPathTexture[0].slice(0, arrPathTexture[0].indexOf('f')));
+    if (numberOfFace <= 6) { arrPathTexture.push('cubeOfVillage'); }
+    else if (numberOfFace <= 12) { arrPathTexture.push('cubeOfMainBuilding'); }
+    else { arrPathTexture.push('cubeOfGrandee'); }
+    console.log(arrPathTexture);
+
     const infoAboutCube = {
         cube: spriteCube,
-        typeCube: arrPathTexture[5],
-        numberOfFace: Number(arrPathTexture[6].slice(0, 1)),
+        typeCube: arrPathTexture[1],
+        numberOfFace: numberOfFace,
         serialNumberInContainer: index,
-        
     }
+
     arrCubesRight.push(infoAboutCube);
 
     ticker.add((time) => {
