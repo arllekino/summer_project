@@ -250,7 +250,7 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 	const textForHammer = new PIXI.Text();
 	DrawTextOnContainer(textForHammer, containerForResources, resourcesOfUser.hammer, 0.75, 0.3);
 	const textForInhabitants = new PIXI.Text();
-	DrawTextOnContainer(textForInhabitants, containerForResources, resourcesOfUser.hammer, 0.75, 0.07);
+	DrawTextOnContainer(textForInhabitants, containerForResources, resourcesOfUser.inhabitants, 0.75, 0.07);
     
 	const allTextResources = {
 		textForWheat: textForWheat,
@@ -264,7 +264,6 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 }
 
 export function UpdateNumberOfResources(allTextResources, resourcesOfUser, buildings) {
-	const addingAmount = 5;
 	for (let key in allTextResources) {
 		if (key === "textForWheat") {
 			if (resourcesOfUser.wheat > resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse) {
@@ -287,6 +286,9 @@ export function UpdateNumberOfResources(allTextResources, resourcesOfUser, build
 		}
 		if (key === "textForHammer") {
 			allTextResources[key].text = `${resourcesOfUser.hammer}`;
+		}
+		if (key === "textForInhabitants") {
+			allTextResources[key].text = `${resourcesOfUser.inhabitants}`;
 		}
 	}
 }
