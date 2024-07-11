@@ -19,14 +19,15 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
         default:
             rotation = wheelBlock.rotation;
     }
-    console.log(stage)
 	ticker.add((time) => {
-		wheelBlock.rotation -= 0.03 * time.deltaTime;
-		if (wheelBlock.rotation <= rotation) {
-            if (stage >= 4) {
+        if (wheelBlock.rotation > rotation)
+        {
+            wheelBlock.rotation -= 0.03 * time.deltaTime;
+        }
+		else
+        {
+            if (stage == 4) {
                 wheelBlock.rotation = 0;
-                rotation = -Math.PI / 2
-                stage = 1;
             }
 			ticker.destroy();
             resolve();
@@ -36,7 +37,7 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     ticker.start();
 }
 
-export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
+export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
 
@@ -48,16 +49,23 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
     textTimer.y = app.screen.height * percentageScreenHeight;
     app.stage.addChild(textTimer);
 
-    const timer = setInterval(() => {
+    function Ready(event) {
+        clearInterval(timer);
+        RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
+        textTimer.text = "";
+        Game.playerReady = true;
+        flags.wheelFlag = false;
+        wheelBlock.removeEventListener("pointerdown", Ready);
+        resolve();
+    }
 
-        wheelBlock.addEventListener("pointerdown", function Ready() {
-            console.log('TIK TAK');
-            clearInterval(timer);
-            RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
-            textTimer.text = "";
-            Game.playerReady = true;
-            this.removeEventListener("pointerdown", Ready);
-        })
+    const timer = setInterval(() => {
+        if (!flags.wheelFlag)
+        {
+            console.log('first');
+            flags.wheelFlag = true;
+            wheelBlock.addEventListener("pointerdown", Ready);
+        }
 
         const now = new Date();
         const remain = stopTime - now;

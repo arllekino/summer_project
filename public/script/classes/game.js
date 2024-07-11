@@ -1,8 +1,8 @@
 export const Game = {
     stage: 0,
-    timeStageForResources: 100,
-    timeStageForBuildings: 40,
-    timeStageForBattles: 100,
+    timeStageForResources: 10,
+    timeStageForBuildings: 10,
+    timeStageForBattles: 10,
     timeStageForDisasters: 10,
     playerReady: false,
 }
