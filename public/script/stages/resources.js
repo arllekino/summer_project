@@ -283,6 +283,8 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     setTimeout(() => {
         ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources);
     }, 1000);
+
+    resources.wheat -= resources.inhabitants;
 }
 
 function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources) {

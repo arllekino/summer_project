@@ -1,7 +1,7 @@
 import { DrawBlockForDiceRoll, UpdateNumberOfResources, DrawNumberOfResources, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { startTimerForStage } from "./timerForStage.js";
 import { GetResources } from "./stages/resources.js";
-import { Destroyer, AddEventListenersForHammer } from "./classes/destroyer.js"; 
+import { Destroyer, AddEventListenersForHammer } from "./classes/Destroyer.js"; 
 import { Game } from "./classes/game.js";
 import { MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
@@ -11,11 +11,12 @@ import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
+    
     const promise = new Promise(function(resolve) {
         DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll, resolve);
     });
     await Promise.all([promise]);
-    
+
     GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
 
