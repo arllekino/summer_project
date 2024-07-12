@@ -165,6 +165,6 @@ class __TwigTemplate_065777f376f2083eb6fb910cefed33aa extends Template
 \t\t</div>
 \t</body>
 </html>
-", "base.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\base.html.twig");
+", "base.html.twig", "D:\\GameProject\\summer_project\\templates\\base.html.twig");
     }
 }

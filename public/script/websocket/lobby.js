@@ -1,7 +1,7 @@
-//10.250.104.24 IP института
+//10.250.104.17 IP института
 //10.10.24.51   IP коливинга
 document.addEventListener('DOMContentLoaded', () => {
-    const ws = new WebSocket('ws://10.250.104.24:8080');
+    const ws = new WebSocket('ws://10.250.104.17:8080');
 
     const quitButton = document.querySelector('.logout');
     

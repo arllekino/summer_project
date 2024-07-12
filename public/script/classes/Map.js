@@ -2,16 +2,16 @@ import { Cell } from "./Cell.js";
 import { Resource } from "./Resource.js";
 
 const TResources = {
-    wheat: 0,
+    wheat: 4,
     maxWheat: 15,
-    wood: 11,
-    maxWood: 10,
-    stone: 11,
-    maxStone: 10,
+    wood: 4,
+    maxWood: 15,
+    stone: 4,
+    maxStone: 15,
     wars: 0,
-    maxWars: 10,
+    maxWars: 8,
     inhabitants: 0,
-    hammer: 11,
+    hammer: 4,
     money: 0,
     books: 0,
     skulls: 0,

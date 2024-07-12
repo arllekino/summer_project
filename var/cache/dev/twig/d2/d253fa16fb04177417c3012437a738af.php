@@ -100,13 +100,13 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
         $context['_seq'] = CoreExtension::ensureTraversable((isset($context["userNames"]) || array_key_exists("userNames", $context) ? $context["userNames"] : (function () { throw new RuntimeError('Variable "userNames" does not exist.', 11, $this->source); })()));
         foreach ($context['_seq'] as $context["_key"] => $context["userName"]) {
             // line 12
-            yield "\t\t\t\t\t<div class=\"intro__player\">
+            yield "\t\t\t\t\t<div class=\"intro__player\" id=\"";
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["userName"], "html", null, true);
+            yield "\">
 \t\t\t\t\t\t<img src=\"../images/blueFlag200x200.png\" alt=\"Описание картинки\" class=\"flag-image\">
 \t\t\t\t\t\t<div class=\"block__user-name\">
-\t\t\t\t\t\t\t<span class=\"user-name\" id=\"";
+\t\t\t\t\t\t\t<span class=\"user-name\">";
             // line 15
-            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["userName"], "html", null, true);
-            yield "\">";
             yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["userName"], "html", null, true);
             yield "</span>
 \t\t\t\t\t\t</div>
@@ -198,7 +198,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
      */
     public function getDebugInfo()
     {
-        return array (  172 => 52,  165 => 51,  144 => 38,  132 => 29,  120 => 19,  108 => 15,  103 => 12,  99 => 11,  94 => 8,  87 => 7,  78 => 5,  71 => 4,  56 => 2,  39 => 1,);
+        return array (  172 => 52,  165 => 51,  144 => 38,  132 => 29,  120 => 19,  110 => 15,  103 => 12,  99 => 11,  94 => 8,  87 => 7,  78 => 5,  71 => 4,  56 => 2,  39 => 1,);
     }
 
     public function getSourceContext()
@@ -214,10 +214,10 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t<div class=\"intro\">
 \t\t\t<div class=\"intro__players\">
 \t\t\t\t{% for userName in userNames %}
-\t\t\t\t\t<div class=\"intro__player\">
+\t\t\t\t\t<div class=\"intro__player\" id=\"{{ userName }}\">
 \t\t\t\t\t\t<img src=\"../images/blueFlag200x200.png\" alt=\"Описание картинки\" class=\"flag-image\">
 \t\t\t\t\t\t<div class=\"block__user-name\">
-\t\t\t\t\t\t\t<span class=\"user-name\" id=\"{{ userName }}\">{{ userName }}</span>
+\t\t\t\t\t\t\t<span class=\"user-name\">{{ userName }}</span>
 \t\t\t\t\t\t</div>
 \t\t\t\t\t</div>
 \t\t\t\t{% endfor %}
@@ -256,6 +256,6 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 {% block javascripts %}
 \t<script type=\"text/javascript\" src=\"/script/websocket/lobby.js\"></script>
 {% endblock %}
-", "lobby_page.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\lobby_page.html.twig");
+", "lobby_page.html.twig", "D:\\GameProject\\summer_project\\templates\\lobby_page.html.twig");
     }
 }

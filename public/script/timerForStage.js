@@ -20,8 +20,12 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
             rotation = wheelBlock.rotation;
     }
 	ticker.add((time) => {
-		wheelBlock.rotation -= 0.03 * time.deltaTime;
-		if (wheelBlock.rotation <= rotation) {
+        if (wheelBlock.rotation > rotation)
+        {
+            wheelBlock.rotation -= 0.03 * time.deltaTime;
+        }
+		else
+        {
             if (stage == 4) {
                 wheelBlock.rotation = 0;
             }
@@ -33,7 +37,7 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     ticker.start();
 }
 
-export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
+export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
 
@@ -45,15 +49,23 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
     textTimer.y = app.screen.height * percentageScreenHeight;
     app.stage.addChild(textTimer);
 
-    const timer = setInterval(() => {
+    function Ready(event) {
+        clearInterval(timer);
+        RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
+        textTimer.text = "";
+        Game.playerReady = true;
+        flags.wheelFlag = false;
+        wheelBlock.removeEventListener("pointerdown", Ready);
+        resolve();
+    }
 
-        wheelBlock.addEventListener("click", function Ready() {
-            clearInterval(timer);
-            RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
-            textTimer.text = "";
-            Game.playerReady = true;
-            this.removeEventListener("click", Ready);
-        }, true);
+    const timer = setInterval(() => {
+        if (!flags.wheelFlag)
+        {
+            console.log('first');
+            flags.wheelFlag = true;
+            wheelBlock.addEventListener("pointerdown", Ready);
+        }
 
         const now = new Date();
         const remain = stopTime - now;

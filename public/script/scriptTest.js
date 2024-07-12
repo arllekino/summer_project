@@ -14,20 +14,21 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
     const allContainer = DrawInfoBlocks(app);
     
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
-    let texturess = await PIXI.Assets.load('/../imageParser/buildings.json');
-    texturess = await PIXI.Assets.load('/../imageParser/farmParser.json');
-    texturess = await PIXI.Assets.load('/../imageParser/playingHouse.json');
-    texturess = await PIXI.Assets.load('/../imageParser/wareHouse.json');
-    texturess = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
-    texturess = await PIXI.Assets.load('/../imageParser/greenCastle.json');
-    texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
-    texturess = await PIXI.Assets.load('/../imageParser/resources.json');
+    textures = await PIXI.Assets.load('/../imageParser/buildings.json');
+    textures = await PIXI.Assets.load('/../imageParser/farmParser.json');
+    textures = await PIXI.Assets.load('/../imageParser/playingHouse.json');
+    textures = await PIXI.Assets.load('/../imageParser/wareHouse.json');
+    textures = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
+    textures = await PIXI.Assets.load('/../imageParser/greenCastle.json');
+    textures = await PIXI.Assets.load('/../imageParser/Icons.json');
+    textures = await PIXI.Assets.load('/../imageParser/resources.json');
     textures = await PIXI.Assets.load("/../imageParser/backgroundInfobox.json");
     textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
+    textures = await PIXI.Assets.load("/../imageParser/diceEdges.json");
 
     island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland);
 
-    main(allContainer, app, island);
+    main(allContainer, app, island);    
 
     return {
         stage: app.stage,

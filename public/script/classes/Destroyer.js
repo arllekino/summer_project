@@ -55,12 +55,16 @@ export class Destroyer
                 this.__sprite.destroy();
                 this.deactivate();
                 resourcesOfUser['hammer'] -= 1;
-                blocks.buildings[minDistObject.getAlias()] -= 1;
+                if (minDistObject.constructor.name !== 'Resource')
+                {
+                    blocks.buildings[minDistObject.getAlias()] -= 1;
+                    resources['inhabitants'] -= 1;
+                }
                 for (const resource in minDistObject.getDroppingResources())
                 {
                     resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
                 }
-                UpdateNumberOfResources(allTextResources, resourcesOfUser)
+                UpdateNumberOfResources(allTextResources, resourcesOfUser, blocks.buildings)
                 if (minDistObject.__cellsStatus['-1'])
                 {
                     minDistObject.sprite.destroy();

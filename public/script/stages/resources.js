@@ -195,9 +195,10 @@ async function AddIconInInfoBlock(
 	pathToFile,
     icon,
 ) {
-	const textureIcon = await PIXI.Assets.load(pathToFile);
-    icon.texture = textureIcon;
-	   
+    // console.log(containerCubes, containerDiceRoll, percentageScreenWidth, percentageScreenHeight, pathToFile, icon, 'iagdyuasgudgas');
+	// const textureIcon = await PIXI.Assets.load(pathToFile);
+    icon.texture = pathToFile;
+    console.log(pathToFile);
     icon.x = containerDiceRoll.width * percentageScreenWidth;
 	icon.y = containerDiceRoll.height * percentageScreenHeight;
 	containerCubes.addChild(icon);
@@ -227,7 +228,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         const icon = new PIXI.Sprite();
         arrCubes.push(icon);
         AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, `/../assets/textures/cubeOfVillage/${numberFace}face.svg`, icon);
+            percentageScreenHeight, PIXI.Texture.from(`${numberFace}face.png`), icon);
 
         if (cubesInRow === 6) {
             percentageScreenWidth = startPositionWidth;
@@ -248,7 +249,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         const icon = new PIXI.Sprite();
         arrCubes.push(icon);
         AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, `/../assets/textures/cubeOfGrandee/${numberFace}face.svg`, icon);
+            percentageScreenHeight, PIXI.Texture.from(`${numberFace + 6}face.png`), icon);
 
         if (cubesInRow === 6) {
             percentageScreenWidth = startPositionWidth;
@@ -272,7 +273,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     const icon = new PIXI.Sprite();
     arrCubes.push(icon);
     AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-        percentageScreenHeight, `/../assets/textures/cubeOfMainBuilding/${numberFace}face.svg`, icon);
+        percentageScreenHeight, PIXI.Texture.from(`${numberFace + 12}face.png`), icon);
     resources.wheat += buildings.farm;
 
     setTimeout(() => {
@@ -289,6 +290,8 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
     setTimeout(() => {
         ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources);
     }, 1000);
+
+    resources.wheat -= resources.inhabitants;
 }
 
 function ButtonReRoll(containerDiceRoll, blockButtonReRoll, resources) {
@@ -374,7 +377,7 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             GetResourcesFromVillage(numberFace, resources);
 
             setTimeout(async () => {
-                const textureIconCube = await PIXI.Assets.load(`/../assets/textures/cubeOfVillage/${numberFace}face.svg`);
+                const textureIconCube = PIXI.Texture.from(`${numberFace}face.png`);
                 el.cube.texture = textureIconCube;
                 el.cube.visible = true;
             }, 1000);
@@ -391,7 +394,7 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             GetResourcesFromVillage(numberFace, resources);
 
             setTimeout(async () => {
-                const textureIconCube = await PIXI.Assets.load(`/../assets/textures/cubeOfGrandee/${numberFace}face.svg`);
+                const textureIconCube = PIXI.Texture.from(`${numberFace + 12}face.png`);
                 el.cube.texture = textureIconCube;
                 el.cube.visible = true;
             }, 1000);
@@ -408,7 +411,7 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             GetResourcesFromVillage(numberFace, resources);
 
             setTimeout(async () => {
-                const textureIconCube = await PIXI.Assets.load(`/../assets/textures/cubeOfMainBuilding/${numberFace}face.svg`);
+                const textureIconCube = PIXI.Texture.from(`${numberFace + 6}face.png`);
                 el.cube.texture = textureIconCube;
                 el.cube.visible = true;
             }, 1000);
@@ -464,13 +467,19 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
     }
 
     const arrPathTexture = spriteCube._texture.label.split("/");
+    const numberOfFace = Number(arrPathTexture[0].slice(0, arrPathTexture[0].indexOf('f')));
+    if (numberOfFace <= 6) { arrPathTexture.push('cubeOfVillage'); }
+    else if (numberOfFace <= 12) { arrPathTexture.push('cubeOfMainBuilding'); }
+    else { arrPathTexture.push('cubeOfGrandee'); }
+    console.log(arrPathTexture);
+
     const infoAboutCube = {
         cube: spriteCube,
-        typeCube: arrPathTexture[5],
-        numberOfFace: Number(arrPathTexture[6].slice(0, 1)),
+        typeCube: arrPathTexture[1],
+        numberOfFace: numberOfFace,
         serialNumberInContainer: index,
-        
     }
+
     arrCubesRight.push(infoAboutCube);
 
     ticker.add((time) => {

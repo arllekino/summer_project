@@ -75,7 +75,7 @@ export class Building
     }
     initSprite(app) {
         this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
-        this.__sprite.zIndex = 100;
+        this.__sprite.zIndex = 500;
         this.__sprite.alpha = 0.3;
         app.stage.addChild(this.__sprite);
     }
@@ -213,8 +213,9 @@ export class Building
             {
                 resources[resource] -= this.requiredResources[resource];
             }
-            UpdateNumberOfResources(allTextResources, resources);
+            resources['inhabitants'] += 1;
             blocks.buildings[this.getAlias()] += 1;
+            UpdateNumberOfResources(allTextResources, resources, blocks.buildings);
             // selectedBuilding.tint = 0xffffff;
         }
     }

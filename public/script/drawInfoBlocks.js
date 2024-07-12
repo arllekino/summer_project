@@ -75,7 +75,7 @@ async function DrawBlockTimer(container, app) {
 	container.y = app.screen.height * percentageScreenHeight;
 }
 
-export async function DrawBlockForDiceRoll(container, app, containerCubes, blockButtonReRoll) {
+export async function DrawBlockForDiceRoll(container, app, containerCubes, blockButtonReRoll, resolve) {
 	container.visible = true;
 	container.zIndex = 10000;
 	const textureBackgroundLeft = await PIXI.Assets.load(
@@ -105,6 +105,9 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	const percentageScreenHeightButtonReRoll = 0.85;
 	blockButtonReRoll.x = container.width * percentageScreenWidthButtonReRoll;
 	blockButtonReRoll.y = container.height * percentageScreenHeightButtonReRoll;
+
+	console.log(container.width, "45678765456789");
+	resolve();
 }
 
 export async function DrawBlockBuildings(container, app, island, allTextResources, blocks) {
@@ -186,7 +189,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, 'Warehouse', 'Warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, 'Warehouse', 'warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -247,7 +250,7 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 	const textForHammer = new PIXI.Text();
 	DrawTextOnContainer(textForHammer, containerForResources, resourcesOfUser.hammer, 0.75, 0.3);
 	const textForInhabitants = new PIXI.Text();
-	DrawTextOnContainer(textForInhabitants, containerForResources, resourcesOfUser.hammer, 0.75, 0.07);
+	DrawTextOnContainer(textForInhabitants, containerForResources, resourcesOfUser.inhabitants, 0.75, 0.07);
     
 	const allTextResources = {
 		textForWheat: textForWheat,
@@ -260,19 +263,32 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 	return allTextResources;
 }
 
-export function UpdateNumberOfResources(allTextResources, resourcesOfUser) {
+export function UpdateNumberOfResources(allTextResources, resourcesOfUser, buildings) {
 	for (let key in allTextResources) {
 		if (key === "textForWheat") {
-			allTextResources[key].text = `${resourcesOfUser.wheat}`;
+			if (resourcesOfUser.wheat > resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse) {
+				resourcesOfUser.wheat = resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse;
+			}
+			allTextResources[key].text = `${resourcesOfUser.wheat}/${resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
 		if (key === "textForWood") {
-			allTextResources[key].text = `${resourcesOfUser.wood}`;
+			if (resourcesOfUser.wood > resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse) {
+				resourcesOfUser.wood = resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse;
+			}
+			allTextResources[key].text = `${resourcesOfUser.wood}/${resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
+		console.log(buildings.warehouse)
 		if (key === "textForStone") {
-			allTextResources[key].text = `${resourcesOfUser.stone}`;
+			if (resourcesOfUser.stone > resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse) {
+				resourcesOfUser.stone = resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse;
+			}
+			allTextResources[key].text = `${resourcesOfUser.stone}/${resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
 		if (key === "textForHammer") {
 			allTextResources[key].text = `${resourcesOfUser.hammer}`;
+		}
+		if (key === "textForInhabitants") {
+			allTextResources[key].text = `${resourcesOfUser.inhabitants}`;
 		}
 	}
 }
