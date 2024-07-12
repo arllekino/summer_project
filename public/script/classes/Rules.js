@@ -127,11 +127,13 @@ export class Rules
         {
             this.app.stage.addChild(this.container);
             this.visibility = true;
+            this.buttonText.text = 'ЗАКРЫТЬ'
         }
         else
         {
             this.app.stage.removeChild(this.container);
             this.visibility = false;
+            this.buttonText.text = 'ПРАВИЛА'
         }
     }
 
