@@ -308,7 +308,7 @@ export async function main(allContainer, app, island) {
         choiceTower: false,
     };
 
-    //const rules = new Rules(app);
+    const rules = new Rules(app);
     await StartStage(app, island, allTextResources, flags, blocks);
 
     while (true) {

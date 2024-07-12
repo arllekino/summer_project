@@ -228,7 +228,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         const icon = new PIXI.Sprite();
         arrCubes.push(icon);
         AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, `/../assets/textures/cubeOfVillage/${numberFace}face.svg`, icon);
+            percentageScreenHeight, PIXI.Texture.from(`${numberFace}face.png`), icon);
 
         if (cubesInRow === 6) {
             percentageScreenWidth = startPositionWidth;
@@ -249,7 +249,7 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         const icon = new PIXI.Sprite();
         arrCubes.push(icon);
         AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
-            percentageScreenHeight, `/../assets/textures/cubeOfGrandee/${numberFace}face.svg`, icon);
+            percentageScreenHeight, PIXI.Texture.from(`${numberFace + 6}face.png`), icon);
 
         if (cubesInRow === 6) {
             percentageScreenWidth = startPositionWidth;
