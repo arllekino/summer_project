@@ -208,6 +208,9 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
             if (currentCoords.x < 0 || currentCoords.y < 0) {
                 continue;
             }
+            if (currentCoords.x > 19 || currentCoords.y > 19) {
+                continue;
+            }
             if (currentCoords.x === previousCell.x && currentCoords.y === previousCell.y) {
                 continue;
             }
@@ -235,14 +238,8 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
         if (cellWithTheSmallestPath.x === coordsEnd.x && cellWithTheSmallestPath.y === coordsEnd.y) {
             pathHasBeenFound = true;
         }
-        else {
-            shortWay.push(cellWithTheSmallestPath);
-        }
+        shortWay.push(cellWithTheSmallestPath);
     }
-    
-    shortWay.forEach((cellShortWay) => {
-        cells[cellShortWay.y * 20 + cellShortWay.x].errorField();
-    });
 
     return shortWay;
 }
@@ -320,7 +317,7 @@ async function MoveSprite(sprite, shortWay, cells, isShipSailingBack, resolve) {
 }
 
 export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildingPressed) {
-    document.addEventListener("pointerdown", function getCoordsOfMatrix(event) {
+    document.addEventListener("pointerdown", function getCoordsFromMatrix(event) {
         if (Game.stage === 4) {
             let minDist = 99999;
             let minDistObject = null;
@@ -345,65 +342,65 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
         else {
             resolve();
         }
-        this.removeEventListener("pointerdown", getCoordsOfMatrix);
+        this.removeEventListener("pointerdown", getCoordsFromMatrix);
     });
 }
 
-function MouseFollowingForShip(app, event, cells, sprite, coords) {
-    let position = event.data.global;
-    const cellForShip = new Cell(app, -1, 5);
-
-    sprite.x = position.x - sprite.getBounds().width / 2;
-    sprite.y = position.y - sprite.getBounds().height / 2;
-
-    cellForShip.setDirectPositions(position.x + 20 - 50, position.y + 20 - 50);
-
-    cells.forEach((cell) => {
-        cell.changeType(cell.getType());
-        if (cell.intersectWithCell(cellForShip)) {
-            cell.errorField();
-            if ((cell.getType() == 0) && (cell.getPtrTower() == -1)) {
-                cell.okField();
-                const index = cells.indexOf(cell);
-                coords.x = index % 20;
-                coords.y = (index - coords.x) / 20;
-            }
+export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap) {
+    if (cellForShip) {
+        const position = {
+            x: event.pageX,
+            y: event.pageY,
         }
-    });
+    
+        // sprite.x = position.x - sprite.getBounds().width / 2;
+        // sprite.y = position.y - sprite.getBounds().height / 2;
+    
+        cellForShip.setDirectPositions(position.x + 20 - 40, position.y + 20 - 40);
+        
+        cells.forEach((cell) => {
+            cell.changeType(cell.getType());
+            if (cell.intersectWithCell(cellForShip)) {
+                cell.errorField();
+                isThisRightCell.state = false;
+                const index = cells.indexOf(cell);
+                const TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
+                const MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 20].getType() === 2);
+                const MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index - 20].getType() === 2);
+                const DownMiddleCellIsland = (cells[index + 20].getType() === 1 || cells[index - 20].getType() === 2);
+                if ((cell.getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
+                    cell.okField();
+                    cellForShipFromMap.cell = cell;
+                    coords.x = index % 20;
+                    coords.y = (index - coords.x) / 20;
+                    isThisRightCell.state = true;
+                }
+            }
+        });
+    }
 }
 
-function ChoicePlaceForShip(app, stopMoving) {
-    app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");
-    stopMoving.state = true;
+export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve) {
+    if (isThisRightCell.state) {
+        stopMoving.state = true;
+        console.log(cellForShipFromMap);
+        cellForShipFromMap.cell.changeType(0);
+        cellForShip = null;
+        app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");
+        resolve();
+    }
 }
 
-export async function MoveSpriteToCoords(coordsStart, cells, app, ships, worldMatrix) {
+export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix) {
     const rect = new PIXI.Sprite();
     DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y);
-
-    const coordsEnd = {
-        x: 0,
-        y: 0,
-    }
-
-    const stopMoving = {
-        state: false,
-    };
-
-    setTimeout(() => {
-        window.addEventListener("click", () => ChoicePlaceForShip(app, stopMoving));
-        app.stage.on("pointermove", (event) => MouseFollowingForShip(app, event, cells, rect, coordsEnd));
-    }, 250);
     
-    if (stopMoving) {
-        const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells);
-        const promiseForward = new Promise(function(resolve) {
-           MoveSprite(rect, shortWay, cells, false, resolve);
-        });
-        await Promise.all([promiseForward]);
-    }
+    const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells);
+    const promiseForward = new Promise(function(resolve) {
+       MoveSprite(rect, shortWay, cells, false, resolve);
+    });
+    await Promise.all([promiseForward]);
     
-
     // const promiseBack = new Promise(function(resolve) {
     //     MoveSprite(rect, shortWay, cells, true, resolve);
     // });

@@ -197,10 +197,9 @@ export class Building
     }
 
     buildBuilding(app, buildings, resources, allTextResources, blocks) {
-        const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
+        const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
-                element.setPtrTower(this.__buildType);
                 element.setPtrTower(this.getPtrTower());
             });
             this.__stopMovingFlag = true;

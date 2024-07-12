@@ -3,11 +3,12 @@ import { startTimerForStage } from "./timerForStage.js";
 import { GetResources } from "./stages/resources.js";
 import { Destroyer, AddEventListenersForHammer } from "./classes/destroyer.js"; 
 import { Game } from "./classes/game.js";
-import { MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
+import { ChoicePlaceForShip, MouseFollowingForShip, MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
+import { Cell } from "./classes/Cell.js";
 
 export function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -180,30 +181,63 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
 }
 
 export async function stageBattles(app, cells, buildings, ships, worldMatrix) {
-    // const coordsStart = {
-    //     x: 0,
-    //     y: 0,
-    // }
-    // const isBuildingPressed = {
-    //     state: false,
-    // };
-    // const coordsOfBuilding = {
-    //     x: 0,
-    //     y: 0,
-    // } 
-    // while (!isBuildingPressed.state) {
-    //     const promise = new Promise(function(resolve) {
-    //         GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed);
-    //     });
-    //     await Promise.all([promise]);
-    //     if (Game.stage !== 4) {
-    //         isBuildingPressed.state = true;
-    //     }
-    // }
-    // if (isBuildingPressed.state && Game.stage === 4) {
-    //     MoveSpriteToCoords(coordsStart, cells, app, ships, worldMatrix);
-    // }
-    console.log("battles");
+    const coordsStart = {
+        x: 0,
+        y: 0,
+    }
+    const isBuildingPressed = {
+        state: false,
+    };
+    const coordsOfBuilding = {
+        x: 0,
+        y: 0,
+    } 
+    while (!isBuildingPressed.state) {
+        const promise = new Promise(function(resolve) {
+            GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed);
+        });
+        await Promise.all([promise]);
+        if (Game.stage !== 4) {
+            isBuildingPressed.state = true;
+        }
+    }
+    const stopMoving = {
+        state: false,
+    };
+    const isThisRightCell = {
+        state: false,
+    };
+    const coordsEnd = {
+        x: 0,
+        y: 0,
+    }
+    const cellForShipFromMap = {
+        cell: null,
+    }
+    if (isBuildingPressed.state && Game.stage === 4) {
+        let cellForShip = new Cell(app, -1, 5);
+        while (!stopMoving.state) {
+            const promise = new Promise(function(resolve) {
+                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap))
+                setTimeout(() => {
+                    document.addEventListener("click", function getCoordsOfShip() {
+                        ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve);
+                        this.removeEventListener("click", getCoordsOfShip);
+                    });
+                }, 500);
+                
+            })
+            await Promise.all([promise]);
+            if (Game.stage !== 4) {
+                cellForShip = null;
+                stopMoving.state = true;
+            }
+        }
+        cellForShip = null;
+    }
+    if (stopMoving.state && Game.stage === 4) {
+        MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
+    }
 }
 
 export async function main(allContainer, app, island) {
