@@ -1,6 +1,6 @@
 import { DrawInfoBlocks, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { main } from "./stages.js";
-import { CreateIsland, worldMatrix } from "./classes/Map.js";
+import { CreateIsland } from "./classes/Map.js";
 import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
 
 (async () => {

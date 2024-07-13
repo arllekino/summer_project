@@ -148,7 +148,7 @@ function MakeField(countOfUser) {
     return matrixOfField;
 }
 
-export function GetBoundsForIsland(numberOfUser, iterXOfField, iterYOfField) {
+export function GetBoundsForIsland(numberOfUser, bounds) {
     switch (numberOfUser) {
         case 1:
             bounds.iterXOfField = 15;

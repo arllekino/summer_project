@@ -27,7 +27,7 @@ function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, number
     GetBoundsForIsland(numberOfUser, coordsOfLeftTop);
     worldMatrix.forEach((row, i) => {
         row.forEach((num, j) => {
-            const cell = new Cell(app, -1, num);
+            const cell = new Cell(app, -1, num, 500 + 20 * i, -500 + 20 * j);
             const resource = {
                 object: null,
             }
@@ -52,8 +52,8 @@ function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, number
             if (resource.object)
             {
                 resource.object.setPosition(cell.getBounds().x + cell.getBounds().width / 2, cell.getBounds().y + cell.getBounds().height / 2 - 7)
-                resource.object.setZIndex(resource.getBounds().y - 15);
-                resources.object.push(resource);
+                resource.object.setZIndex(resource.object.getBounds().y - 15);
+                resources.push(resource.object);
             }
             cells.push(cell);
             quadTree.insert(cell);

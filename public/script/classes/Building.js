@@ -147,6 +147,7 @@ export class Building
         if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50);}
         this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
         this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
+        console.log(this.__eCells);
         // cells.forEach((cell) => {
         //     cell.changeType(cell.getType());
         //     this.__eCells.forEach((eCell => {
