@@ -1,5 +1,6 @@
 import { Cell } from "./Cell.js";
 import { Resource } from "./Resource.js";
+import { QuadTree, Rect } from "./Quadtree.js";
 
 const TResources = {
     wheat: 4,
@@ -40,18 +41,18 @@ export let worldMatrix = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
 ];
 
-function mapReader(worldMatrix, cells, app, resources) {
+function mapReader(worldMatrix, cells, app, resources, quadTree) {
     let i = 0;
     let j = 0;
     worldMatrix.forEach((row) => {
         row.forEach((num) => {
             if (num < 3)
             {
-                var cell = new Cell(app, -1, num);
+                var cell = new Cell(app, -1, num, 500 + 20 * i, -500 + 20 * j);
             }
             else
             {
-                var cell = new Cell(app, 9, 1);
+                var cell = new Cell(app, 9, 1, 500 + 20 * i, -500 + 20 * j);
                 var resource = new Resource(app, num - 2)
                 resource.__cellsStatus['-1'] = cell;
             }
@@ -67,6 +68,7 @@ function mapReader(worldMatrix, cells, app, resources) {
                 resources.push(resource);
             }
             cells.push(cell);
+            quadTree.insert(cell);
             j += 1
         })
         j = 0;
@@ -86,5 +88,6 @@ export function CreateIsland(worldMatrix) {
         buldingObject: null,
         buildingSprite: null,
         ships: [],
+        quadTree: new QuadTree(new Rect(0, 0, window.innerWidth * 20,  window.innerHeight * 1000), 900)
     }
 }

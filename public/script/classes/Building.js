@@ -1,9 +1,10 @@
 import { Cell } from "./Cell.js"; 
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
+import { Rect } from "./Quadtree.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, name, alias, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks)
+    constructor(app, cells, buildings, quadTree, name, alias, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks)
     {
         this.__hp = hp;
         this.__defense = defense;
@@ -24,11 +25,12 @@ export class Building
         this.__matrixPattern = [];
         this.__eCells = [];
         this.__cellsStatus = {};
+        this.cellsBefore = [null, null, null, null, null, null, null, null, null]
         this.__stopMovingFlag = false;
         this.__bounds;
         this.initSprite(app);
         window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources, blocks));
-        app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells));
+        app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells, quadTree));
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
 
@@ -118,7 +120,7 @@ export class Building
             row.forEach((num) => {
                 var cell = null;
                 if (num === 1) {
-                    cell = new Cell(app, this.__buildType, 5);
+                    cell = new Cell(app, this.__buildType, 5, 0, 0);
                     cell.activate();
                     this.__cellsStatus[count] = null;
                     cell.setCellId(count);
@@ -132,7 +134,7 @@ export class Building
         })
     }
 
-    startMouseFollowing(event, cells) {
+    startMouseFollowing(event, cells, quadTree) {
         let position = event.data.global;
         if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
         if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
@@ -145,21 +147,49 @@ export class Building
         if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50);}
         this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
         this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
-        cells.forEach((cell) => {
-            cell.changeType(cell.getType());
-            this.__eCells.forEach((eCell => {
-                // this.__cellsStatus[eCell.getCellId()] = null
-                if ((eCell !== null) && (cell.intersectWithCell(eCell))) {
-                    cell.errorField();
-                    this.__cellsStatus[eCell.getCellId()] = null
-                    if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
-                        cell.okField();
+        // cells.forEach((cell) => {
+        //     cell.changeType(cell.getType());
+        //     this.__eCells.forEach((eCell => {
+        //         // this.__cellsStatus[eCell.getCellId()] = null
+        //         if ((eCell !== null) && (cell.intersectWithCell(eCell))) {
+        //             cell.errorField();
+        //             this.__cellsStatus[eCell.getCellId()] = null
+        //             if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
+        //                 cell.okField();
+        //             }
+        //             this.__cellsStatus[eCell.getCellId()] = cell;
+        //         }
+        //     }));
+        // });
+        this.__eCells.filter(eCell => eCell !== null).forEach( (eCell) => {
+            const cell = quadTree.query(new Rect(eCell.x + 7, eCell.y + 4, 2, 1));
+            if (cell.length > 0) {
+                if (cell[0] !== this.cellsBefore[eCell.getCellId()])
+                {
+                    if (this.cellsBefore[eCell.getCellId()] !== null)
+                    {
+                        this.cellsBefore[eCell.getCellId()].changeType(this.cellsBefore[eCell.getCellId()].getType());   
                     }
-                    this.__cellsStatus[eCell.getCellId()] = cell;
                 }
-            }));
-        });
+                this.cellsBefore[eCell.getCellId()] = cell[0];
+                cell[0].errorField();
+                this.__cellsStatus[eCell.getCellId()] = null;
+                if ((cell[0].getType() == 1) && (cell[0].getPtrTower() == -1)) {
+                    cell[0].okField();
+                }
+                this.__cellsStatus[eCell.getCellId()] = cell[0];
+            } 
+            else 
+            {
+                if (this.cellsBefore[eCell.getCellId()] !== null)
+                {
+                    this.cellsBefore[eCell.getCellId()].changeType(this.cellsBefore[eCell.getCellId()].getType());
+                    this.cellsBefore[eCell.getCellId()] = null;
+                }
+            }
+        })
     }
+        
 
     rotateMatrix(direction) {
         if (direction == 1) {

@@ -9,6 +9,7 @@ import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 import { Rules } from "./classes/Rules.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
+import { Rect } from "./classes/Quadtree.js";
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -69,7 +70,7 @@ async function buildCastle(app, island, allTextResources, blocks) {
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, 'Castle', 'Castle', {}, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Castle', 'Castle', {}, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks);
         island.buldingObject.setMatrixPattern([
             [1, 1, 1],
             [1, 1, 1],
@@ -94,7 +95,7 @@ async function buildFarmerHouse(app, island, allTextResources, blocks) {
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farmer House', 'houseVillage', {}, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farmer House', 'houseVillage', {}, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks);
         island.buldingObject.setMatrixPattern([
             [0, 0, 0],
             [0, 1, 0],
@@ -121,7 +122,7 @@ async function buildFarm(app, island, allTextResources, blocks) {
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks);
         island.buldingObject.setMatrixPattern([
             [1, 1, 0],
             [1, 1, 0],
@@ -216,6 +217,19 @@ export async function main(allContainer, app, island) {
     allContainer.wheelBlock.interactive = true;
     allContainer.wheelBlock.buttonMode = true;
     allContainer.wheelBlock.cursor = "pointer";
+
+    // window.addEventListener('mousemove', (e) => mouseMove(e))
+    // function mouseMove(e)
+    // {
+    //     const cursor = { x: e.clientX, y: e.clientY };
+    //     const range = new Rect(cursor.x, cursor.y, 1, 1);
+    //     const foundObjects = island.quadTree.query(range);
+    //     if (foundObjects.length > 0) {
+    //         console.log(foundObjects, cursor);
+    //     } else {
+    //         console.log('Пересечения с объектами не обнаружено.');
+    //     }
+    // }
 
     const handleKeyDown = (event) => {
         const key = event.key;
