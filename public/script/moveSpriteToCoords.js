@@ -1,5 +1,4 @@
-import { Cell } from "./classes/Cell.js";
-import { cartesianToIsometric, mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
+import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
 import { Game } from "./classes/game.js";
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {

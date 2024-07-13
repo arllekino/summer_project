@@ -1,23 +1,3 @@
-export async function SendIsland(island) {
-    const data = {
-        island_matrix: island.matrixOfIsland,
-    }
-
-    const response = await fetch("/create_island", {
-        method: "POST",
-		body: JSON.stringify(data),
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-    });
-
-    if (!response.ok) {
-        console.log(response.statusText);
-        return;
-    }
-}
-
 export async function UpdateIsland(island) {
     const data = {
         island_matrix: island.matrixOfIsland,

@@ -1,15 +1,24 @@
 import { DrawInfoBlocks, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { main } from "./stages.js";
 import { CreateIsland, worldMatrix } from "./classes/Map.js";
+import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
 
 (async () => {
+
+    // const infoForUser = FormationOfGame();
+
+    const infoForUser = {
+        matrixOfField: islandTemplate,
+        numberOfUser: 1,
+    }
+
     const app = new PIXI.Application();
     await app.init({ background: '#00aeff', resizeTo: window });
 
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);
 
-    const island = CreateIsland(worldMatrix);
+    const island = CreateIsland(infoForUser.matrixOfField);
     
     const allContainer = DrawInfoBlocks(app);
     
@@ -26,9 +35,9 @@ import { CreateIsland, worldMatrix } from "./classes/Map.js";
     textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
     textures = await PIXI.Assets.load("/../imageParser/diceEdges.json");
 
-    island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland);
+    island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser);
 
-    main(allContainer, app, island);    
+    main(allContainer, app, island);
 
     return {
         stage: app.stage,
