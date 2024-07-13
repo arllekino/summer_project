@@ -1,6 +1,7 @@
 import { GetBoundsForIsland } from "../formationOfGame.js";
 import { Cell } from "./Cell.js";
 import { Resource } from "./Resource.js";
+import { QuadTree, Rect } from "./Quadtree.js";
 
 const TResources = {
     wheat: 4,
@@ -18,7 +19,7 @@ const TResources = {
     skulls: 0,
 }
 
-function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser) {
+function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser, quadTree) {
     const coordsOfLeftTop = {
         iterXOfField: 0,
         iterYOfField: 0,
@@ -55,6 +56,7 @@ function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, number
                 resources.object.push(resource);
             }
             cells.push(cell);
+            quadTree.insert(cell);
         })
     })
 }
@@ -72,5 +74,6 @@ export function CreateIsland(worldMatrix) {
         buldingObject: null,
         buildingSprite: null,
         ships: [],
+        quadTree: new QuadTree(new Rect(0, 0, window.innerWidth * 20,  window.innerHeight * 1000), 900)
     }
 }

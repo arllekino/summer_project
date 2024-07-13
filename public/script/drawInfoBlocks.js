@@ -161,7 +161,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true
-					island.buldingObject = new Building(app, island.cells, island.buildings, 'House', 'houseGrendee', {}, 100, 0, 2, 5, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'House', 'houseGrendee', {}, 100, 0, 2, 5, requiredResources, island.resourcesOfUser, allTextResources, blocks);
 					island.buldingObject.setMatrixPattern([
 						[0, 0, 0],
 						[0, 1, 0],
@@ -175,7 +175,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -189,7 +189,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, 'Warehouse', 'warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Warehouse', 'warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -203,7 +203,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, 'Farmer House', 'houseVillage', {}, 100, 0, 3, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farmer House', 'houseVillage', {}, 100, 0, 3, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks);
 					island.buldingObject.setMatrixPattern([
 						[0, 0, 0],
 						[0, 1, 0],

@@ -35,7 +35,7 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
     textures = await PIXI.Assets.load("/../imageParser/diceEdges.json");
 
-    island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser);
+    island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree);
 
     main(allContainer, app, island);
 
@@ -43,3 +43,32 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
         stage: app.stage,
     };
 })();
+
+// import { QuadTree, Rect } from "./classes/Quadtree.js";
+
+
+// const quadTree = new QuadTree(new Rect(0, 0, window.innerWidth,  window.innerHeight), 3);
+
+// const objects = [
+//   { id: 1, x: 20, y: 20, width: 100, height: 100 },
+//   { id: 2, x: 120, y: 20, width: 100, height: 100 },
+//   { id: 3, x: 20, y: 100, width: 100, height: 100 },
+// ];
+
+// for (const object of objects) {
+//   quadTree.insert(object);
+// }
+  
+//   // Проверка коллизии курсора мыши с объектами
+// window.addEventListener('mousemove', (e) => mouseMove(e))
+// function mouseMove(e)
+// {
+//     const cursor = { x: e.clientX, y: e.clientY };
+//     const range = new Rect(cursor.x, cursor.y, 1, 1);
+//     const foundObjects = quadTree.query(range);
+//     if (foundObjects.length > 0) {
+//         console.log(foundObjects[0].id, cursor);
+//     } else {
+//         console.log('Пересечения с объектами не обнаружено.');
+//     }
+// }

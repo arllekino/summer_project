@@ -1,13 +1,20 @@
 import { cartesianToIsometric } from "./CommonFunctions.js";
+
+const X_ADDING = 23;
+const Y_ADDING = 26;
 export class Cell {
-    constructor(app, ptrTower, placeType) {
+    constructor(app, ptrTower, placeType, x, y) {
         this.__ptrTower = ptrTower;
         this.__placeType = placeType;
+        this.initSprite(app)
+        this.x = cartesianToIsometric(x, y).x + X_ADDING;
+        this.y = cartesianToIsometric(x, y).y + Y_ADDING;
         this.__sprite;
         this.__bounds;
         this.__active = false;
         this.__cellId = 0;
-        this.initSprite(app)
+        this.width = 17
+        this.height = 9
     }
 
     intersectWithCell(object) {
@@ -87,6 +94,8 @@ export class Cell {
 
     setDirectPositions(x, y) {
         this.__sprite.position.set(x, y);
+        this.x = x + X_ADDING;
+        this.y = y + Y_ADDING;
         this.__bounds = this.__sprite.getBounds();
     }
 
