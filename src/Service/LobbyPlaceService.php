@@ -9,6 +9,12 @@ use App\Repository\LobbyPlaceRepository;
 class LobbyPlaceService
 {
     private const MAX_PLAYERS = 4;
+    private const PLAYER_HOST = 'host';
+    private const PLAYER_GUEST = 'guest';
+    private const LOBBY = 'lobby';
+    private const GAME = 'game';
+    private const READY = 'ready';
+    private const NOT_READY = 'not ready';
     private LobbyPlaceRepository $repository;
     private UserService $userService;
     
@@ -30,7 +36,10 @@ class LobbyPlaceService
             null,
             $this->repository->findLastInsertLobby() + 1,
             $userId,
-            null  
+            null,
+            self::PLAYER_HOST,
+            self::LOBBY,
+            self::NOT_READY
         );
         $lobbyId = $this->repository->store($lobby);
         $keyRoom =  self::createKeyRoom($lobbyId);
@@ -46,46 +55,132 @@ class LobbyPlaceService
         {
             throw new \UnexpectedValueException('Лобби не найдено');
         }
-
         if (count($lobbyPlaces) === self::MAX_PLAYERS)
         {
             throw new \UnexpectedValueException('Лобби уже заполнено');      
         }
+        if (!self::LOBBY === $lobbyPlaces[0]->getLobbyStatus())
+        {
+            throw new \UnexpectedValueException('Игра уже запущена');
+        }
+        foreach ($lobbyPlaces as $lobbyPlace)
+        {
+            if ($userId === $lobbyPlace->getPlayerId())
+            {
+                return;
+            }
+        }
+
         $lobbyPlace = new LobbyPlace(
             null,
             $lobbyPlaces[0]->getLobbyId(),
             $userId,
-            $keyRoom
+            $keyRoom,
+            self::PLAYER_GUEST,
+            self::LOBBY,
+            self::NOT_READY
         );
         $this->repository->store($lobbyPlace);
+    }
 
+    public function setReadyStatus(int $userId): void
+    {
+        $lobbyPlace = $this->repository->findByPlayerId($userId);
+        if ($lobbyPlace === null)
+        {
+            throw new \UnderflowException('Пользователь в лобби не найден');
+        }
+
+        $lobbyPlace->setReadiness(self::READY);
+        $this->repository->update($lobbyPlace);
+    }
+
+    public function setNotReadyStatus(int $userId): void
+    {
+        $lobbyPlace = $this->repository->findByPlayerId($userId);
+        if ($lobbyPlace === null)
+        {
+            throw new \UnderflowException('Пользователь в лобби не найден');
+        }
+        
+        $lobbyPlace->setReadiness(self::NOT_READY);
+        $this->repository->update($lobbyPlace);
+    }
+
+    public function MakeGuestHost(int $userId): void
+    {
+        $lobbyPlace = $this->repository->findByPlayerId($userId);
+        if ($lobbyPlace === null)
+        {
+            throw new \UnderflowException('Пользователь в лобби не найден');
+        }
+        
+        $lobbyPlace->setStatus(self::PLAYER_HOST);
     }
 
     public function showUsersInLobby(string $keyRoom): array
     {
         $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
-        if ($lobbyPlaces === null)
+        if (empty($lobbyPlaces))
         {
             throw new \UnexpectedValueException('Лобби не найдено');
         }
+        if (self::LOBBY !== $lobbyPlaces[0]->getLobbyStatus())
+        {
+            throw new \UnexpectedValueException('Игра уже запущена');
+        }
 
+        $players = [];
         foreach ($lobbyPlaces as $lobbyPlace)
         {
             $playerId = $lobbyPlace->getPlayerId();
-            $playerNames[]= $this->userService->findUserName($playerId);
+            $playerName = $this->userService->findUserName($playerId);
+            $playerStatus = $lobbyPlace->getStatus();
+            $playerReadiness = $lobbyPlace->getReadiness();
+            $player = [
+                'name' => $playerName,
+                'status' => $playerStatus,
+                'readiness' => $playerReadiness
+
+            ];
+            $players[] = $player; 
         }
 
-        return $playerNames;
+        return $players;
     }   
-    
-    public function deleteUserFromLobby(string $keyRoom, int $userId): void
+
+    public function setGameStatus(string $keyRoom): void
     {
-        $lobby = $this->repository->findByKeyRoom($keyRoom);
-        if ($lobby === null)
+        $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
+        if (empty($lobbyPlaces))
         {
             throw new \UnexpectedValueException('Лобби не найдено');
-        }
+        }    
 
+        foreach ($lobbyPlaces as $lobbyPlace)
+        {
+            $lobbyPlace->setStatus(self::GAME);
+            $this->repository->update($lobbyPlace);
+        }
+    }
+
+    public function setLobbyStatus(string $keyRoom): void
+    {
+        $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
+        if (empty($lobbyPlaces))
+        {
+            throw new \UnexpectedValueException('Лобби не найдено');
+        }    
+
+        foreach ($lobbyPlaces as $lobbyPlace)
+        {
+            $lobbyPlace->setStatus(self::LOBBY);
+            $this->repository->update($lobbyPlace);
+        }
+    }
+    
+    public function deleteUserFromLobby(int $userId): void
+    {
         $lobbyPlace = $this->repository->findByPlayerId($userId);
         if ($lobbyPlace === null)
         {

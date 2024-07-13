@@ -196,6 +196,16 @@
         <argument type="service" id=".service_locator.mx0UMmY.App\Controller\ErrorController"/>
       </call>
     </service>
+    <service id="App\Controller\GameController" class="App\Controller\GameController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="App\Controller\SessionController"/>
+      <argument type="service" id="App\Service\UserService"/>
+      <argument type="service" id="App\Service\LobbyPlaceService"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.mx0UMmY.App\Controller\GameController"/>
+      </call>
+    </service>
     <service id="App\Controller\Input\IslandInput" class="App\Controller\Input\IslandInput" autowire="true" autoconfigure="true"/>
     <service id="App\Controller\Input\LoginUserInput" class="App\Controller\Input\LoginUserInput" autowire="true" autoconfigure="true"/>
     <service id="App\Controller\Input\RegisterUserInput" class="App\Controller\Input\RegisterUserInput" autowire="true" autoconfigure="true"/>
@@ -3550,6 +3560,9 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ErrorController" class="App\Controller\ErrorController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ErrorController" class="App\Controller\ErrorController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\ErrorController" class="App\Controller\ErrorController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\GameController" class="App\Controller\GameController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\GameController" class="App\Controller\GameController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\GameController" class="App\Controller\GameController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\IslandController" class="App\Controller\IslandController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\IslandController" class="App\Controller\IslandController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\IslandController" class="App\Controller\IslandController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -4068,6 +4081,12 @@
     <service id=".service_locator.mx0UMmY.App\Controller\ErrorController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\ErrorController"/>
       <argument>App\Controller\ErrorController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.mx0UMmY" method="withContext"/>
+    </service>
+    <service id=".service_locator.mx0UMmY.App\Controller\GameController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\GameController"/>
+      <argument>App\Controller\GameController</argument>
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.mx0UMmY" method="withContext"/>
     </service>

@@ -9,10 +9,12 @@ use Ratchet\MessageComponentInterface;
 class WebSocketHandler implements MessageComponentInterface
 {
     protected $clients;
+    protected $usernames;
     
     public function __construct()
     {
-        $this->clients = new \SplObjectStorage;    
+        $this->clients = new \SplObjectStorage;
+        $this->usernames = [];    
     }
 
     public function onOpen(ConnectionInterface $connection)
@@ -22,6 +24,7 @@ class WebSocketHandler implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
+        echo "\n" . $msg . "\n\n";
         foreach ($this->clients as $client)
         {
             if ($from !== $client)
@@ -34,12 +37,12 @@ class WebSocketHandler implements MessageComponentInterface
     public function onClose(ConnectionInterface $connection)
     {
         $this->clients->detach($connection);
+
     }
 
     public function onError(ConnectionInterface $connection, \Exception $e)
     {
         echo $e->getMessage();
-        
         $connection->close();
     }
 }

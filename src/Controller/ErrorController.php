@@ -13,7 +13,7 @@ class ErrorController extends AbstractController
     {
         return $this->render(
             'error_page.html.twig', [
-                'messageCode' => $request->get('errorCode'),
+                'messageCode' => $request->get('messageCode'),
                 'message' => $request->get('message')
         ]);    
     }

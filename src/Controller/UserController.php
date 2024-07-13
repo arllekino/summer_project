@@ -14,7 +14,7 @@ class UserController extends AbstractController
 {
     private const MIN_LENGTH_USER_NAME = 3; 
     private const MIN_LENGTH_PASSWORD = 8; 
-    private const SESSION_NAME = 'userId';
+    private const SESSION_USER_ID = 'userId';
 
     private UserService $userService;
     private SessionController $session;
@@ -48,7 +48,7 @@ class UserController extends AbstractController
             );
         }
         try {
-            $this->userService->register($input);
+            $userId = $this->userService->register($input);
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'register_form', [
@@ -56,12 +56,13 @@ class UserController extends AbstractController
             ]);
         }
         $this->session->clearSession();
-        return $this->redirect('login_form');
+        $this->session->setSession(self::SESSION_USER_ID, $userId);
+        return $this->redirectToRoute('start_lobby_page');
     }
 
     public function logInForm(Request $request): Response
     {       
-        $userSession = $this->session->getSession(self::SESSION_NAME);
+        $userSession = $this->session->getSession(self::SESSION_USER_ID);
         if ($userSession)
         {
             return $this->redirectToRoute('start_lobby_page');
@@ -95,31 +96,15 @@ class UserController extends AbstractController
                 'message' => $e->getMessage()
             ]);
         }   
-        $this->session->setSession(self::SESSION_NAME, $userId);
+        $this->session->setSession(self::SESSION_USER_ID, $userId);
 
         return $this->redirectToRoute('start_lobby_page');
     }
 
     public function logout(): Response
     {
-        $this->session->removeSession(self::SESSION_NAME);
+        $this->session->removeSession(self::SESSION_USER_ID);
         return $this->redirectToRoute('login_form');
-    }
-
-    public function mainGame(): Response
-    {
-        // пока что проверяем на наличие сессии юзера
-        // в дальнейшем надо проверять на наличие сессии игры
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
-        if (!$sessionUserId)
-        {
-            return $this->redirectToRoute(
-                'login_form', 
-                ['message' => 'Сначала вы должны войти в аккаунт']
-            );
-        }
-        
-        return $this->render('main_game.html.twig');    
     }
 
     private function isValid(mixed $input): bool
