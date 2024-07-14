@@ -229,6 +229,6 @@ class __TwigTemplate_e443a3c9be8492b50bfb141e4184d7d6 extends Template
 \t{% block javascripts %}
 \t\t<script defer src=\"/script/showPassword.js\"></script>
 \t{% endblock %}
-", "register_form.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\register_form.html.twig");
+", "register_form.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\register_form.html.twig");
     }
 }

@@ -1,0 +1,15 @@
+{% extends "base.html.twig" %}
+{% block title %}
+    Error {{ messageCode }}
+{% endblock %}
+{% block head %}
+
+{% endblock %}
+{% block content %}
+    <div>
+        {{ message }}
+    </div>
+    <form action="/login_form">
+        <button type="submit">Войти в аккаунт</button>
+    </form>
+{% endblock %}

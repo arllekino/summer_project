@@ -9,18 +9,27 @@ class LobbyPlace
     private int $lobbyId;
     private int $playerId;
     private ?string $keyRoom;
+    private string $status;
+    private string $lobbyStatus;
+    private string $readiness;
 
     public function __construct(
         ?int $id,
         int $lobbyId,
         int $playerId,
-        ?string $keyRoom
+        ?string $keyRoom,
+        string $status,
+        string $lobbyStatus,
+        string $readiness
     )
     {
         $this->id = $id;
         $this->lobbyId = $lobbyId;
         $this->playerId = $playerId;
         $this->keyRoom = $keyRoom;
+        $this->status = $status;
+        $this->lobbyStatus = $lobbyStatus;
+        $this->readiness = $readiness;
     }
 
     public function getId(): ?int
@@ -35,10 +44,21 @@ class LobbyPlace
     {
         return $this->keyRoom;    
     }
-
     public function getPlayerId(): int
     {
         return $this->playerId;
+    }
+    public function getStatus(): string
+    {
+        return $this->status;   
+    }
+    public function getLobbyStatus(): string
+    {
+        return $this->lobbyStatus;    
+    }
+    public function getReadiness(): string
+    {
+        return $this->readiness;    
     }
     
     
@@ -54,5 +74,17 @@ class LobbyPlace
     public function setPlayerId(int $playerId): void
     {
         $this->playerId = $playerId;    
+    }
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;    
+    }
+    public function setLobbyStatus(string $lobbyStatus): void
+    {
+        $this->lobbyStatus = $lobbyStatus;    
+    }
+    public function setReadiness(string $readiness): void
+    {
+        $this->readiness = $readiness;    
     }
 }

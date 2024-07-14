@@ -225,6 +225,6 @@ class __TwigTemplate_37a0a0cc3a836a5c40db672dbaddfe1b extends Template
 \t{% block javascripts %}
 \t\t<script defer src=\"/script/showPassword.js\"></script>
 \t{% endblock %}
-", "login_form.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\login_form.html.twig");
+", "login_form.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\login_form.html.twig");
     }
 }

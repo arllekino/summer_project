@@ -17,20 +17,22 @@ return [
         '/create_lobby' => [[['_route' => 'create_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::createLobby'], null, null, null, false, false, null]],
         '/join_lobby' => [[['_route' => 'join_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::joinLobby'], null, null, null, false, false, null]],
         '/quit_lobby' => [[['_route' => 'quit_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::quitFromLooby'], null, null, null, false, false, null]],
-        '/main_game' => [[['_route' => 'main_game', '_controller' => 'App\\Controller\\UserController::mainGame'], null, null, null, false, false, null]],
+        '/kick_from_lobby' => [[['_route' => 'kick_from_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::kickFromLobby'], null, ['POST' => 0], null, false, false, null]],
     ],
     [ // $regexpList
         0 => '{^(?'
                 .'|/_error/(\\d+)(?:\\.([^/]++))?(*:35)'
                 .'|/lobby_page/([^/]++)(*:62)'
                 .'|/error_page/([^/]++)(*:89)'
+                .'|/main_game/([^/]++)(*:115)'
             .')/?$}sDu',
     ],
     [ // $dynamicRoutes
         35 => [[['_route' => '_preview_error', '_controller' => 'error_controller::preview', '_format' => 'html'], ['code', '_format'], null, null, false, true, null]],
         62 => [[['_route' => 'lobby_page', '_controller' => 'App\\Controller\\LobbyPlaceController::lobbyPage'], ['keyRoom'], ['GET' => 0], null, false, true, null]],
-        89 => [
-            [['_route' => 'error_page', '_controller' => 'App\\Controller\\ErrorController::onError'], ['messageCode'], ['GET' => 0], null, false, true, null],
+        89 => [[['_route' => 'error_page', '_controller' => 'App\\Controller\\ErrorController::onError'], ['messageCode'], ['GET' => 0], null, false, true, null]],
+        115 => [
+            [['_route' => 'main_game', '_controller' => 'App\\Controller\\GameController::mainGame'], ['keyRoom'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],
     ],

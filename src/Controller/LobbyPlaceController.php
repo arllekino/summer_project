@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LobbyPlaceController extends AbstractController
 {
-    private const SESSION_NAME = 'userId';
+    private const SESSION_USER_ID = 'userId';
     private const KEY_LENGTH = 4;
     private SessionController $session;
     private LobbyPlaceService $lobbyService;
@@ -27,21 +27,22 @@ class LobbyPlaceController extends AbstractController
         $this->userService = $userService;
         $this->lobbyService = $lobbyService;
     }
-    
+
     public function startLobbyPage(): Response
     {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
-        if (!$sessionUserId)
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
         {
             return $this->redirectToRoute(
                 'login_form',
-                ['message' => 'You must log in first']
+                ['message' => 'В первую очередь надо войти в аккаунт']
             );
         }
         
         try {
             $userName = $this->userService->findUserName($sessionUserId);
         } catch (\UnexpectedValueException $e) {
+            $this->session->removeSession(self::SESSION_USER_ID);
             return $this->redirectToRoute(
                 'error_page', [
                     'message' => $e->getMessage(),
@@ -55,12 +56,12 @@ class LobbyPlaceController extends AbstractController
     }
     public function createLobby(): Response
     {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)
         {
             return $this->redirectToRoute(
                 'login_form',
-                ['message' => 'Сначала вы должны войти в аккаунт']
+                ['message' => 'В первую очередь надо войти в аккаунт']
             );
         }
         try {
@@ -78,12 +79,12 @@ class LobbyPlaceController extends AbstractController
     }
     public function joinLobby(Request $request): Response
     {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)
         {
             return $this->redirectToRoute(
                 'login_form',
-                ['message' => 'Сначала вы должны войти в аккаунт']
+                ['message' => 'В первую очередь надо войти в аккаунт']
             );
         }
         
@@ -105,8 +106,6 @@ class LobbyPlaceController extends AbstractController
             );
         }
 
-        $userName = $this->userService->findUserName($sessionUserId);
-
         return $this->redirectToRoute(
             'lobby_page', 
             ['keyRoom' => $keyRoom]
@@ -114,18 +113,18 @@ class LobbyPlaceController extends AbstractController
     }
     public function lobbyPage(Request $request): Response
     {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
-        if (!$sessionUserId)
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
         {
             return $this->redirectToRoute(
                 'login_form', 
-                ['message' => 'Сначала вы должны войти в аккаунт']
+                ['message' => 'В первую очередь надо войти в аккаунт']
             );
         }
 
         $keyRoom = $request->get('keyRoom');
         try {
-            $userNames = $this->lobbyService->showUsersInLobby($keyRoom);
+            $users = $this->lobbyService->showUsersInLobby($keyRoom);
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'start_lobby_page',
@@ -133,23 +132,68 @@ class LobbyPlaceController extends AbstractController
             ]);
         }
         return $this->render('lobby_page.html.twig', [
-            'userNames' => $userNames,
+            'users' => $users,
             'keyRoom' => $keyRoom
         ]);
     }
 
-    public function quitFromLooby(Request $request): Response
+    public function makeGuestHost(): Response
     {
-        $sessionUserId = $this->session->getSession(self::SESSION_NAME);
-        if (!$sessionUserId)
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
         {
             return $this->redirectToRoute(
                 'login_form', 
-                ['message' => 'Сначала вы должны войти в аккаунт']
+                ['message' => 'В первую очередь надо войти в аккаунт']
+            );
+        }
+
+        $this->lobbyService->MakeGuestHost($sessionUserId);
+        return new Response('OK');
+    }
+
+    public function makePlayerReady(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return $this->redirectToRoute(
+                'login_form', 
+                ['message' => 'В первую очередь надо войти в аккаунт']
+            );
+        }  
+
+        $this->lobbyService->setReadyStatus($sessionUserId);
+        return new Response('OK');
+    }
+
+    public function makePlayerNotReady(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return $this->redirectToRoute(
+                'login_form', 
+                ['message' => 'В первую очередь надо войти в аккаунт']
+            );
+        }  
+
+        $this->lobbyService->setNotReadyStatus($sessionUserId);
+        return new Response('OK');
+    }
+
+    public function quitFromLooby(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return $this->redirectToRoute(
+                'login_form', 
+                ['message' => 'В первую очередь надо войти в аккаунт']
             );
         }
         try {
-            $this->lobbyService->deleteUserFromLobby($request->get('keyRoom'), $sessionUserId);
+            $this->lobbyService->deleteUserFromLobby($sessionUserId);
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'start_lobby_page',
@@ -161,6 +205,24 @@ class LobbyPlaceController extends AbstractController
             'start_lobby_page',
             ['message' => null]
         );
+    }
+
+    public function kickFromLobby(Request $request): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return $this->redirectToRoute(
+                'login_form', 
+                ['message' => 'В первую очередь надо войти в аккаунт']
+            );
+        }
+        try {
+            $this->lobbyService->deleteUserFromLobby( $sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }    
+        return new Response('OK');
     }
 
     private function isKeyRoomValid(string $keyRoom): bool

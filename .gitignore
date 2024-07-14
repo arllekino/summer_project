@@ -6,11 +6,8 @@
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
-#/var/
-#/vendor/
-<<<<<<< HEAD
+/var/
+/vendor/
 .env
-=======
 /.env
->>>>>>> stageResources
 ###< symfony/framework-bundle ###

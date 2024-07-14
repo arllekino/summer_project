@@ -97,26 +97,36 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t\t\t";
         // line 11
         $context['_parent'] = $context;
-        $context['_seq'] = CoreExtension::ensureTraversable((isset($context["userNames"]) || array_key_exists("userNames", $context) ? $context["userNames"] : (function () { throw new RuntimeError('Variable "userNames" does not exist.', 11, $this->source); })()));
-        foreach ($context['_seq'] as $context["_key"] => $context["userName"]) {
+        $context['_seq'] = CoreExtension::ensureTraversable((isset($context["users"]) || array_key_exists("users", $context) ? $context["users"] : (function () { throw new RuntimeError('Variable "users" does not exist.', 11, $this->source); })()));
+        foreach ($context['_seq'] as $context["_key"] => $context["user"]) {
             // line 12
             yield "\t\t\t\t\t<div class=\"intro__player\" id=\"";
-            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["userName"], "html", null, true);
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["user"], "name", [], "any", false, false, false, 12), "html", null, true);
             yield "\">
 \t\t\t\t\t\t<img src=\"../images/blueFlag200x200.png\" alt=\"Описание картинки\" class=\"flag-image\">
 \t\t\t\t\t\t<div class=\"block__user-name\">
 \t\t\t\t\t\t\t<span class=\"user-name\">";
             // line 15
-            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["userName"], "html", null, true);
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["user"], "name", [], "any", false, false, false, 15), "html", null, true);
             yield "</span>
 \t\t\t\t\t\t</div>
+\t\t\t\t\t\t<span class=\"";
+            // line 17
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["user"], "status", [], "any", false, false, false, 17), "html", null, true);
+            yield "\">";
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["user"], "status", [], "any", false, false, false, 17), "html", null, true);
+            yield "</span>
+\t\t\t\t\t\t<span class=\"readiness\">";
+            // line 18
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["user"], "readiness", [], "any", false, false, false, 18), "html", null, true);
+            yield "</span>
 \t\t\t\t\t</div>
 \t\t\t\t";
         }
         $_parent = $context['_parent'];
-        unset($context['_seq'], $context['_iterated'], $context['_key'], $context['userName'], $context['_parent'], $context['loop']);
+        unset($context['_seq'], $context['_iterated'], $context['_key'], $context['user'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 19
+        // line 21
         yield "\t\t\t</div>
 \t\t\t<div class=\"intro__block\">
 \t\t\t\t<div class=\"intro__lobby\">
@@ -127,10 +137,6 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t\t\t\t\t\t\t<button type\"submit\" class=\"intro__settings\"></button>
 \t\t\t\t\t\t\t</form>
 \t\t\t\t\t\t\t<form action=\"/quit_lobby\" class=\"intro__logout\">
-\t\t\t\t\t\t\t\t<input type=\"hidden\" name=\"keyRoom\" value=\"";
-        // line 29
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["keyRoom"]) || array_key_exists("keyRoom", $context) ? $context["keyRoom"] : (function () { throw new RuntimeError('Variable "keyRoom" does not exist.', 29, $this->source); })()), "html", null, true);
-        yield "\"/>
 \t\t\t\t\t\t\t\t<button type=\"submit\" class=\"intro__but logout\">
 \t\t\t\t\t\t\t\t\t<span class=\"button-text\">Выйти</span>
 \t\t\t\t\t\t\t\t\t<img src=\"../images/home.jpg\" alt=\"Описание картинки\" class=\"button-image\">
@@ -140,12 +146,16 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t\t\t\t</div>
 \t\t\t\t\t<div class=\"intro__block-code\">
 \t\t\t\t\t\t<p class=\"intro__code\">";
-        // line 38
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["keyRoom"]) || array_key_exists("keyRoom", $context) ? $context["keyRoom"] : (function () { throw new RuntimeError('Variable "keyRoom" does not exist.', 38, $this->source); })()), "html", null, true);
+        // line 39
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["keyRoom"]) || array_key_exists("keyRoom", $context) ? $context["keyRoom"] : (function () { throw new RuntimeError('Variable "keyRoom" does not exist.', 39, $this->source); })()), "html", null, true);
         yield "</p>
 \t\t\t\t\t</div>
 \t\t\t\t</div>
 \t\t\t\t<form action=\"/main_game\" class=\"intro__play\">
+\t\t\t\t\t<input type=\"hidden\" name=\"keyRoom\" value=\"";
+        // line 43
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["keyRoom"]) || array_key_exists("keyRoom", $context) ? $context["keyRoom"] : (function () { throw new RuntimeError('Variable "keyRoom" does not exist.', 43, $this->source); })()), "html", null, true);
+        yield "\">
 \t\t\t\t\t<button type=\"submit\" class=\"intro__but play\">
 \t\t\t\t\t\t<span class=\"button-text2\">Начать игру</span>
 \t\t\t\t\t\t<img src=\"../images/sword.svg\" alt=\"Описание картинки\" class=\"button-image2\">
@@ -161,14 +171,14 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
         return; yield '';
     }
 
-    // line 51
+    // line 53
     public function block_javascripts($context, array $blocks = [])
     {
         $macros = $this->macros;
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "javascripts"));
 
-        // line 52
+        // line 54
         yield "\t<script type=\"text/javascript\" src=\"/script/websocket/lobby.js\"></script>
 ";
         
@@ -198,7 +208,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
      */
     public function getDebugInfo()
     {
-        return array (  172 => 52,  165 => 51,  144 => 38,  132 => 29,  120 => 19,  110 => 15,  103 => 12,  99 => 11,  94 => 8,  87 => 7,  78 => 5,  71 => 4,  56 => 2,  39 => 1,);
+        return array (  182 => 54,  175 => 53,  157 => 43,  150 => 39,  130 => 21,  121 => 18,  115 => 17,  110 => 15,  103 => 12,  99 => 11,  94 => 8,  87 => 7,  78 => 5,  71 => 4,  56 => 2,  39 => 1,);
     }
 
     public function getSourceContext()
@@ -213,12 +223,14 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t<div class=\"container\">
 \t\t<div class=\"intro\">
 \t\t\t<div class=\"intro__players\">
-\t\t\t\t{% for userName in userNames %}
-\t\t\t\t\t<div class=\"intro__player\" id=\"{{ userName }}\">
+\t\t\t\t{% for user in users %}
+\t\t\t\t\t<div class=\"intro__player\" id=\"{{ user.name }}\">
 \t\t\t\t\t\t<img src=\"../images/blueFlag200x200.png\" alt=\"Описание картинки\" class=\"flag-image\">
 \t\t\t\t\t\t<div class=\"block__user-name\">
-\t\t\t\t\t\t\t<span class=\"user-name\">{{ userName }}</span>
+\t\t\t\t\t\t\t<span class=\"user-name\">{{ user.name }}</span>
 \t\t\t\t\t\t</div>
+\t\t\t\t\t\t<span class=\"{{ user.status }}\">{{ user.status }}</span>
+\t\t\t\t\t\t<span class=\"readiness\">{{ user.readiness }}</span>
 \t\t\t\t\t</div>
 \t\t\t\t{% endfor %}
 \t\t\t</div>
@@ -231,7 +243,6 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t\t\t\t\t\t\t<button type\"submit\" class=\"intro__settings\"></button>
 \t\t\t\t\t\t\t</form>
 \t\t\t\t\t\t\t<form action=\"/quit_lobby\" class=\"intro__logout\">
-\t\t\t\t\t\t\t\t<input type=\"hidden\" name=\"keyRoom\" value=\"{{ keyRoom }}\"/>
 \t\t\t\t\t\t\t\t<button type=\"submit\" class=\"intro__but logout\">
 \t\t\t\t\t\t\t\t\t<span class=\"button-text\">Выйти</span>
 \t\t\t\t\t\t\t\t\t<img src=\"../images/home.jpg\" alt=\"Описание картинки\" class=\"button-image\">
@@ -244,6 +255,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t\t\t\t</div>
 \t\t\t\t</div>
 \t\t\t\t<form action=\"/main_game\" class=\"intro__play\">
+\t\t\t\t\t<input type=\"hidden\" name=\"keyRoom\" value=\"{{ keyRoom }}\">
 \t\t\t\t\t<button type=\"submit\" class=\"intro__but play\">
 \t\t\t\t\t\t<span class=\"button-text2\">Начать игру</span>
 \t\t\t\t\t\t<img src=\"../images/sword.svg\" alt=\"Описание картинки\" class=\"button-image2\">
@@ -256,6 +268,6 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 {% block javascripts %}
 \t<script type=\"text/javascript\" src=\"/script/websocket/lobby.js\"></script>
 {% endblock %}
-", "lobby_page.html.twig", "D:\\GameProject\\summer_project\\templates\\lobby_page.html.twig");
+", "lobby_page.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\lobby_page.html.twig");
     }
 }

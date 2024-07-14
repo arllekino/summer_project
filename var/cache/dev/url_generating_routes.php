@@ -14,6 +14,7 @@ return [
     'join_lobby' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::joinLobby'], [], [['text', '/join_lobby']], [], [], []],
     'lobby_page' => [['keyRoom'], ['_controller' => 'App\\Controller\\LobbyPlaceController::lobbyPage'], [], [['variable', '/', '[^/]++', 'keyRoom', true], ['text', '/lobby_page']], [], [], []],
     'quit_lobby' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::quitFromLooby'], [], [['text', '/quit_lobby']], [], [], []],
+    'kick_from_lobby' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::kickFromLobby'], [], [['text', '/kick_from_lobby']], [], [], []],
     'error_page' => [['messageCode'], ['_controller' => 'App\\Controller\\ErrorController::onError'], [], [['variable', '/', '[^/]++', 'messageCode', true], ['text', '/error_page']], [], [], []],
-    'main_game' => [[], ['_controller' => 'App\\Controller\\UserController::mainGame'], [], [['text', '/main_game']], [], [], []],
+    'main_game' => [['keyRoom'], ['_controller' => 'App\\Controller\\GameController::mainGame'], [], [['variable', '/', '[^/]++', 'keyRoom', true], ['text', '/main_game']], [], [], []],
 ];
