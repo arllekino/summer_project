@@ -104,15 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playerContainer.removeChild(player);
     }
 
-    function sendUserForCheck(username) {
-        ws.send(JSON.stringify({
-            type: 'checking_other_users_request',
-            username: username,
-            status: 'guest',
-            readiness: 'not ready'
-        }));
-    }
-
     function checkUsersConnection(users) {
         const players = document.getElementsByClassName('user-name');
         for (let i = 0; i < players.length; i++) {

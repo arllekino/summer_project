@@ -48,3 +48,22 @@ error_page:
 main_game:
   path: /main_game/{keyRoom}
   controller: App\Controller\GameController::mainGame
+start_game:
+  path: /start_game
+  methods: GET
+  controller: App\Controller\GameController::startGame
+create_map: 
+  path: /create_map
+  methods: GET
+  controller: App\Controller\GameController::createGameMap
+find_map:
+  path: /find_map
+  methods: POST
+  controller: App\Controller\GameController::findGameMap
+update_map:
+  path: /update_map
+  methods: GET
+  controller: App\Controller\GameController::updateGameMap
+end_game: 
+  path: /end_game
+  controller: App\Controller\GameController::endGame

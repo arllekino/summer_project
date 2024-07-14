@@ -202,6 +202,7 @@
       <argument type="service" id="App\Controller\SessionController"/>
       <argument type="service" id="App\Service\UserService"/>
       <argument type="service" id="App\Service\LobbyPlaceService"/>
+      <argument type="service" id="App\Service\GameMapService"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.mx0UMmY.App\Controller\GameController"/>
       </call>
@@ -240,6 +241,9 @@
         <argument type="service" id=".service_locator.mx0UMmY.App\Controller\UserController"/>
       </call>
     </service>
+    <service id="App\Repository\GameMapRepository" class="App\Repository\GameMapRepository" autowire="true" autoconfigure="true">
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+    </service>
     <service id="App\Repository\IslandRepository" class="App\Repository\IslandRepository" autowire="true" autoconfigure="true">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
     </service>
@@ -248,6 +252,9 @@
     </service>
     <service id="App\Repository\UserRepository" class="App\Repository\UserRepository" autowire="true" autoconfigure="true">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
+    </service>
+    <service id="App\Service\GameMapService" class="App\Service\GameMapService" autowire="true" autoconfigure="true">
+      <argument type="service" id="App\Repository\GameMapRepository"/>
     </service>
     <service id="App\Service\IslandService" class="App\Service\IslandService" autowire="true" autoconfigure="true">
       <argument type="service" id="App\Repository\IslandRepository"/>
