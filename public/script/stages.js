@@ -11,7 +11,7 @@ import { Rules } from "./classes/Rules.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
-import { MoveWarrior } from "./warrior.js";
+import { ChoiceEndCoords, MoveWarrior } from "./warrior.js";
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -305,7 +305,9 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
             MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix,resolve, allContainer.containerForMap);
         });
         await Promise.all([promiseForMovingShip]);
-        MoveWarrior(coordsOfBuilding, coordsEnd, cells, app, worldMatrix, buildings);
+        const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
+        cells[coordsStartForWarrior.y * 20 + coordsStartForWarrior.x].okField();
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings);
     }
 }
 

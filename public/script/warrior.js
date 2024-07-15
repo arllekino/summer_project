@@ -18,18 +18,78 @@ async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numbe
     app.stage.addChild(warrior);
 }
 
-// function ChoiceEndCoords(coordsBuildings, worldMatrix, cells) {
-//     const currentCoords = {
-//         x: 0,
-//         y: 0,
-//         diagonalMovement: false,
-//     };
-//     const short
-//     for (let iter = 0; iter < 9; iter++) {
-//         SetCoords(currentCoords, coordsBuildings, iter);
-        
-//     }
-// }
+export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cells) {
+    const currentCoords = {
+        x: 0,
+        y: 0,
+        diagonalMovement: false,
+    };
+    const cellsAround = [];
+    for (let iter = 0; iter < 9; iter++) {
+        debugger;
+        SetCoords(currentCoords, coordsBuildings, iter);
+        if (currentCoords.x === coordsBuildings.x && currentCoords.y === coordsBuildings.y) {
+            continue;
+        }
+        const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, coordsBuildings.x, coordsBuildings.y);
+        let costPath = 0;
+        if (currentCoords.diagonalMovement) {
+            costPath = 1.4;
+        }
+        else {
+            costPath = 1;
+        }
+        cell.costPath = costPath;
+        cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsOfShip, worldMatrix, cells);
+        cellsAround.push(cell);
+    }
+    let cellWithTheSmallestPath1 = cellsAround[0];
+    cellsAround.forEach(cell => {
+        if ((cell.approximateCostPath + cell.costPath) <= (cellWithTheSmallestPath1.costPath + cellWithTheSmallestPath1.approximateCostPath)) {
+            cellWithTheSmallestPath1 = cell;
+        }
+    })
+    if (cells[cellWithTheSmallestPath1.y * 20 + cellWithTheSmallestPath1.x].__ptrTower !== -1) {
+        const currentCoords = {
+            x: 0,
+            y: 0,
+            diagonalMovement: false,
+        };
+        const cellsAround = [];
+        for (let iter = 0; iter < 9; iter++) {
+            debugger;
+            SetCoords(currentCoords, cellWithTheSmallestPath1, iter);
+            if (currentCoords.x === cellWithTheSmallestPath1.x && currentCoords.y === cellWithTheSmallestPath1.y) {
+                continue;
+            }
+            if (worldMatrix[currentCoords.y][currentCoords.x] === 0) {
+                continue;
+            }
+            if (cells[currentCoords.y * 20 + currentCoords.x].__ptrTower !== -1) {
+                continue;
+            }
+            const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, cellWithTheSmallestPath1.x, cellWithTheSmallestPath1.y);
+            let costPath = 0;
+            if (currentCoords.diagonalMovement) {
+                costPath = 1.4;
+            }
+            else {
+                costPath = 1;
+            }
+            cell.costPath = costPath + cellWithTheSmallestPath1.costPath;
+            cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsOfShip, worldMatrix, cells);
+            cellsAround.push(cell);
+        }
+        let cellWithTheSmallestPath = cellsAround[0];
+        cellsAround.forEach(cell => {
+            if ((cell.approximateCostPath + cell.costPath) <= (cellWithTheSmallestPath.costPath + cellWithTheSmallestPath.approximateCostPath)) {
+                cellWithTheSmallestPath = cell;
+            }
+        })
+        return {x: cellWithTheSmallestPath.x, y: cellWithTheSmallestPath.y}
+    }
+    return {x: cellWithTheSmallestPath1.x, y: cellWithTheSmallestPath1.y}
+}
 
 function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells) {
     let distanceX = 0;
@@ -225,9 +285,16 @@ function CreateCellForAlg(costPath, approximateCostPath, x, y, previousX, previo
     }
 }
 
+function TheseCellsTheSame(cell1, cell2) {
+    if (cell1.x === cell2.x && cell1.y === cell2.y) {
+        return true;
+    }
+    return false;
+}
 
 function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings) {
     const shortWay = [];
+    const consideredCells = [];
 
     const cellStart = CreateCellForAlg(0, -1, coordsStartWar.x, coordsStartWar.y, -1, -1);
     cellStart.approximateCostPath = CalculateDistance(coordsStartWar, coordsEndWar, worldMatrix, cells);
@@ -258,29 +325,6 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
             if (cells[currentCoords.x + currentCoords.y * 20].__ptrTower !== -1) {
                 continue;
             }
-
-            // if (cells[currentCoords.x + currentCoords.y * 20].__ptrTower !== -1) {
-            //     const buildingId = cells[currentCoords.x + currentCoords.y * 20].__ptrTower;
-            //     const building = buildings[buildingId];
-            
-            //     if (building) {
-            //         console.log('Найдено здание:', building);
-            //         console.log('HP здания', building.__hp);
-            
-            //         if (currentCoords.x === coordsEndWar.x && currentCoords.y === coordsEndWar.y) {
-            //             building.__hp -= 100;
-            //             console.log('HP здания', building.__hp);
-            
-            //             if (building.__hp <= 0) {
-            //                 building.__sprite.destroy();
-            //                 buildings.splice(buildings.indexOf(building), 1);
-            //                 cells[currentCoords.x + currentCoords.y * 20].__ptrTower = -1;
-            //             }
-            //         }
-            //         continue;
-            //     }
-            // }            
-
             const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, previousCell.x, previousCell.y);
             let costPath = 0;
             if (currentCoords.diagonalMovement) {
@@ -288,6 +332,16 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
             }
             else {
                 costPath = 1;
+            }
+            let isCellConsidered = false;
+            for (let iterForConsideredCell = 0; iterForConsideredCell < consideredCells.length; iterForConsideredCell++) {
+                if (TheseCellsTheSame(consideredCells[iterForConsideredCell], cell)) {
+                    isCellConsidered = true;
+                    break;
+                }
+            }
+            if (isCellConsidered) {
+                continue;
             }
             cell.costPath = costPath + previousCell.costPath;
             cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells);
@@ -299,11 +353,16 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
                 cellWithTheSmallestPath = cell;
             }
         })
-        if (shortWay[shortWay.length - 2]) {
-            if (shortWay[shortWay.length - 2].x === cellWithTheSmallestPath.x && shortWay[shortWay.length - 2].y === cellWithTheSmallestPath.y) {
-                pathHasBeenFound = true;
-            }
+        if (shortWay.length === 10) {
+            pathHasBeenFound = true;
+            console.log("asdrafgshdjasdgyhuqjwd");
         }
+        // if (shortWay[shortWay.length - 2]) {
+        //     if (shortWay[shortWay.length - 2].x === cellWithTheSmallestPath.x && shortWay[shortWay.length - 2].y === cellWithTheSmallestPath.y) {
+        //         pathHasBeenFound = true;
+        //         console.log("][poiuytr");
+        //     }
+        // }
         // if (previousCell.approximateCostPath <= cellWithTheSmallestPath.approximateCostPath) {
         //     pathHasBeenFound = true;
         // }
@@ -313,15 +372,13 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
         if (cellWithTheSmallestPath.x === coordsEndWar.x && cellWithTheSmallestPath.y === coordsEndWar.y) {
             pathHasBeenFound = true;
         }
-        else {
-            shortWay.push(cellWithTheSmallestPath);
-        }
+        shortWay.push(cellWithTheSmallestPath);
     }
     shortWay.pop();
 
-    shortWay.forEach((cellShortWay) => {
-        cells[cellShortWay.y * 20 + cellShortWay.x].okField();
-    });
+    // shortWay.forEach((cellShortWay) => {
+    //     cells[cellShortWay.y * 20 + cellShortWay.x].okField();
+    // });
 
     return shortWay;
 }
