@@ -366,7 +366,7 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
                 let TopMiddleCellIsland = false;
                 let MiddleLeftCellIsland = false;
                 let MiddleRightCellIsland = false;
-                let DownMiddleCellIsland = false;
+                let DownMiddleCellIsland = true;
                 if (cells[index - 20]) {
                     TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
                 }

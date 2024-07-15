@@ -18,6 +18,19 @@ async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numbe
     app.stage.addChild(warrior);
 }
 
+// function ChoiceEndCoords(coordsBuildings, worldMatrix, cells) {
+//     const currentCoords = {
+//         x: 0,
+//         y: 0,
+//         diagonalMovement: false,
+//     };
+//     const short
+//     for (let iter = 0; iter < 9; iter++) {
+//         SetCoords(currentCoords, coordsBuildings, iter);
+        
+//     }
+// }
+
 function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells) {
     let distanceX = 0;
     for (let iter = minX; iter < maxX; iter++) {
@@ -230,6 +243,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
     while (!pathHasBeenFound) {
         const cellsAround = [];
         const previousCell = shortWay[shortWay.length - 1];
+        console.log(previousCell);
         for (let iter = 0; iter < 9; iter++) {
             SetCoords(currentCoords, { x: previousCell.x, y: previousCell.y }, iter);
             if (currentCoords.x < 0 || currentCoords.y < 0) {
@@ -238,7 +252,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
             if (currentCoords.x === previousCell.x && currentCoords.y === previousCell.y) {
                 continue;
             }
-            if (worldMatrix[currentCoords.y][currentCoords.x] !== 1) {
+            if (worldMatrix[currentCoords.y][currentCoords.x] !== 1 && worldMatrix[currentCoords.y][currentCoords.x] !== 2) {
                 continue;
             }
             if (cells[currentCoords.x + currentCoords.y * 20].__ptrTower !== -1) {
@@ -285,6 +299,17 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
                 cellWithTheSmallestPath = cell;
             }
         })
+        if (shortWay[shortWay.length - 2]) {
+            if (shortWay[shortWay.length - 2].x === cellWithTheSmallestPath.x && shortWay[shortWay.length - 2].y === cellWithTheSmallestPath.y) {
+                pathHasBeenFound = true;
+            }
+        }
+        // if (previousCell.approximateCostPath <= cellWithTheSmallestPath.approximateCostPath) {
+        //     pathHasBeenFound = true;
+        // }
+        // else {
+        //     shortWay.push(cellWithTheSmallestPath);
+        // }
         if (cellWithTheSmallestPath.x === coordsEndWar.x && cellWithTheSmallestPath.y === coordsEndWar.y) {
             pathHasBeenFound = true;
         }
@@ -292,6 +317,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
             shortWay.push(cellWithTheSmallestPath);
         }
     }
+    shortWay.pop();
 
     shortWay.forEach((cellShortWay) => {
         cells[cellShortWay.y * 20 + cellShortWay.x].okField();
