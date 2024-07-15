@@ -1,5 +1,6 @@
-import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
+import { mouseDistanceInContainer, mouseIntersects, mouseIntersectsInContainer } from "./classes/CommonFunctions.js";
 import { Game } from "./classes/game.js";
+import { Rect } from "./classes/Quadtree.js";
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
     return cells[numberOfCellY * 20 + numberOfCellX].getBounds().x + cells[numberOfCellY * 20 + numberOfCellX].getBounds().width / 2;
@@ -9,7 +10,7 @@ function GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
     return cells[numberOfCellY * 20 + numberOfCellX].getBounds().y + cells[numberOfCellY * 20 + numberOfCellX].getBounds().height / 2;
 }
 
-async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, numberOfCellY) {
+async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, numberOfCellY, containerForMap) {
     const x = GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) - 5;
     const y = GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) - 7;
 
@@ -20,6 +21,7 @@ async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, nu
     sprite.y = y;
 
     ships.push(sprite);
+    containerForMap.addChild(sprite);
     app.stage.addChild(sprite);
 }
 
@@ -315,15 +317,15 @@ async function MoveSprite(sprite, shortWay, cells, isShipSailingBack, resolve) {
     resolve();
 }
 
-export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildingPressed) {
+export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildingPressed, containerForMap) {
     document.addEventListener("pointerdown", function getCoordsFromMatrix(event) {
         if (Game.stage === 4) {
             let minDist = 99999;
             let minDistObject = null;
             buildings.forEach((building) => {
-                if (mouseDistance(event, building) < minDist && mouseIntersects(event, building))
+                if (mouseDistanceInContainer(event, building, containerForMap) < minDist && mouseIntersectsInContainer(event, building, containerForMap))
                 {
-                    minDist = mouseDistance(event, building);
+                    minDist = mouseDistanceInContainer(event, building, containerForMap);
                     minDistObject = building;
                 }
             })
@@ -345,7 +347,8 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
     });
 }
 
-export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap) {
+let cellBefore = null;
+export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap, quadTree) {
     if (cellForShip) {
         const position = {
             x: event.pageX,
@@ -356,26 +359,54 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
         // sprite.y = position.y - sprite.getBounds().height / 2;
     
         cellForShip.setDirectPositions(position.x + 20 - 40, position.y + 20 - 40);
-        
-        cells.forEach((cell) => {
-            cell.changeType(cell.getType());
-            if (cell.intersectWithCell(cellForShip)) {
-                cell.errorField();
-                isThisRightCell.state = false;
-                const index = cells.indexOf(cell);
-                const TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
-                const MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 20].getType() === 2);
-                const MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index - 20].getType() === 2);
-                const DownMiddleCellIsland = (cells[index + 20].getType() === 1 || cells[index - 20].getType() === 2);
-                if ((cell.getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
-                    cell.okField();
-                    cellForShipFromMap.cell = cell;
-                    coords.x = index % 20;
-                    coords.y = (index - coords.x) / 20;
-                    isThisRightCell.state = true;
-                }
+
+        let intersectedCells = quadTree.query(new Rect(cellForShip.x, cellForShip.y, 5, 5)) 
+        if (cellBefore === null && intersectedCells.length > 0)
+        {
+            cellBefore = intersectedCells[0];
+        }
+
+        if (intersectedCells.length > 0)
+        {
+            if (intersectedCells[0] !== cellBefore)
+            {
+                cellBefore.changeType(cellBefore.getType());
+                cellBefore = intersectedCells[0];
             }
-        });
+            intersectedCells[0].errorField();
+            isThisRightCell.state = false;
+            const index = cells.indexOf(intersectedCells[0]);
+            const TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
+            const MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 20].getType() === 2);
+            const MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index - 20].getType() === 2);
+            const DownMiddleCellIsland = (cells[index + 20].getType() === 1 || cells[index - 20].getType() === 2);
+            if ((intersectedCells[0].getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
+                intersectedCells[0].okField();
+                cellForShipFromMap.cell = intersectedCells[0];
+                coords.x = index % 20;
+                coords.y = (index - coords.x) / 20;
+                isThisRightCell.state = true;
+            }
+        }
+        // cells.forEach((cell) => {
+        //     cell.changeType(cell.getType());
+        //     if (cell.intersectWithCell(cellForShip)) {
+        //         cell.errorField();
+        //         isThisRightCell.state = false;
+        //         const index = cells.indexOf(cell);
+        //         const TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
+        //         const MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 20].getType() === 2);
+        //         const MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index - 20].getType() === 2);
+        //         const DownMiddleCellIsland = (cells[index + 20].getType() === 1 || cells[index - 20].getType() === 2);
+        //         if ((cell.getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
+        //             cell.okField();
+        //             cellForShipFromMap.cell = cell;
+        //             coords.x = index % 20;
+        //             coords.y = (index - coords.x) / 20;
+        //             isThisRightCell.state = true;
+        //         }
+        //     }
+        // });
     }
 }
 
@@ -390,9 +421,9 @@ export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip
     }
 }
 
-export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix) {
+export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, containerForMap) {
     const rect = new PIXI.Sprite();
-    DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y);
+    DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y, containerForMap);
     
     const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells);
     const promiseForward = new Promise(function(resolve) {

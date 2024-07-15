@@ -99,6 +99,12 @@ export class Cell {
         this.__bounds = this.__sprite.getBounds();
     }
 
+    changeXY(x, y)
+    {
+        this.x = x + X_ADDING;
+        this.y = y + Y_ADDING;
+    }
+
     getPositions() {
         const x = this.__sprite.position.x;
         const y = this.__sprite.position.y;

@@ -110,7 +110,7 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	resolve();
 }
 
-export async function DrawBlockBuildings(container, app, island, allTextResources, blocks) {
+export async function DrawBlockBuildings(container, app, island, allTextResources, blocks, containerForMap) {
 	const textureBackground = await PIXI.Assets.load(
 		"/../assets/textures/BuildingsPanel.svg",
 	);
@@ -161,7 +161,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'House', 'houseGrendee', {}, 100, 0, 2, 5, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'House', 'houseGrendee', {}, 100, 0, 2, 5, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
 					island.buldingObject.setMatrixPattern([
 						[0, 0, 0],
 						[0, 1, 0],
@@ -175,7 +175,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -189,7 +189,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Warehouse', 'warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Warehouse', 'warehouse', {}, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -203,7 +203,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farmer House', 'houseVillage', {}, 100, 0, 3, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks);
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farmer House', 'houseVillage', {}, 100, 0, 3, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
 					island.buldingObject.setMatrixPattern([
 						[0, 0, 0],
 						[0, 1, 0],
@@ -225,10 +225,10 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 
 
 
-export function DrawBuildingsBlock(app, island, allTextResources, blocks) {
+export function DrawBuildingsBlock(app, island, allTextResources, blocks, containerForMap) {
 	const containerForBuilding = new PIXI.Container();
 	app.stage.addChild(containerForBuilding);
-	DrawBlockBuildings(containerForBuilding, app, island, allTextResources, blocks);
+	DrawBlockBuildings(containerForBuilding, app, island, allTextResources, blocks, containerForMap);
 }
 
 function DrawTextOnContainer(text, containerForResources, numberOfResources, percentageScreenWidth, percentageScreenHeight) {
@@ -312,12 +312,16 @@ export function DrawInfoBlocks(app) {
 	const containerForDiceRoll = new PIXI.Container();
 	app.stage.addChild(containerForDiceRoll);
 
+	const containerForMap = new PIXI.Container();
+	app.stage.addChild(containerForMap);
+
 	const allContainer = {
 		containerForResources: containerForResources,
 		wheelBlock: wheelBlock,
 		containerAboveTheWheel: containerAboveTheWheel,
 		containerForTimer: containerForTimer,
 		containerForDiceRoll: containerForDiceRoll,
+		containerForMap: containerForMap,
 	}
 
 	return allContainer;

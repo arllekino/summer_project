@@ -18,6 +18,8 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);
 
+    
+
     const island = CreateIsland(infoForUser.matrixOfField);
     
     const allContainer = DrawInfoBlocks(app);
@@ -35,7 +37,7 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
     textures = await PIXI.Assets.load("/../imageParser/diceEdges.json");
 
-    island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree);
+    island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree);
 
     main(allContainer, app, island);
 

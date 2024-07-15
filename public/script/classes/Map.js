@@ -19,7 +19,7 @@ const TResources = {
     skulls: 0,
 }
 
-function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser, quadTree) {
+function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser, quadTree) {
     const coordsOfLeftTop = {
         iterXOfField: 0,
         iterYOfField: 0,
@@ -34,7 +34,7 @@ function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, number
             if (num >= 3)
             {
                 cell.setPtrTower(9);
-                cell.__placeType = 1;
+                cell.changeType(1);
                 resource.object = new Resource(app, num - 2);
                 resource.object.__cellsStatus['-1'] = cell;
             }
@@ -54,9 +54,11 @@ function mapReader(worldMatrix, cells, app, resources, cellsOfUserIsland, number
                 resource.object.setPosition(cell.getBounds().x + cell.getBounds().width / 2, cell.getBounds().y + cell.getBounds().height / 2 - 7)
                 resource.object.setZIndex(resource.object.getBounds().y - 15);
                 resources.push(resource.object);
+                container.addChild(resource.object.sprite);
             }
             cells.push(cell);
             quadTree.insert(cell);
+            container.addChild(cell.__sprite);
         })
     })
 }

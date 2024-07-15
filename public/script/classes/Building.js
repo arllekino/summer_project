@@ -4,7 +4,7 @@ import { Rect } from "./Quadtree.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, quadTree, name, alias, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks)
+    constructor(app, cells, buildings, quadTree, name, alias, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks, containerForMap)
     {
         this.__hp = hp;
         this.__defense = defense;
@@ -29,7 +29,7 @@ export class Building
         this.__stopMovingFlag = false;
         this.__bounds;
         this.initSprite(app);
-        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources, blocks));
+        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources, blocks, containerForMap));
         app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells, quadTree));
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
@@ -147,7 +147,6 @@ export class Building
         if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50);}
         this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
         this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
-        console.log(this.__eCells);
         // cells.forEach((cell) => {
         //     cell.changeType(cell.getType());
         //     this.__eCells.forEach((eCell => {
@@ -163,7 +162,7 @@ export class Building
         //     }));
         // });
         this.__eCells.filter(eCell => eCell !== null).forEach( (eCell) => {
-            const cell = quadTree.query(new Rect(eCell.x + 7, eCell.y + 4, 2, 1));
+            const cell = quadTree.query(new Rect(eCell.x + 7, eCell.y + 4, 5, 5));
             if (cell.length > 0) {
                 if (cell[0] !== this.cellsBefore[eCell.getCellId()])
                 {
@@ -227,7 +226,7 @@ export class Building
         }
     }
 
-    buildBuilding(app, buildings, resources, allTextResources, blocks) {
+    buildBuilding(app, buildings, resources, allTextResources, blocks, containerForMap) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -235,11 +234,13 @@ export class Building
             });
             this.__stopMovingFlag = true;
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event)).off('pointermove');
-            this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
+            // this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
+            this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x  + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
             this.clearPatterns();
             this.__sprite.zIndex = this.__sprite.y;
             this.__sprite.alpha = 1;
             buildings.push(this);
+            containerForMap.addChild(this.__sprite);
             for (const resource in this.requiredResources)
             {
                 resources[resource] -= this.requiredResources[resource];
@@ -272,9 +273,9 @@ export class Building
         this.__cellsStatus = {};
     }
 
-    mouseClick(app, buildings, resources, allTextResources, blocks) {
+    mouseClick(app, buildings, resources, allTextResources, blocks, containerForMap) {
         if (!this.__stopMovingFlag) {
-            this.buildBuilding(app, buildings, resources, allTextResources, blocks);
+            this.buildBuilding(app, buildings, resources, allTextResources, blocks, containerForMap);
         }
     }
 }
