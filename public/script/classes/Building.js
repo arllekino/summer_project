@@ -15,6 +15,7 @@ export class Building
         this.givingResource = givingResource;
         this.__sprite;
         this.__peopleCount;
+        this.interactivity = true;
         this.requiredResources = requiredResources;
         this.__droppingResources = {}
         Object.entries(requiredResources).forEach(([key, value]) => { 

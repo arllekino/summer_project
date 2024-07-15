@@ -54,6 +54,12 @@ function mouseIntersectsInContainer(mouseData, object, container)
     );
 }
 
+function getRandomElementFormList(list)
+{
+    const randomIndex = Math.floor(Math.random() * list.length);
+    return list[randomIndex]
+}
+
 function mouseIntersects(mouseData, object)
 {
     const bounds1 = mouseData;
@@ -82,4 +88,4 @@ function cartesianToIsometric(cartX, cartY) {
     };
 }
 
-export {intersects, distance, cartesianToIsometric, mouseDistance, mouseIntersects, mouseDistanceInContainer, mouseIntersectsInContainer};
+export {intersects, distance, cartesianToIsometric, mouseDistance, mouseIntersects, mouseDistanceInContainer, mouseIntersectsInContainer, getRandomElementFormList};

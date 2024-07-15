@@ -6,7 +6,7 @@ import { Game } from "./classes/game.js";
 import { ChoicePlaceForShip, MouseFollowingForShip, MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
-import { mouseDistance, mouseIntersectsInContainer, mouseDistanceInContainer } from "./classes/CommonFunctions.js";
+import { mouseDistance, mouseIntersectsInContainer, mouseDistanceInContainer, getRandomElementFormList } from "./classes/CommonFunctions.js";
 import { Rules } from "./classes/Rules.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
@@ -24,8 +24,67 @@ export async function stageResources(containerForDiceRoll, app, resources, build
     GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
 
-export function stageDisasters() {
-    console.log("disasters");
+
+export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildings, CountsBuildings, illObjects)
+{
+    let illList = []
+
+    // вычитание из пищи людей на данный момент не голодных
+    console.log(resourcesOfUser.wheat);
+    console.log(resourcesOfUser.inhabitants);
+    resourcesOfUser.wheat -= resourcesOfUser.inhabitants;
+    
+    // Откат всех больных зданий и людей
+    Object.keys(illObjects).forEach((key) => {
+        console.log(key)
+        if (key !== 'inhabitants')
+        {
+            CountsBuildings[key] += illObjects[key];
+            illObjects[key] = 0;
+        }
+        else
+        {
+            resourcesOfUser.inhabitants += illObjects['inhabitants'];
+            illObjects['inhabitants'] = 0
+        }
+    })
+    ObjectsBuildings.forEach((value) => {
+        value.__sprite.alpha = 1;
+        value.interactivity = true;
+    })
+    // проверка на голодающих
+    if (resourcesOfUser.wheat < 0)
+    {
+        for (let i = 0; i < Math.abs(resourcesOfUser.wheat); i++)
+        {
+            let building = getRandomElementFormList(ObjectsBuildings);
+            while (building.getAlias() === 'warehouse' && building in illList)
+            {
+                building = getRandomElementFormList(ObjectsBuildings);
+            }
+            illList.push[building];
+            illObjects[building.getAlias()] += 1;
+            CountsBuildings[building.getAlias()]  -= 1;
+            building.__sprite.alpha = 0.5;
+            building.interactivity = false;
+
+            resourcesOfUser.inhabitants -= 1;
+            illObjects['inhabitants'] += 1;
+        }
+        resourcesOfUser.wheat = 0;
+
+    }
+    // обновление текста пищи
+    if (resourcesOfUser.wheat > resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * CountsBuildings.warehouse) {
+        resourcesOfUser.wheat = resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * CountsBuildings.warehouse;
+    }
+    allTextResources['textForWheat'].text = `${resourcesOfUser.wheat}/${resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * CountsBuildings.warehouse}`;
+
+    // обновление текста людей
+    allTextResources['textForInhabitants'].text = `${resourcesOfUser.inhabitants}`;
+
+    console.log(illObjects),
+    console.log(CountsBuildings);
 }
 
 export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap)
@@ -89,7 +148,6 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
             }
         }
         checkCondition();
-        
     })
 }
 async function buildFarmerHouse(app, island, allTextResources, blocks, containerForMap) {
@@ -300,7 +358,16 @@ export async function main(allContainer, app, island) {
             houseVillage: 0,
             houseGrendee: 0,
             farm: 0,
-            warehouse: 0
+            warehouse: 0,
+            Castle: 0,
+        },
+        illObjects: {
+            Castle: 0,
+            houseVillage: 0,
+            houseGrendee: 0,
+            farm: 0,
+            warehouse: 0,
+            inhabitants: 0,
         }
     }
 
@@ -313,6 +380,8 @@ export async function main(allContainer, app, island) {
         rotations: false,
         choiceTower: false,
     };
+
+
 
     const rules = new Rules(app);
     await StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
@@ -338,7 +407,7 @@ export async function main(allContainer, app, island) {
         }, 1500);
         Game.stage++;
 
-        stageDisasters();
+        stageDisasters(allTextResources, island.resourcesOfUser, island.buildings, blocks.buildings, blocks.illObjects);
         const promiseForDisasters = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForDisasters, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })

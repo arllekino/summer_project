@@ -44,7 +44,7 @@ export class Destroyer
             var min = 999999999999;
             var minDistObject = null;
             objects.forEach((object) => {
-                if (mouseIntersectsInContainer(e, object, containerForMap) && mouseDistanceInContainer(e, object, containerForMap) < min)
+                if (mouseIntersectsInContainer(e, object, containerForMap) && mouseDistanceInContainer(e, object, containerForMap) < min && object.interactivity)
                 {
                     minDistObject = object;
                     min = mouseDistanceInContainer(e, object, containerForMap);
