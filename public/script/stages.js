@@ -1,12 +1,13 @@
 import { DrawBlockForDiceRoll, UpdateNumberOfResources, DrawNumberOfResources, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { startTimerForStage } from "./timerForStage.js";
 import { GetResources } from "./stages/resources.js";
-import { Destroyer, AddEventListenersForHammer } from "./classes/destroyer.js"; 
+import { Destroyer, AddEventListenersForHammer } from "./classes/Destroyer.js"; 
 import { Game } from "./classes/game.js";
 import { MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
 import { mouseDistance, mouseIntersects } from "./classes/CommonFunctions.js";
+import { MoveWarrior } from "./warrior.js";
 
 export function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -177,7 +178,7 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
       });
 }
 
-export function stageBattles(app, cells, ships, worldMatrix) {
+export function stageBattles(app, cells, ships, worldMatrix, buildings) {
     const coordsEnd = {
         x: 0,
         y: 0,
@@ -186,6 +187,15 @@ export function stageBattles(app, cells, ships, worldMatrix) {
         x: 14,
         y: 14,
     }
+    const coordsEndWar = {
+        x: 6,
+        y: 15,
+    }
+    const coordsStartWar = {
+        x: 12,
+        y: 4,
+    }
+    MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings);
     MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
 }
 
@@ -336,7 +346,7 @@ export async function main(allContainer, app, island) {
         }
 
         Game.stage++;
-        stageBattles(app, island.cells, island.ships, island.matrixOfIsland);
+        stageBattles(app, island.cells, island.ships, island.matrixOfIsland, island.buildings);
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app);
         })
