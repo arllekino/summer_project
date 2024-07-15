@@ -189,6 +189,32 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
 }
 
 export async function stageBattles(app, cells, ships, worldMatrix, buildings) {
+    const coordsStart = {
+        x: 0,
+        y: 0,
+    }
+    const isBuildingPressed = {
+        state: false,
+    };
+    const coordsOfBuilding = {
+        x: 0,
+        y: 0,
+    } 
+    while (!isBuildingPressed.state) {
+        const promise = new Promise(function(resolve) {
+            GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed);
+        });
+        await Promise.all([promise]);
+        if (Game.stage !== 4) {
+            isBuildingPressed.state = true;
+        }
+    }
+    const stopMoving = {
+        state: false,
+    };
+    const isThisRightCell = {
+        state: false,
+    };
     const coordsEnd = {
         x: 0,
         y: 0,
@@ -218,18 +244,12 @@ export async function stageBattles(app, cells, ships, worldMatrix, buildings) {
         cellForShip = null;
     }
     if (stopMoving.state && Game.stage === 4) {
-        MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
-    }
-    const coordsEndWar = {
-        x: 6,
-        y: 15,
-    }
-    const coordsStartWar = {
-        x: 12,
-        y: 4,
-    }
-    MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings);
-    MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix);
+        const promiseForMovingShip = new Promise(function(resolve) {
+            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve);
+        });
+        await Promise.all([promiseForMovingShip]);
+        MoveWarrior(coordsOfBuilding, coordsEnd, cells, app, worldMatrix, buildings);
+    }   
 }
 
 export async function main(allContainer, app, island) {
@@ -394,7 +414,7 @@ export async function main(allContainer, app, island) {
         // }
 
         Game.stage++;
-        stageBattles(app, island.cells, island.buildings, island.ships, island.matrixOfIsland);
+        stageBattles(app, island.cells, island.ships, island.matrixOfIsland, island.buildings);
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })

@@ -151,7 +151,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
         yield "</p>
 \t\t\t\t\t</div>
 \t\t\t\t</div>
-\t\t\t\t<form action=\"/main_game\" class=\"intro__play\">
+\t\t\t\t<form action=\"/start_game\" class=\"intro__play\">
 \t\t\t\t\t<input type=\"hidden\" name=\"keyRoom\" value=\"";
         // line 43
         yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["keyRoom"]) || array_key_exists("keyRoom", $context) ? $context["keyRoom"] : (function () { throw new RuntimeError('Variable "keyRoom" does not exist.', 43, $this->source); })()), "html", null, true);
@@ -254,7 +254,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t\t\t\t\t<p class=\"intro__code\">{{ keyRoom }}</p>
 \t\t\t\t\t</div>
 \t\t\t\t</div>
-\t\t\t\t<form action=\"/main_game\" class=\"intro__play\">
+\t\t\t\t<form action=\"/start_game\" class=\"intro__play\">
 \t\t\t\t\t<input type=\"hidden\" name=\"keyRoom\" value=\"{{ keyRoom }}\">
 \t\t\t\t\t<button type=\"submit\" class=\"intro__but play\">
 \t\t\t\t\t\t<span class=\"button-text2\">Начать игру</span>
@@ -268,6 +268,6 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 {% block javascripts %}
 \t<script type=\"text/javascript\" src=\"/script/websocket/lobby.js\"></script>
 {% endblock %}
-", "lobby_page.html.twig", "C:\\Users\\arl\\Desktop\\edge of fates\\my_symfony_app\\templates\\lobby_page.html.twig");
+", "lobby_page.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\lobby_page.html.twig");
     }
 }

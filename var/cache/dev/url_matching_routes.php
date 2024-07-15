@@ -18,6 +18,11 @@ return [
         '/join_lobby' => [[['_route' => 'join_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::joinLobby'], null, null, null, false, false, null]],
         '/quit_lobby' => [[['_route' => 'quit_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::quitFromLooby'], null, null, null, false, false, null]],
         '/kick_from_lobby' => [[['_route' => 'kick_from_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::kickFromLobby'], null, ['POST' => 0], null, false, false, null]],
+        '/start_game' => [[['_route' => 'start_game', '_controller' => 'App\\Controller\\GameController::startGame'], null, ['GET' => 0], null, false, false, null]],
+        '/create_map' => [[['_route' => 'create_map', '_controller' => 'App\\Controller\\GameController::createGameMap'], null, ['GET' => 0], null, false, false, null]],
+        '/find_map' => [[['_route' => 'find_map', '_controller' => 'App\\Controller\\GameController::findGameMap'], null, ['POST' => 0], null, false, false, null]],
+        '/update_map' => [[['_route' => 'update_map', '_controller' => 'App\\Controller\\GameController::updateGameMap'], null, ['GET' => 0], null, false, false, null]],
+        '/end_game' => [[['_route' => 'end_game', '_controller' => 'App\\Controller\\GameController::endGame'], null, null, null, false, false, null]],
     ],
     [ // $regexpList
         0 => '{^(?'

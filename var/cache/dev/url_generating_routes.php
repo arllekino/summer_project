@@ -17,4 +17,9 @@ return [
     'kick_from_lobby' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::kickFromLobby'], [], [['text', '/kick_from_lobby']], [], [], []],
     'error_page' => [['messageCode'], ['_controller' => 'App\\Controller\\ErrorController::onError'], [], [['variable', '/', '[^/]++', 'messageCode', true], ['text', '/error_page']], [], [], []],
     'main_game' => [['keyRoom'], ['_controller' => 'App\\Controller\\GameController::mainGame'], [], [['variable', '/', '[^/]++', 'keyRoom', true], ['text', '/main_game']], [], [], []],
+    'start_game' => [[], ['_controller' => 'App\\Controller\\GameController::startGame'], [], [['text', '/start_game']], [], [], []],
+    'create_map' => [[], ['_controller' => 'App\\Controller\\GameController::createGameMap'], [], [['text', '/create_map']], [], [], []],
+    'find_map' => [[], ['_controller' => 'App\\Controller\\GameController::findGameMap'], [], [['text', '/find_map']], [], [], []],
+    'update_map' => [[], ['_controller' => 'App\\Controller\\GameController::updateGameMap'], [], [['text', '/update_map']], [], [], []],
+    'end_game' => [[], ['_controller' => 'App\\Controller\\GameController::endGame'], [], [['text', '/end_game']], [], [], []],
 ];

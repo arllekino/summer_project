@@ -241,29 +241,31 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
             if (worldMatrix[currentCoords.y][currentCoords.x] !== 1) {
                 continue;
             }
-
             if (cells[currentCoords.x + currentCoords.y * 20].__ptrTower !== -1) {
-                const buildingId = cells[currentCoords.x + currentCoords.y * 20].__ptrTower;
-                const building = buildings[buildingId];
+                continue;
+            }
+
+            // if (cells[currentCoords.x + currentCoords.y * 20].__ptrTower !== -1) {
+            //     const buildingId = cells[currentCoords.x + currentCoords.y * 20].__ptrTower;
+            //     const building = buildings[buildingId];
             
-                if (building) {
-                    console.log('Найдено здание:', building);
-                    console.log('HP здания', building.__hp);
+            //     if (building) {
+            //         console.log('Найдено здание:', building);
+            //         console.log('HP здания', building.__hp);
             
-                    if (currentCoords.x === coordsEndWar.x && currentCoords.y === coordsEndWar.y) {
-                        building.__hp -= 100;
-                        console.log('HP здания', building.__hp);
+            //         if (currentCoords.x === coordsEndWar.x && currentCoords.y === coordsEndWar.y) {
+            //             building.__hp -= 100;
+            //             console.log('HP здания', building.__hp);
             
-                        if (building.__hp <= 0) {
-                            building.__sprite.destroy();
-                            buildings.splice(buildings.indexOf(building), 1);
-                            cells[currentCoords.x + currentCoords.y * 20].__ptrTower = -1;
-                        }
-                    }
-                    continue;
-                }
-                
-            }            
+            //             if (building.__hp <= 0) {
+            //                 building.__sprite.destroy();
+            //                 buildings.splice(buildings.indexOf(building), 1);
+            //                 cells[currentCoords.x + currentCoords.y * 20].__ptrTower = -1;
+            //             }
+            //         }
+            //         continue;
+            //     }
+            // }            
 
             const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, previousCell.x, previousCell.y);
             let costPath = 0;
@@ -283,7 +285,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
                 cellWithTheSmallestPath = cell;
             }
         })
-        if (previousCell.approximateCostPath <= cellWithTheSmallestPath.approximateCostPath) {
+        if (cellWithTheSmallestPath.x === coordsEndWar.x && cellWithTheSmallestPath.y === coordsEndWar.y) {
             pathHasBeenFound = true;
         }
         else {

@@ -363,10 +363,22 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
                 cell.errorField();
                 isThisRightCell.state = false;
                 const index = cells.indexOf(cell);
-                const TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
-                const MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 20].getType() === 2);
-                const MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index - 20].getType() === 2);
-                const DownMiddleCellIsland = (cells[index + 20].getType() === 1 || cells[index - 20].getType() === 2);
+                let TopMiddleCellIsland = false;
+                let MiddleLeftCellIsland = false;
+                let MiddleRightCellIsland = false;
+                let DownMiddleCellIsland = false;
+                if (cells[index - 20]) {
+                    TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
+                }
+                if (cells[index - 1]) {
+                    MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 20].getType() === 2);
+                }
+                if (cells[index + 1]) {
+                    MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index - 20].getType() === 2);
+                }
+                if (cells[index + 20]) {
+                    DownMiddleCellIsland = (cells[index + 20].getType() === 1 || cells[index - 20].getType() === 2);
+                }
                 if ((cell.getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
                     cell.okField();
                     cellForShipFromMap.cell = cell;
@@ -390,7 +402,7 @@ export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip
     }
 }
 
-export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix) {
+export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve) {
     const rect = new PIXI.Sprite();
     DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y);
     
@@ -399,7 +411,7 @@ export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, shi
        MoveSprite(rect, shortWay, cells, false, resolve);
     });
     await Promise.all([promiseForward]);
-    
+    resolve();
     // const promiseBack = new Promise(function(resolve) {
     //     MoveSprite(rect, shortWay, cells, true, resolve);
     // });
