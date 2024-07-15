@@ -83,8 +83,8 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     // обновление текста людей
     allTextResources['textForInhabitants'].text = `${resourcesOfUser.inhabitants}`;
 
-    console.log(illObjects),
-    console.log(CountsBuildings);
+    console.log('Больные: ', illObjects),
+    console.log('Здания: ',CountsBuildings);
 }
 
 export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap)

@@ -58,7 +58,7 @@ export class Destroyer
                 if (minDistObject.constructor.name !== 'Resource')
                 {
                     blocks.buildings[minDistObject.getAlias()] -= 1;
-                    resources['inhabitants'] -= 1;
+                    resourcesOfUser['inhabitants'] -= 1;
                 }
                 for (const resource in minDistObject.getDroppingResources())
                 {
