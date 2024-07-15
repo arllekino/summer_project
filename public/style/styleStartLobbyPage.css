@@ -79,6 +79,10 @@
     color: #FFFFFF;
     text-align: center;
     margin-bottom: 20px;
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .intro__but {
