@@ -127,14 +127,14 @@ class GameController extends AbstractController
                 ['message' => 'Игры с таким ключом нет']
             );
         }
-        $matrixGameMap = json_decode($request->getContent(), true);
-        if (empty($matrixGameMap))      
+        $data = json_decode($request->getContent(), true);
+        if (empty($data))      
         {
             return new Response('Invalid JSON');
         }
 
         try {
-            $this->gameMapService->updateGameMap($sessionKeyRoom, $matrixGameMap);
+            $this->gameMapService->updateGameMap($sessionKeyRoom, $data['matrix_game_map']);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }
