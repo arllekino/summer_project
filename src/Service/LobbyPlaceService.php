@@ -135,9 +135,11 @@ class LobbyPlaceService
         {
             $playerId = $lobbyPlace->getPlayerId();
             $playerName = $this->userService->findUserName($playerId);
+            $playerId = $lobbyPlace->getPlayerId();
             $playerStatus = $lobbyPlace->getStatus();
             $playerReadiness = $lobbyPlace->getReadiness();
             $player = [
+                'id' => $playerId,
                 'name' => $playerName,
                 'status' => $playerStatus,
                 'readiness' => $playerReadiness
@@ -148,6 +150,34 @@ class LobbyPlaceService
 
         return $players;
     }   
+
+    public function findKeyRoomByPlayerId(int $id): string
+    {
+        $lobbyPlace = $this->repository->findByPlayerId($id);
+        if ($lobbyPlace === null)
+        {
+            throw new \UnexpectedValueException('Лобби не найдено');
+        }    
+
+        return $lobbyPlace->getKeyRoom();
+    }
+
+    public function findCountPlayers(string $keyRoom): int
+    {
+        $players = $this->repository->findByKeyRoom($keyRoom);
+        return count($players);
+    }
+
+    public function getPlayerStatus(int $userId): string
+    {
+        $lobbyPlace = $this->repository->findByPlayerId($userId);
+        if ($lobbyPlace === null)
+        {
+            throw new \UnexpectedValueException('Пользователя нет в лобби');
+        }
+
+        return $lobbyPlace->getStatus();
+    }
 
     public function setGameStatus(string $keyRoom): void
     {

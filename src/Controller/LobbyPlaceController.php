@@ -137,6 +137,28 @@ class LobbyPlaceController extends AbstractController
         ]);
     }
 
+    public function findKeyRoom(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return $this->redirectToRoute(
+                'login_form', 
+                ['message' => 'В первую очередь надо войти в аккаунт']
+            );
+        }       
+
+        try {
+            $keyRoom = $this->lobbyService->findKeyRoomByPlayerId($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response(json_encode([
+            'key_room' => $keyRoom
+        ]));
+    }
+
     public function makeGuestHost(): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
@@ -207,7 +229,7 @@ class LobbyPlaceController extends AbstractController
         );
     }
 
-    public function kickFromLobby(Request $request): Response
+    public function kickFromLobby(): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)

@@ -200,7 +200,6 @@
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
       <argument type="service" id="App\Controller\SessionController"/>
-      <argument type="service" id="App\Service\UserService"/>
       <argument type="service" id="App\Service\LobbyPlaceService"/>
       <argument type="service" id="App\Service\GameMapService"/>
       <call method="setContainer">

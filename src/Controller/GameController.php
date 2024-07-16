@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Service\GameMapService;
 use App\Service\LobbyPlaceService;
-use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,21 +13,17 @@ class GameController extends AbstractController
 {
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
-    private const KEY_LENGTH = 4;
     private SessionController $session;
     private LobbyPlaceService $lobbyService;
     private GameMapService $gameMapService;
-    private UserService $userService;
 
     public function __construct(
         SessionController $session,
-        UserService $userService,
         LobbyPlaceService $lobbyService,
         GameMapService $gameMapService
     )
     {
         $this->session = $session;
-        $this->userService = $userService;
         $this->lobbyService = $lobbyService;
         $this->gameMapService = $gameMapService;
     }
@@ -81,10 +76,7 @@ class GameController extends AbstractController
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
         if ($sessionKeyRoom === null)
         {
-            return $this->redirectToRoute(
-                'start_lobby_page',
-                ['message' => 'Игры с таким ключом нет']
-            );
+            return new Response('Игры с таким ключом нет');
         }
         $data = json_decode($request->getContent(), true);
         try {
@@ -101,10 +93,7 @@ class GameController extends AbstractController
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
         if ($sessionKeyRoom === null)
         {
-            return $this->redirectToRoute(
-                'start_lobby_page',
-                ['message' => 'Игры с таким ключом нет']
-            );
+            return new Response('Игры с таким ключом нет');
         }
         try {
             $matrixGameMap = $this->gameMapService->viewGameMap($sessionKeyRoom);
@@ -122,19 +111,16 @@ class GameController extends AbstractController
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
         if ($sessionKeyRoom === null)
         {
-            return $this->redirectToRoute(
-                'start_lobby_page',
-                ['message' => 'Игры с таким ключом нет']
-            );
+            return new Response('Игры с таким ключом нет');
         }
-        $matrixGameMap = json_decode($request->getContent(), true);
-        if (empty($matrixGameMap))      
+        $data = json_decode($request->getContent(), true);
+        if (empty($data))      
         {
             return new Response('Invalid JSON');
         }
 
         try {
-            $this->gameMapService->updateGameMap($sessionKeyRoom, $matrixGameMap);
+            $this->gameMapService->updateGameMap($sessionKeyRoom, $data['matrix_game_map']);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }
@@ -154,5 +140,38 @@ class GameController extends AbstractController
         $this->session->removeSession(self::SESSION_KEY_GAME);
 
         return new Response('OK');
+    }
+
+    public function findCountPLayersInLobby(): Response
+    {
+        $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        if ($sessionKeyRoom === null)
+        {
+            return new Response('Игры с таким ключом нет');
+        }
+
+        $countPlayers = $this->lobbyService->findCountPlayers($sessionKeyRoom);
+        return new Response(json_encode([
+            'count_players' => $countPlayers
+        ]));
+    }
+
+    public function getPlayerStatus(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return new Response('Id пользователя не найден');
+        }
+
+        try {
+            $playerStatus = $this->lobbyService->getPlayerStatus($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response(json_encode([
+            'player_status' => $playerStatus
+        ]));
     }
 }
