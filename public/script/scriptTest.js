@@ -11,9 +11,12 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     //     matrixOfField: islandTemplate,
     //     numberOfUser: 1,
     // }
+    console.log(infoForUser)
 
-    const app = new PIXI.Application();
-    await app.init({ background: '#00aeff', resizeTo: window });
+    // const infoForUser = {
+    //     matrixOfField: islandTemplate,
+    //     numberOfUser: 1,
+    // }
 
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);    

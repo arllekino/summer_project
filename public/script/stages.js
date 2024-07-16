@@ -131,7 +131,7 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Castle', 'Castle', {}, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
         island.buldingObject.setMatrixPattern([
             [1, 1, 1],
             [1, 1, 1],
@@ -155,7 +155,7 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farmer House', 'houseVillage', {}, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
         island.buldingObject.setMatrixPattern([
             [0, 0, 0],
             [0, 1, 0],
@@ -182,7 +182,7 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farm', 'farm', {wheat: 1}, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
         island.buldingObject.setMatrixPattern([
             [1, 1, 0],
             [1, 1, 0],

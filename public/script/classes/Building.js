@@ -4,7 +4,7 @@ import { Rect } from "./Quadtree.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, quadTree, name, alias, givingResource, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks, containerForMap)
+    constructor(app, cells, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks, containerForMap)
     {
         this.__hp = hp;
         this.__defense = defense;
@@ -14,7 +14,7 @@ export class Building
         this.__buildPtr = buildPtr;
         this.givingResource = givingResource;
         this.__sprite;
-        this.__peopleCount;
+        this.__peopleCount = peopleCount;
         this.interactivity = true;
         this.requiredResources = requiredResources;
         this.__droppingResources = {}
@@ -246,7 +246,7 @@ export class Building
             {
                 resources[resource] -= this.requiredResources[resource];
             }
-            resources['inhabitants'] += 1;
+            resources['inhabitants'] += this.__peopleCount;
             blocks.buildings[this.getAlias()] += 1;
             UpdateNumberOfResources(allTextResources, resources, blocks.buildings);
             // selectedBuilding.tint = 0xffffff;

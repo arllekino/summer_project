@@ -2,7 +2,7 @@
     "frames": {
     },
     "meta": {
-        "image": "/../assets/buildingSpritesTest.png",
+        "image": "/images/buildingSpritesTest.png",
         "format": "RGBA8888",
         "size": { "w": 320, "h": 256 },
         "scale": "1"

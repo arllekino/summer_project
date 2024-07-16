@@ -1,4 +1,4 @@
-import { mouseDistanceInContainer, mouseIntersectsInContainer } from "./CommonFunctions.js";
+import { mouseDistanceInContainer, mouseIntersectsInContainer, mouseIntersects, contains, mouseDistance } from "./CommonFunctions.js";
 import { Game } from "./game.js";
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 
@@ -44,10 +44,15 @@ export class Destroyer
             var min = 999999999999;
             var minDistObject = null;
             objects.forEach((object) => {
-                if (mouseIntersectsInContainer(e, object, containerForMap) && mouseDistanceInContainer(e, object, containerForMap) < min && object.interactivity)
+                if (((mouseIntersectsInContainer(e, object, containerForMap) && mouseDistanceInContainer(e, object, containerForMap) < min && contains(buildings, object)) ||
+                (mouseIntersects(e, object) && mouseDistance(e, object) < min && contains(resources, object))) && object.interactivity)
                 {
                     minDistObject = object;
                     min = mouseDistanceInContainer(e, object, containerForMap);
+                    if (contains(resources, object))
+                    {
+                        min = mouseDistance(e, object);
+                    }
                 }
             })
             if (minDistObject)

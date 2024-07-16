@@ -205,6 +205,7 @@ async function AddIconInInfoBlock(
 }
 
 export async function GetResources(buildings, containerCubes, containerDiceRoll, blockButtonReRoll, resources) {
+    arrCubesRight = [];
     stateOfReRollCube.hasCubeBeenMoved = false;
     
     const arrCubes = [];

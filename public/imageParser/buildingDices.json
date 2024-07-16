@@ -23,7 +23,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/buildingDices.png",
+        "image": "/images/buildingDices.png",
         "format": "RGBA8888",
         "size": { "w": 66, "h": 198 },
         "scale": "1"

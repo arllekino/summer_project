@@ -30,7 +30,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/wareHouseSprite.png",
+        "image": "/images/wareHouseSprite.png",
         "format": "RGBA8888",
         "size": { "w": 105, "h": 400 },
         "scale": "1"

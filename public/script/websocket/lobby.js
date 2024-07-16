@@ -3,7 +3,7 @@
 //172.20.10.2   телефон
 //10.250.104.17 IP Лехи
 document.addEventListener('DOMContentLoaded', () => {
-    const ws = new WebSocket('ws://10.250.104.17:8080');
+    const ws = new WebSocket('ws://192.168.0.10:8080');
 
     const quitButton = document.querySelector('.logout');
     

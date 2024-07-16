@@ -10,11 +10,7 @@ use App\WebSocket\WebSocketHandler;
 
 $loop = Loop::get();
 
-//10.250.104.24 IP института
-//10.10.24.51   IP коливинга
-//172.20.10.2   IP телефон
-
-$ipAndPort = '10.250.104.24:8080';
+$ipAndPort = '192.168.0.10:8080'; //192.168.0.10 10.250.104.17
 
 $webSock = new SocketServer($ipAndPort, [], $loop);
 $webServer = new IoServer(
