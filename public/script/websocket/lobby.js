@@ -37,14 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
             users.push(data.username);
         }
     };
-    
-    quitButton.addEventListener('click', function quitUser() {
-        let username = localStorage.getItem('username');
-        if (username) {
-            quitLobby(username);
-        }
-        this.removeEventListener('click', quitUser);
-    });
 
     async function joinLobby() {
         let responseUser = await fetch('/find_username', {
@@ -72,13 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
             readiness: 'not ready'
         }));
     }
-
-    function quitLobby(username) {
-        ws.send(JSON.stringify({
-            type: 'player_left',
-            username: username
-        }));
-    }
     
     function showNewPlayer(userId, username, status, readiness) {
         const playerContainer = document.querySelector('.intro__players');
@@ -96,9 +81,19 @@ document.addEventListener('DOMContentLoaded', () => {
         playerContainer.append(newPlayer);
     }
 
-    function deletePlayer(username) {
+    async function deletePlayer(userId) {
         const playerContainer = document.querySelector('.intro__players');
-        const player = document.getElementById(username);
+        const player = document.getElementById(userId);
         playerContainer.removeChild(player);
+        let data = {
+            user_id: userId
+        }
+        let response = await fetch('/kick_from_lobby', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(data)
+        });
     }
 });

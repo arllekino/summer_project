@@ -208,6 +208,22 @@ class LobbyPlaceService
             $this->repository->update($lobbyPlace);
         }
     }
+
+    public function isAllPlayersReady(string $keyRoom): bool
+    {
+        $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
+        if (empty($lobbyPlaces))
+        {
+            throw new \UnexpectedValueException('Лобби не найдено');
+        }    
+
+        foreach ($lobbyPlaces as $lobbyPlace)
+        {
+            if ($lobbyPlace->getReadiness() === self::NOT_READY)
+            return false;
+        }
+        return true;
+    }
     
     public function deleteUserFromLobby(int $userId): void
     {

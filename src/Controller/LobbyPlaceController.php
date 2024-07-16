@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class LobbyPlaceController extends AbstractController
 {
     private const SESSION_USER_ID = 'userId';
+    private const SESSION_KEY_GAME = 'keyGame';
     private const KEY_LENGTH = 4;
     private SessionController $session;
     private LobbyPlaceService $lobbyService;
@@ -203,6 +204,39 @@ class LobbyPlaceController extends AbstractController
         $this->lobbyService->setNotReadyStatus($sessionUserId);
         return new Response('OK');
     }
+    
+    public function getPlayerStatus(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return new Response('Id пользователя не найден');
+        }
+
+        try {
+            $playerStatus = $this->lobbyService->getPlayerStatus($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response(json_encode([
+            'player_status' => $playerStatus
+        ]));
+    }
+
+    public function isAllPlayersReady(): Response
+    {
+        $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        try {
+            $lobbyReadiness = $this->lobbyService->isAllPlayersReady($sessionKeyRoom);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response(json_encode([
+            'lobby_readiness' => $lobbyReadiness
+        ]));
+    }
 
     public function quitFromLooby(): Response
     {
@@ -229,18 +263,11 @@ class LobbyPlaceController extends AbstractController
         );
     }
 
-    public function kickFromLobby(): Response
+    public function kickFromLobby(Request $request): Response
     {
-        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
-        if ($sessionUserId === null)
-        {
-            return $this->redirectToRoute(
-                'login_form', 
-                ['message' => 'В первую очередь надо войти в аккаунт']
-            );
-        }
+        $data = json_decode($request->getContent(), true);
         try {
-            $this->lobbyService->deleteUserFromLobby( $sessionUserId);
+            $this->lobbyService->deleteUserFromLobby($data['user_id']);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }    

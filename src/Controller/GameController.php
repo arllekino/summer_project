@@ -155,23 +155,4 @@ class GameController extends AbstractController
             'count_players' => $countPlayers
         ]));
     }
-
-    public function getPlayerStatus(): Response
-    {
-        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
-        if ($sessionUserId === null)
-        {
-            return new Response('Id пользователя не найден');
-        }
-
-        try {
-            $playerStatus = $this->lobbyService->getPlayerStatus($sessionUserId);
-        } catch (\UnexpectedValueException $e) {
-            return new Response($e->getMessage());
-        }
-
-        return new Response(json_encode([
-            'player_status' => $playerStatus
-        ]));
-    }
 }
