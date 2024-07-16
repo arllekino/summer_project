@@ -9,7 +9,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/ResourceBlock.png",
+        "image": "/images/ResourceBlock.png",
         "format": "RGBA8888",
         "size": { "w": 360, "h": 164 },
         "scale": "1"

@@ -1,10 +1,10 @@
 const urlRequests = {
-    countOfUser: "",
-    checkStatusOfUserInLobby: "",
+    countOfUser: "/find_count_players",
+    checkStatusOfUserInLobby: "/get_player_status",
     checkReadinessOfField: "",
     sendField: "",
     getField: "",
-    getNumberOfUser: "",
+    getNumberOfUser: "/find_username",
 }
 
 async function GetCountOfUsers() {

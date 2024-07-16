@@ -16,7 +16,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/resourcesSprite.png",
+        "image": "/images/resourcesSprite.png",
         "format": "RGBA8888",
         "size": { "w": 210, "h": 100 },
         "scale": "1"
