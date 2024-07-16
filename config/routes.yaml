@@ -49,18 +49,22 @@ make_player_ready:
   path: /make_player_ready
   methods: POST
   controller: App\Controller\LobbyPlaceController::makePlayerReady
-make_player_not_ready:
-  path: /make_player_not_ready
+make_player_not_ready
+  path: make_player_not_ready
   methods: POST
-  controller: App\Controller\LobbyPlaceController::makePlayerNotReady
-is_all_players_ready
+  controller: App\Controller\LobbyPlaceController::makePlayerNotReady 
+get_player_status:
+  path: get_player_status
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::getPlayerStatus  
+find_count_players:
+  path: /find_count_players
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::findCountPLayersInLobby
+is_all_players_ready:
   path: /is_all_players_ready
   methods: POST
   controller: App\Controller\LobbyPlaceController::isAllPlayersReady
-get_player_status:
-  path: /get_player_status
-  methods: POST
-  controller: App\Controller\LobbyPlaceController::getPlayerStatus  
 
 main_game:
   path: /main_game/{keyRoom}
@@ -84,10 +88,6 @@ update_map:
 end_game: 
   path: /end_game
   controller: App\Controller\GameController::endGame
-find_count_players:
-  path: /find_count_players
-  methods: POST
-  controller: App\Controller\GameController::findCountPLayersInLobby
 
 error_page:
   path: /error_page/{messageCode}

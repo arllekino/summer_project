@@ -23,9 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } 
         if (data.type === 'player_disconnected') {
             deletePlayer(data.user_id);    
-        }
-
-        
+        }        
         if (data.type === 'checking_other_users_request') {
             users.push(data.username);
             ws.send(JSON.stringify({
@@ -64,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             readiness: 'not ready'
         }));
     }
-    
+
     function showNewPlayer(userId, username, status, readiness) {
         const playerContainer = document.querySelector('.intro__players');
         const newPlayer = document.createElement('div');

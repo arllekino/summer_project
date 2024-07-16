@@ -215,12 +215,14 @@ class LobbyPlaceService
         if (empty($lobbyPlaces))
         {
             throw new \UnexpectedValueException('Лобби не найдено');
-        }    
+        }  
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {
-            if ($lobbyPlace->getReadiness() === self::NOT_READY)
-            return false;
+            if ($lobbyPlace->getReadiness === self::NOT_READY)
+            {
+                return false;
+            }
         }
         return true;
     }

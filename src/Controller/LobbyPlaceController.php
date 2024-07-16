@@ -204,7 +204,7 @@ class LobbyPlaceController extends AbstractController
         $this->lobbyService->setNotReadyStatus($sessionUserId);
         return new Response('OK');
     }
-    
+
     public function getPlayerStatus(): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
@@ -221,6 +221,20 @@ class LobbyPlaceController extends AbstractController
 
         return new Response(json_encode([
             'player_status' => $playerStatus
+        ]));
+    }
+
+    public function findCountPLayersInLobby(): Response
+    {
+        $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        if ($sessionKeyRoom === null)
+        {
+            return new Response('Игры с таким ключом нет');
+        }
+
+        $countPlayers = $this->lobbyService->findCountPlayers($sessionKeyRoom);
+        return new Response(json_encode([
+            'count_players' => $countPlayers
         ]));
     }
 

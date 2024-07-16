@@ -98,7 +98,7 @@ class GameController extends AbstractController
         try {
             $matrixGameMap = $this->gameMapService->viewGameMap($sessionKeyRoom);
         } catch (\UnexpectedValueException $e) {
-            return new Response($e->getMessage());
+            return new Response($e->getMessage(), Response::HTTP_NOT_FOUND);
         }
 
         return new Response(json_encode([
@@ -140,19 +140,5 @@ class GameController extends AbstractController
         $this->session->removeSession(self::SESSION_KEY_GAME);
 
         return new Response('OK');
-    }
-
-    public function findCountPLayersInLobby(): Response
-    {
-        $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
-        if ($sessionKeyRoom === null)
-        {
-            return new Response('Игры с таким ключом нет');
-        }
-
-        $countPlayers = $this->lobbyService->findCountPlayers($sessionKeyRoom);
-        return new Response(json_encode([
-            'count_players' => $countPlayers
-        ]));
     }
 }
