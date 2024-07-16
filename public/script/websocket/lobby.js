@@ -6,19 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ws = new WebSocket('ws://10.250.104.17:8080');
 
     const quitButton = document.querySelector('.logout');
-    const keyRoom = document.querySelector('.intro__code').innerHTML;
-    var users = [];
     
     ws.onopen = () => {
-        let username = localStorage.getItem('username');
-        if (username) {
-            joinLobby(username);
-        }
-        users.push(username);
-        request = setInterval(sendUserForCheck(username), 500);
-        setTimeout(() => {
-            checking = setInterval(checkUsersConnection(users), 1000)
-        }, 5000);
+        joinLobby();
     }
     
     ws.onmessage = (event) => {
@@ -26,17 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(data);
         
         if (data.type === 'new_player') {
-            const extantUser = document.getElementById(data.username);
+            const extantUser = document.getElementById(data.user_id);
             if (!extantUser) {;
-                showNewPlayer(data.username, data.status, data.readiness);
+                showNewPlayer(data.user_id, data.username, data.status, data.readiness);
             }
         } 
-        if (data.type === 'player_left') {
-            const extantUser = document.getElementById(data.username);
-            if (extantUser) {
-                deletePlayer(data.username);
-            }
-        }
+        if (data.type === 'player_disconnected') {
+            deletePlayer(data.user_id);    
+        }        
         if (data.type === 'checking_other_users_request') {
             users.push(data.username);
             ws.send(JSON.stringify({
@@ -48,70 +35,63 @@ document.addEventListener('DOMContentLoaded', () => {
             users.push(data.username);
         }
     };
-    
-    quitButton.addEventListener('click', function quitUser() {
-        let username = localStorage.getItem('username');
-        if (username) {
-            quitLobby(username);
-        }
-        this.removeEventListener('click', quitUser);
-    });
 
-    ws.onclose = () => {
-        clearInterval(request);
-        clearInterval(checking);
-        let response = fetch('/kick_from_lobby', {
-            method: 'POST',
+    async function joinLobby() {
+        let responseUser = await fetch('/find_username', {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             }
         });
-    }
+        let userData = await responseUser.json();
+        
+        let responseLobby = await fetch('/find_key_room', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        });
+        let lobbyData = await responseLobby.json();
 
-    function joinLobby(username) {
         ws.send(JSON.stringify({
             type: 'new_player',
-            username: username
+            key_room: lobbyData.key_room,
+            user_id: userData.id,
+            username: userData.username,
+            status: 'guest',
+            readiness: 'not ready'
         }));
     }
 
-    function quitLobby(username) {
-        ws.send(JSON.stringify({
-            type: 'player_left',
-            username: username
-        }));
-    }
-    
-    function showNewPlayer(username, status, readiness) {
+    function showNewPlayer(userId, username, status, readiness) {
         const playerContainer = document.querySelector('.intro__players');
         const newPlayer = document.createElement('div');
         newPlayer.className = 'intro__player';
-        newPlayer.id = username;
+        newPlayer.id = userId;
         newPlayer.innerHTML = `
             <img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
             <div class="block__user-name">
                 <span class="user-name">${username}</span>
             </div>
-			<span class="{{ user.status }}">${status}</span>
+			<span class="${status}">${status}</span>
 			<span class="readiness">${readiness}</span>
         `;
         playerContainer.append(newPlayer);
     }
 
-    function deletePlayer(username) {
+    async function deletePlayer(userId) {
         const playerContainer = document.querySelector('.intro__players');
-        const player = document.getElementById(username);
+        const player = document.getElementById(userId);
         playerContainer.removeChild(player);
-    }
-
-    function checkUsersConnection(users) {
-        const players = document.getElementsByClassName('user-name');
-        for (let i = 0; i < players.length; i++) {
-            let player = players[i].innerHTML
-            if (!users.includes(player)) {
-                deletePlayer(player);
-            }
+        let data = {
+            user_id: userId
         }
-        users = [];
+        let response = await fetch('/kick_from_lobby', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(data)
+        });
     }
 });

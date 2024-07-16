@@ -107,6 +107,29 @@ class UserController extends AbstractController
         return $this->redirectToRoute('login_form');
     }
 
+    public function findUsername(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return $this->redirectToRoute(
+                'login_form', 
+                ['message' => 'В первую очередь надо войти в аккаунт']
+            );
+        }     
+
+        try {
+            $username = $this->userService->findUserName($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response(json_encode([
+            'id' => $sessionUserId,
+            'username' => $username
+        ]));
+    }
+
     private function isValid(mixed $input): bool
     {
         $email = filter_var($input->getEmail(), FILTER_SANITIZE_EMAIL);

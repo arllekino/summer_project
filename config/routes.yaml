@@ -18,6 +18,9 @@ login_user:
 logout:
   path: /logout
   controller: App\Controller\UserController::logout  
+find_username:
+  path: /find_username
+  controller: App\Controller\UserController::findUsername    
 
 start_lobby_page:
   path: /start_lobby_page
@@ -28,6 +31,9 @@ create_lobby:
 join_lobby:
   path: /join_lobby
   controller: App\Controller\LobbyPlaceController::joinLobby
+find_key_room:
+  path: /find_key_room
+  controller: App\Controller\LobbyPlaceController::findKeyRoom  
 lobby_page:
   path: /lobby_page/{keyRoom}
   methods: GET
@@ -39,11 +45,26 @@ kick_from_lobby:
   path: /kick_from_lobby
   methods: POST
   controller: App\Controller\LobbyPlaceController::kickFromLobby  
-
-error_page:
-  path: /error_page/{messageCode}
-  methods: GET
-  controller: App\Controller\ErrorController::onError
+make_player_ready:
+  path: /make_player_ready
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::makePlayerReady
+make_player_not_ready
+  path: make_player_not_ready
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::makePlayerNotReady 
+get_player_status:
+  path: get_player_status
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::getPlayerStatus  
+find_count_players:
+  path: /find_count_players
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::findCountPLayersInLobby
+is_all_players_ready:
+  path: /is_all_players_ready
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::isAllPlayersReady
 
 main_game:
   path: /main_game/{keyRoom}
@@ -67,3 +88,8 @@ update_map:
 end_game: 
   path: /end_game
   controller: App\Controller\GameController::endGame
+
+error_page:
+  path: /error_page/{messageCode}
+  methods: GET
+  controller: App\Controller\ErrorController::onError

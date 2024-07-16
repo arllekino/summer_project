@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Service\GameMapService;
 use App\Service\LobbyPlaceService;
-use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,21 +13,17 @@ class GameController extends AbstractController
 {
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
-    private const KEY_LENGTH = 4;
     private SessionController $session;
     private LobbyPlaceService $lobbyService;
     private GameMapService $gameMapService;
-    private UserService $userService;
 
     public function __construct(
         SessionController $session,
-        UserService $userService,
         LobbyPlaceService $lobbyService,
         GameMapService $gameMapService
     )
     {
         $this->session = $session;
-        $this->userService = $userService;
         $this->lobbyService = $lobbyService;
         $this->gameMapService = $gameMapService;
     }
@@ -81,10 +76,7 @@ class GameController extends AbstractController
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
         if ($sessionKeyRoom === null)
         {
-            return $this->redirectToRoute(
-                'start_lobby_page',
-                ['message' => 'Игры с таким ключом нет']
-            );
+            return new Response('Игры с таким ключом нет');
         }
         $data = json_decode($request->getContent(), true);
         try {
@@ -101,15 +93,12 @@ class GameController extends AbstractController
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
         if ($sessionKeyRoom === null)
         {
-            return $this->redirectToRoute(
-                'start_lobby_page',
-                ['message' => 'Игры с таким ключом нет']
-            );
+            return new Response('Игры с таким ключом нет');
         }
         try {
             $matrixGameMap = $this->gameMapService->viewGameMap($sessionKeyRoom);
         } catch (\UnexpectedValueException $e) {
-            return new Response($e->getMessage());
+            return new Response($e->getMessage(), Response::HTTP_NOT_FOUND);
         }
 
         return new Response(json_encode([
@@ -122,10 +111,7 @@ class GameController extends AbstractController
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
         if ($sessionKeyRoom === null)
         {
-            return $this->redirectToRoute(
-                'start_lobby_page',
-                ['message' => 'Игры с таким ключом нет']
-            );
+            return new Response('Игры с таким ключом нет');
         }
         $data = json_decode($request->getContent(), true);
         if (empty($data))      
