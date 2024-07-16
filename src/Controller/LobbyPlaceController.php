@@ -238,6 +238,20 @@ class LobbyPlaceController extends AbstractController
         ]));
     }
 
+    public function getPlayersIdsInLobby(): Response
+    {
+        $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        if ($sessionKeyRoom === null)
+        {
+            return new Response('Игры с таким ключом нет');
+        }
+
+        $idsPlayers = $this->lobbyService->findPlayersId($sessionKeyRoom);
+        return new Response(json_encode([
+            'ids_players' => $idsPlayers
+        ]));
+    }
+
     public function isAllPlayersReady(): Response
     {
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);

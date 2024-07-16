@@ -101,7 +101,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
         foreach ($context['_seq'] as $context["_key"] => $context["user"]) {
             // line 12
             yield "\t\t\t\t\t<div class=\"intro__player\" id=\"";
-            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["user"], "name", [], "any", false, false, false, 12), "html", null, true);
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["user"], "id", [], "any", false, false, false, 12), "html", null, true);
             yield "\">
 \t\t\t\t\t\t<img src=\"../images/blueFlag200x200.png\" alt=\"Описание картинки\" class=\"flag-image\">
 \t\t\t\t\t\t<div class=\"block__user-name\">
@@ -224,7 +224,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t\t<div class=\"intro\">
 \t\t\t<div class=\"intro__players\">
 \t\t\t\t{% for user in users %}
-\t\t\t\t\t<div class=\"intro__player\" id=\"{{ user.name }}\">
+\t\t\t\t\t<div class=\"intro__player\" id=\"{{ user.id }}\">
 \t\t\t\t\t\t<img src=\"../images/blueFlag200x200.png\" alt=\"Описание картинки\" class=\"flag-image\">
 \t\t\t\t\t\t<div class=\"block__user-name\">
 \t\t\t\t\t\t\t<span class=\"user-name\">{{ user.name }}</span>
@@ -268,6 +268,6 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 {% block javascripts %}
 \t<script type=\"text/javascript\" src=\"/script/websocket/lobby.js\"></script>
 {% endblock %}
-", "lobby_page.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\lobby_page.html.twig");
+", "lobby_page.html.twig", "D:\\GameProject\\summer_project\\templates\\lobby_page.html.twig");
     }
 }

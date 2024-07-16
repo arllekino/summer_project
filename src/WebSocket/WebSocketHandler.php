@@ -49,23 +49,23 @@ class WebSocketHandler implements MessageComponentInterface
 
     public function onClose(ConnectionInterface $connection)
     {
-        foreach ($this->clients as $client)
-        {
-            if ($connection === $client)
-            {
-                foreach ($this->rooms as $room)
-                {
-                    if (in_array($client, $room))
-                    {
-                        $key = array_search($client, $room);
-                        unset($room[$key]);
-                        $this->playerLeft($room, $key);
-                        break;
-                    }
-                }
-                break;
-            }
-        }
+        // foreach ($this->clients as $client)
+        // {
+        //     if ($connection === $client)
+        //     {
+        //         foreach ($this->rooms as $room)
+        //         {
+        //             if (in_array($client, $room))
+        //             {
+        //                 $key = array_search($client, $room);
+        //                 unset($room[$key]);
+        //                 $this->playerLeft($room, $key);
+        //                 break;
+        //             }
+        //         }
+        //         break;
+        //     }
+        // }
         $this->clients->detach($connection);
     }
 

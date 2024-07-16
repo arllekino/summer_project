@@ -168,6 +168,17 @@ class LobbyPlaceService
         return count($players);
     }
 
+    public function findPlayersId(string $keyRoom): array
+    {
+        $players = $this->repository->findByKeyRoom($keyRoom);
+        $result = [];
+        foreach ($players as $player)
+        {
+            array_push($result, $player.getPlayerId());
+        }
+        return $result;
+    }
+
     public function getPlayerStatus(int $userId): string
     {
         $lobbyPlace = $this->repository->findByPlayerId($userId);
@@ -189,7 +200,7 @@ class LobbyPlaceService
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {
-            $lobbyPlace->setStatus(self::GAME);
+            $lobbyPlace->setLobbyStatus(self::GAME);
             $this->repository->update($lobbyPlace);
         }
     }

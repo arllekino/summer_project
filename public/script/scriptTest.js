@@ -5,18 +5,10 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
 
 (async () => {
 
-    const infoForUser = FormationOfGame();
+    const infoForUser = await FormationOfGame();
 
-    // const infoForUser = {
-    //     matrixOfField: islandTemplate,
-    //     numberOfUser: 1,
-    // }
-    console.log(infoForUser)
-
-    // const infoForUser = {
-    //     matrixOfField: islandTemplate,
-    //     numberOfUser: 1,
-    // }
+    const app = new PIXI.Application();
+    await app.init({ background: '#00aeff', resizeTo: window });
 
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);    
@@ -40,7 +32,7 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
 
     island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree);
 
-    // main(allContainer, app, island);
+    main(allContainer, app, island);
 
     return {
         stage: app.stage,

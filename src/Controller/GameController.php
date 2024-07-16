@@ -80,7 +80,7 @@ class GameController extends AbstractController
         }
         $data = json_decode($request->getContent(), true);
         try {
-            $this->gameMapService->createGameMap($sessionKeyRoom, $data['matrix_game_map']);
+            $this->gameMapService->createGameMap($sessionKeyRoom, json_encode($data['matrix_game_map']));
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }
@@ -102,7 +102,7 @@ class GameController extends AbstractController
         }
 
         return new Response(json_encode([
-            'matrix_game_map' => $matrixGameMap
+            'matrix_game_map' => json_decode($matrixGameMap)
         ]));
     }
 
