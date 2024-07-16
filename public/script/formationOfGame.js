@@ -1,10 +1,9 @@
 const urlRequests = {
-    countOfUser: "",
-    checkStatusOfUserInLobby: "",
-    checkReadinessOfField: "",
-    sendField: "",
-    getField: "",
-    getNumberOfUser: "",
+    countOfUser: "/find_count_players",
+    checkStatusOfUserInLobby: "/get_player_status",
+    sendField: "/create_map",
+    getField: "/find_map",
+    getUserNumber: "/find_username",
 }
 
 async function GetCountOfUsers() {
@@ -24,8 +23,8 @@ async function GetCountOfUsers() {
     }
 }
 
-async function GetNumberOfUser() {
-    const response = await fetch(urlRequests.getNumberOfUser, {
+async function GetUserNumber() {
+    const response = await fetch(urlRequests.getUserNumber, {
         method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -71,6 +70,10 @@ async function CheckReadinessOfField() {
         return data;
     }
     else {
+        if (response.status === 404) {
+            const data = "NotReady";
+            return data;
+        }
         console.log(response.status);
     }
 }
@@ -206,15 +209,16 @@ export function FormationOfGame() {
         SendField(matrixOfField);
     }
     else {
+        let worldMatrix;
         const waitForField = setInterval(() => {
-            const statusOfReadinessOfField = CheckReadinessOfField();
-            if (statusOfReadinessOfField !== "Ready") {
+            const worldMatrix = CheckReadinessOfField();
+            if (worldMatrix !== "NotReady") {
                 clearInterval(waitForField);
             }
         }, 2000);
-        matrixOfField = GetField();
+        matrixOfField = worldMatrix;
     }
-    const numberOfUser = GetNumberOfUser();
+    const numberOfUser = GetUserNumber();
     return {
         numberOfUser: numberOfUser,
         matrixOfField: matrixOfField,

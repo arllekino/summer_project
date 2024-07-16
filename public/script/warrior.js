@@ -19,6 +19,7 @@ async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numbe
 }
 
 export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cells) {
+    console.log(coordsBuildings, coordsOfShip);
     const currentCoords = {
         x: 0,
         y: 0,
@@ -26,7 +27,6 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
     };
     const cellsAround = [];
     for (let iter = 0; iter < 9; iter++) {
-        debugger;
         SetCoords(currentCoords, coordsBuildings, iter);
         if (currentCoords.x === coordsBuildings.x && currentCoords.y === coordsBuildings.y) {
             continue;
@@ -57,7 +57,6 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
         };
         const cellsAround = [];
         for (let iter = 0; iter < 9; iter++) {
-            debugger;
             SetCoords(currentCoords, cellWithTheSmallestPath1, iter);
             if (currentCoords.x === cellWithTheSmallestPath1.x && currentCoords.y === cellWithTheSmallestPath1.y) {
                 continue;
@@ -292,13 +291,15 @@ function TheseCellsTheSame(cell1, cell2) {
     return false;
 }
 
-function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings) {
-    const shortWay = [];
+function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells) {
+    const calculatedCells = [];
+
+    const dirtyShortWay = [];
     const consideredCells = [];
 
     const cellStart = CreateCellForAlg(0, -1, coordsStartWar.x, coordsStartWar.y, -1, -1);
     cellStart.approximateCostPath = CalculateDistance(coordsStartWar, coordsEndWar, worldMatrix, cells);
-    shortWay.push(cellStart);
+    dirtyShortWay.push(cellStart);
 
     const currentCoords = {
         x: 0,
@@ -309,8 +310,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
     let pathHasBeenFound = false;
     while (!pathHasBeenFound) {
         const cellsAround = [];
-        const previousCell = shortWay[shortWay.length - 1];
-        console.log(previousCell);
+        const previousCell = dirtyShortWay[dirtyShortWay.length - 1];
         for (let iter = 0; iter < 9; iter++) {
             SetCoords(currentCoords, { x: previousCell.x, y: previousCell.y }, iter);
             if (currentCoords.x < 0 || currentCoords.y < 0) {
@@ -346,6 +346,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
             cell.costPath = costPath + previousCell.costPath;
             cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells);
             cellsAround.push(cell);
+            calculatedCells.push(cell);
         }
         let cellWithTheSmallestPath = cellsAround[0];
         cellsAround.forEach(cell => {
@@ -353,34 +354,52 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings
                 cellWithTheSmallestPath = cell;
             }
         })
-        if (shortWay.length === 10) {
+        if (!cellWithTheSmallestPath) {
             pathHasBeenFound = true;
-            console.log("asdrafgshdjasdgyhuqjwd");
+            break;
         }
-        // if (shortWay[shortWay.length - 2]) {
-        //     if (shortWay[shortWay.length - 2].x === cellWithTheSmallestPath.x && shortWay[shortWay.length - 2].y === cellWithTheSmallestPath.y) {
-        //         pathHasBeenFound = true;
-        //         console.log("][poiuytr");
-        //     }
-        // }
-        // if (previousCell.approximateCostPath <= cellWithTheSmallestPath.approximateCostPath) {
-        //     pathHasBeenFound = true;
-        // }
-        // else {
-        //     shortWay.push(cellWithTheSmallestPath);
-        // }
         if (cellWithTheSmallestPath.x === coordsEndWar.x && cellWithTheSmallestPath.y === coordsEndWar.y) {
             pathHasBeenFound = true;
         }
-        shortWay.push(cellWithTheSmallestPath);
+        consideredCells.push(cellWithTheSmallestPath);
+        let isCellCalculated = false;
+        let calculatedCell;
+        for (let iter = 0; iter < calculatedCells.length; iter++) {
+            if (TheseCellsTheSame(cellWithTheSmallestPath, calculatedCells[iter])) {
+                isCellCalculated = true;
+                calculatedCell = calculatedCells[iter];
+                break;
+            }
+        }
+        if (isCellCalculated) {
+            dirtyShortWay.push(calculatedCell);
+        }
+        else {
+            dirtyShortWay.push(cellWithTheSmallestPath);
+        }
+        
     }
-    shortWay.pop();
 
-    // shortWay.forEach((cellShortWay) => {
-    //     cells[cellShortWay.y * 20 + cellShortWay.x].okField();
-    // });
+    const shortWay = [];
+    shortWay.push(dirtyShortWay[dirtyShortWay.length - 1]);
+    for (let iter = dirtyShortWay.length - 2; iter >= 0; iter--) {
+        debugger;
+        for (let iter2 = iter; iter2 >= 0; iter2--) {
+            if (shortWay[shortWay.length - 1].previousX === dirtyShortWay[iter2].x && shortWay[shortWay.length - 1].previousY === dirtyShortWay[iter2].y) {
+                shortWay.push(dirtyShortWay[iter2]);
+                iter = iter2;
+                break;
+            }
+        }
+    }
 
-    return shortWay;
+    const reversedShortWay = shortWay.reverse();
+
+    reversedShortWay.forEach((cellShortWay) => {
+        cells[cellShortWay.y * 20 + cellShortWay.x].okField();
+    });
+
+    return reversedShortWay;
 }
 
 function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, warrior, resolve) {
