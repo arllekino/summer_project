@@ -19,12 +19,21 @@ const TResources = {
     skulls: 0,
 }
 
-function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser, quadTree) {
+function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser, quadTree, quadTreeOfUserIsland, arrOfUserIdsInLobby) {
+    const index = arrOfUserIdsInLobby.indexOf(numberOfUser);
     const coordsOfLeftTop = {
         iterXOfField: 0,
         iterYOfField: 0,
+        startXOfFiled: 0,
+        startYOfFiled: 0,
     }
-    GetBoundsForIsland(numberOfUser, coordsOfLeftTop);
+    if (index !== -1) {
+        GetBoundsForIsland(index, coordsOfLeftTop);
+    }
+    else {
+        console.log("НЕТ ТАКОГО ИГРОКА В ЛОББИ");
+    }
+    
     worldMatrix.forEach((row, i) => {
         row.forEach((num, j) => {
             const cell = new Cell(app, -1, num, 500 + 20 * i, -500 + 20 * j);
@@ -44,6 +53,7 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             if (i >= coordsOfLeftTop.iterYOfField && j >= coordsOfLeftTop.iterXOfField 
                 && i <= coordsOfLeftTop.iterYOfField + 20 && j <= coordsOfLeftTop.iterXOfField + 20) {
                     cellsOfUserIsland.push(cell);
+                    quadTreeOfUserIsland.insert(cell);
             }
 
             if (i % 2 == 0) {
@@ -61,6 +71,7 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             container.addChild(cell.__sprite);
         })
     })
+    console.log(cellsOfUserIsland, "тут наш остров");
 }
 
 export function CreateIsland(worldMatrix) {
@@ -76,6 +87,7 @@ export function CreateIsland(worldMatrix) {
         buldingObject: null,
         buildingSprite: null,
         ships: [],
-        quadTree: new QuadTree(new Rect(0, 0, window.innerWidth * 20,  window.innerHeight * 1000), 900)
+        quadTree: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 10000),
+        quadTreeOfUserIsland: new QuadTree(new Rect(0, 0, window.innerWidth * 20,  window.innerHeight * 1000), 961),
     }
 }

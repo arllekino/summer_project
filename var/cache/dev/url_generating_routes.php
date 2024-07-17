@@ -22,6 +22,7 @@ return [
     'get_player_status' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::getPlayerStatus'], [], [['text', '/get_player_status']], [], [], []],
     'find_count_players' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::findCountPLayersInLobby'], [], [['text', '/find_count_players']], [], [], []],
     'is_all_players_ready' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::isAllPlayersReady'], [], [['text', '/is_all_players_ready']], [], [], []],
+    'get_ids_players' => [[], ['_controller' => 'App\\Controller\\LobbyPlaceController::getPlayersIdsInLobby'], [], [['text', '/get_ids_players']], [], [], []],
     'main_game' => [['keyRoom'], ['_controller' => 'App\\Controller\\GameController::mainGame'], [], [['variable', '/', '[^/]++', 'keyRoom', true], ['text', '/main_game']], [], [], []],
     'start_game' => [[], ['_controller' => 'App\\Controller\\GameController::startGame'], [], [['text', '/start_game']], [], [], []],
     'create_map' => [[], ['_controller' => 'App\\Controller\\GameController::createGameMap'], [], [['text', '/create_map']], [], [], []],

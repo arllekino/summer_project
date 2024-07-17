@@ -4,6 +4,7 @@ const urlRequests = {
     sendField: "/create_map",
     getField: "/find_map",
     getUserNumber: "/find_username",
+    getPlayerIds: "/get_ids_players"
 }
 
 async function GetCountOfUsers() {
@@ -98,17 +99,19 @@ async function SendField(matrixOfField) {
     }
 }
 
-async function GetField() {
-    const response = await fetch(urlRequests.getField, {
-        method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    })
+export async function getUsersIds()
+{
+    const response = await fetch(urlRequests.getPlayerIds, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
+
     if (response.ok) {
         const data = await response.json();
-        return data;
+        return data.ids_players.sort();
     }
     else {
         console.log(response.status);
@@ -276,7 +279,9 @@ export async function FormationOfGame() {
         await Promise.all([promise]);
     }
     const numberOfUser = await GetUserNumber();
+    const userIDInLobby = await getUsersIds();
     return {
+        arrOfUserIdsInLobby: userIDInLobby,
         numberOfUser: numberOfUser.id,
         matrixOfField: matrixOfField,
     };

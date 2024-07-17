@@ -25,6 +25,7 @@ return [
         '/get_player_status' => [[['_route' => 'get_player_status', '_controller' => 'App\\Controller\\LobbyPlaceController::getPlayerStatus'], null, ['POST' => 0], null, false, false, null]],
         '/find_count_players' => [[['_route' => 'find_count_players', '_controller' => 'App\\Controller\\LobbyPlaceController::findCountPLayersInLobby'], null, ['POST' => 0], null, false, false, null]],
         '/is_all_players_ready' => [[['_route' => 'is_all_players_ready', '_controller' => 'App\\Controller\\LobbyPlaceController::isAllPlayersReady'], null, ['POST' => 0], null, false, false, null]],
+        '/get_ids_players' => [[['_route' => 'get_ids_players', '_controller' => 'App\\Controller\\LobbyPlaceController::getPlayersIdsInLobby'], null, ['POST' => 0], null, false, false, null]],
         '/start_game' => [[['_route' => 'start_game', '_controller' => 'App\\Controller\\GameController::startGame'], null, ['GET' => 0], null, false, false, null]],
         '/create_map' => [[['_route' => 'create_map', '_controller' => 'App\\Controller\\GameController::createGameMap'], null, ['POST' => 0], null, false, false, null]],
         '/find_map' => [[['_route' => 'find_map', '_controller' => 'App\\Controller\\GameController::findGameMap'], null, ['POST' => 0], null, false, false, null]],
