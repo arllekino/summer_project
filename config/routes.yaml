@@ -33,6 +33,7 @@ join_lobby:
   controller: App\Controller\LobbyPlaceController::joinLobby
 find_key_room:
   path: /find_key_room
+  methods: GET
   controller: App\Controller\LobbyPlaceController::findKeyRoom  
 lobby_page:
   path: /lobby_page/{keyRoom}

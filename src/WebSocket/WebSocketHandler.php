@@ -75,10 +75,11 @@ class WebSocketHandler implements MessageComponentInterface
         {
             if ($from !== $client)
             {
-                if (in_array($client, $this->rooms[$data['key_room']]))
-                {
+                // var_dump($data['key_room']);
+                // if (in_array($client, $this->rooms[$data['key_room']]))
+                // {
                     $client->send($msg);
-                }
+                // }
             } 
             else 
             {         
@@ -118,7 +119,6 @@ class WebSocketHandler implements MessageComponentInterface
         echo $e->getMessage();
         $connection->close();
     }
-
     private function deletePlayerFromRoom(array &$room, int $id)
     {
         unset($room[$id]);

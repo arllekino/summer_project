@@ -117,6 +117,7 @@ class LobbyPlaceService
         foreach ($lobbyPlaces as $lobbyPlace)
         {
             $lobbyPlace->setReadiness(self::NOT_READY);
+            $this->repository->store($lobbyPlace);
         }
     }
 

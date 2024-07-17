@@ -28,6 +28,19 @@ export async function CheckReadinessOfPlayers() {
     }
 }
 
+export async function MakePlayerNotReady() {
+    const response = await fetch("/make_player_not_ready", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    })
+    if (!response.ok) {
+        console.log(response.status);
+    } 
+}
+
 export async function MakePlayerReady() {
     const response = await fetch("/make_player_ready", {
         method: "POST",

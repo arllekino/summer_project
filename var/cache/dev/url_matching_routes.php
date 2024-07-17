@@ -17,7 +17,7 @@ return [
         '/start_lobby_page' => [[['_route' => 'start_lobby_page', '_controller' => 'App\\Controller\\LobbyPlaceController::startLobbyPage'], null, null, null, false, false, null]],
         '/create_lobby' => [[['_route' => 'create_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::createLobby'], null, null, null, false, false, null]],
         '/join_lobby' => [[['_route' => 'join_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::joinLobby'], null, null, null, false, false, null]],
-        '/find_key_room' => [[['_route' => 'find_key_room', '_controller' => 'App\\Controller\\LobbyPlaceController::findKeyRoom'], null, null, null, false, false, null]],
+        '/find_key_room' => [[['_route' => 'find_key_room', '_controller' => 'App\\Controller\\LobbyPlaceController::findKeyRoom'], null, ['GET' => 0], null, false, false, null]],
         '/quit_lobby' => [[['_route' => 'quit_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::quitFromLooby'], null, null, null, false, false, null]],
         '/kick_from_lobby' => [[['_route' => 'kick_from_lobby', '_controller' => 'App\\Controller\\LobbyPlaceController::kickFromLobby'], null, ['POST' => 0], null, false, false, null]],
         '/make_player_ready' => [[['_route' => 'make_player_ready', '_controller' => 'App\\Controller\\LobbyPlaceController::makePlayerReady'], null, ['POST' => 0], null, false, false, null]],

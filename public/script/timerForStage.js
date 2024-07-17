@@ -1,4 +1,5 @@
 import { Game } from "./classes/game.js";
+import { MakePlayerReady, CheckReadinessOfPlayers } from "./requestsForMainGame.js";
 
 function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     const ticker = new PIXI.Ticker;
@@ -37,6 +38,7 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     ticker.start();
 }
 
+let waitingForPlayers = null;
 export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
@@ -50,13 +52,10 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags)
     app.stage.addChild(textTimer);
 
     function Ready(event) {
-        clearInterval(timer);
-        RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
-        textTimer.text = "";
+        MakePlayerReady();
         Game.playerReady = true;
         flags.wheelFlag = false;
         wheelBlock.removeEventListener("pointerdown", Ready);
-        resolve();
     }
 
     const timer = setInterval(() => {
@@ -67,13 +66,35 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags)
             wheelBlock.addEventListener("pointerdown", Ready);
         }
 
+        if (Game.playerReady && !waitingForPlayers)
+        {
+            Game.playerReady = false;
+            waitingForPlayers = setInterval(async () => {
+                let statusOfPlayer = await CheckReadinessOfPlayers();
+                if (statusOfPlayer) {
+                    textTimer.text = "";
+                    clearInterval(timer);
+                    clearInterval(waitingForPlayers);
+                    waitingForPlayers = null;
+                    RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
+                    resolve();
+                }
+            }, 1000);
+        }
+
         const now = new Date();
         const remain = stopTime - now;
 
         textTimer.text = `${Math.ceil(remain / 1000)}`;
 
         if (remain <= 0) {
+            Game.playerReady = false;
             clearInterval(timer);
+            if (waitingForPlayers)
+            {
+                clearInterval(waitingForPlayers);
+            }
+            waitingForPlayers = null;
             RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
         }
     }, 1000);
