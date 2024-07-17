@@ -1,3 +1,5 @@
+import { MakePlayersNotReady } from "./requestsForMainGame.js";
+
 const urlRequests = {
     countOfUser: "/find_count_players",
     checkStatusOfUserInLobby: "/get_player_status",

@@ -54,6 +54,10 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
                 && i <= coordsOfLeftTop.iterYOfField + 20 && j <= coordsOfLeftTop.iterXOfField + 20) {
                     cellsOfUserIsland.push(cell);
                     quadTreeOfUserIsland.insert(cell);
+                    if (resource.object)
+                    {
+                        resources.push(resource.object);
+                    }
             }
 
             if (i % 2 == 0) {
@@ -63,7 +67,6 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             {
                 resource.object.setPosition(cell.getBounds().x + cell.getBounds().width / 2, cell.getBounds().y + cell.getBounds().height / 2 - 7)
                 resource.object.setZIndex(resource.object.getBounds().y - 15);
-                resources.push(resource.object);
                 container.addChild(resource.object.sprite);
             }
             cells.push(cell);
@@ -88,6 +91,6 @@ export function CreateIsland(worldMatrix) {
         buildingSprite: null,
         ships: [],
         quadTree: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 10000),
-        quadTreeOfUserIsland: new QuadTree(new Rect(0, 0, window.innerWidth * 20,  window.innerHeight * 1000), 961),
+        quadTreeOfUserIsland: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 961),
     }
 }

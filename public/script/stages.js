@@ -12,6 +12,7 @@ import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
 import { ChoiceEndCoords, MoveWarrior } from "./warrior.js";
+import { MakePlayerReady, CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -396,13 +397,14 @@ export async function main(allContainer, app, island) {
     
     MakePlayerReady();
     const promiseForWaitingForPlayers = new Promise(function(resolve) {
-        const waitingForPlayers = setInterval(() => {
-            let statusOfPlayer = CheckReadinessOfPlayers();
+        const waitingForPlayers = setInterval(async () => {
+            let statusOfPlayer = await CheckReadinessOfPlayers();
             if (statusOfPlayer) {
                 clearInterval(waitingForPlayers);
+                MakePlayersNotReady();
                 resolve();
             }
-        });
+        }, 1000);
     });
     await Promise.all([promiseForWaitingForPlayers]);
 

@@ -16,6 +16,6 @@ if (!\class_exists(App_KernelDevDebugContainer::class, false)) {
 
 return new \ContainerHypuoLK\App_KernelDevDebugContainer([
     'container.build_hash' => 'HypuoLK',
-    'container.build_id' => 'aa32c393',
-    'container.build_time' => 1721212052,
+    'container.build_id' => 'fcc87286',
+    'container.build_time' => 1721214840,
 ], __DIR__.\DIRECTORY_SEPARATOR.'ContainerHypuoLK');

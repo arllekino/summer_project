@@ -243,7 +243,7 @@ class LobbyPlaceService
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {
-            if ($lobbyPlace->getReadiness === self::NOT_READY)
+            if ($lobbyPlace->getReadiness() === self::NOT_READY)
             {
                 return false;
             }
