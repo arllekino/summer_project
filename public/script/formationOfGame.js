@@ -1,4 +1,4 @@
-import {MakePlayersNotReady} from './requestsForMainGame.js'
+import { MakePlayersNotReady } from "./requestsForMainGame.js";
 
 const urlRequests = {
     countOfUser: "/find_count_players",
@@ -6,6 +6,7 @@ const urlRequests = {
     sendField: "/create_map",
     getField: "/find_map",
     getUserNumber: "/find_username",
+    getPlayerIds: "/get_ids_players"
 }
 
 async function GetCountOfUsers() {
@@ -100,17 +101,19 @@ async function SendField(matrixOfField) {
     }
 }
 
-async function GetField() {
-    const response = await fetch(urlRequests.getField, {
-        method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    })
+export async function getUsersIds()
+{
+    const response = await fetch(urlRequests.getPlayerIds, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
+
     if (response.ok) {
         const data = await response.json();
-        return data;
+        return data.ids_players.sort();
     }
     else {
         console.log(response.status);
@@ -150,8 +153,8 @@ function MakeField(obj) {
             heightOfField = 50;
             break;
         case 2:
-            widthOfField = 100;
-            heightOfField = 50;
+            widthOfField = 50;
+            heightOfField = 100;
             break;
         case 3:
             widthOfField = 100;
@@ -278,7 +281,10 @@ export async function FormationOfGame() {
         await Promise.all([promise]);
     }
     const numberOfUser = await GetUserNumber();
+    const userIDInLobby = await getUsersIds();
+    MakePlayersNotReady();
     return {
+        arrOfUserIdsInLobby: userIDInLobby,
         numberOfUser: numberOfUser.id,
         matrixOfField: matrixOfField,
     };

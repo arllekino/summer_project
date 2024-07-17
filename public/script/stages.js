@@ -12,8 +12,7 @@ import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
 import { ChoiceEndCoords, MoveWarrior } from "./warrior.js";
-import {MakePlayersNotReady, MakePlayerReady, CheckReadinessOfPlayers} from './requestsForMainGame.js'
-
+import { MakePlayerReady, CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -90,7 +89,7 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     console.log('Здания: ',CountsBuildings);
 }
 
-export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap)
+export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap, resolve)
 {
     const handleKeyDown = (event) => {
         const key = event.key;
@@ -127,13 +126,14 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
     await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
     await buildFarm(app, island, allTextResources, blocks, containerForMap);
     Game.stage += 1;
+    resolve();
 }
 
 async function buildCastle(app, island, allTextResources, blocks, containerForMap) {
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
         island.buldingObject.setMatrixPattern([
             [1, 1, 1],
             [1, 1, 1],
@@ -157,7 +157,7 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
         island.buldingObject.setMatrixPattern([
             [0, 0, 0],
             [0, 1, 0],
@@ -184,7 +184,7 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
         island.buldingObject.setMatrixPattern([
             [1, 1, 0],
             [1, 1, 0],
@@ -389,12 +389,7 @@ export async function main(allContainer, app, island) {
         choiceTower: false,
     };
 
-
-
     const rules = new Rules(app);
-<<<<<<< Updated upstream
-    await StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
-=======
     const promiseForStartStage = new Promise(function(resolve) {
         StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
     });
@@ -406,13 +401,13 @@ export async function main(allContainer, app, island) {
             let statusOfPlayer = await CheckReadinessOfPlayers();
             if (statusOfPlayer) {
                 clearInterval(waitingForPlayers);
+                MakePlayersNotReady();
                 resolve();
             }
         }, 1000);
     });
     await Promise.all([promiseForWaitingForPlayers]);
->>>>>>> Stashed changes
-
+    
     while (true) {
 
         stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, blocks.buildings);
