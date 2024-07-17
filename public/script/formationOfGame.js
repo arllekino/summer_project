@@ -151,8 +151,8 @@ function MakeField(obj) {
             heightOfField = 50;
             break;
         case 2:
-            widthOfField = 100;
-            heightOfField = 50;
+            widthOfField = 50;
+            heightOfField = 100;
             break;
         case 3:
             widthOfField = 100;
