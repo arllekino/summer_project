@@ -54,6 +54,9 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
                 && i <= coordsOfLeftTop.iterYOfField + 20 && j <= coordsOfLeftTop.iterXOfField + 20) {
                     cellsOfUserIsland.push(cell);
                     quadTreeOfUserIsland.insert(cell);
+                    if (resource.object) {
+                        resources.push(resource.object);
+                    }
             }
 
             if (i % 2 == 0) {
@@ -63,7 +66,6 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             {
                 resource.object.setPosition(cell.getBounds().x + cell.getBounds().width / 2, cell.getBounds().y + cell.getBounds().height / 2 - 7)
                 resource.object.setZIndex(resource.object.getBounds().y - 15);
-                resources.push(resource.object);
                 container.addChild(resource.object.sprite);
             }
             cells.push(cell);
@@ -71,7 +73,6 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             container.addChild(cell.__sprite);
         })
     })
-    console.log(cellsOfUserIsland, "тут наш остров");
 }
 
 export function CreateIsland(worldMatrix) {

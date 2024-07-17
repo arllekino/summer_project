@@ -178,7 +178,6 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
         checkCondition();
     })
 }
-
 async function buildFarm(app, island, allTextResources, blocks, containerForMap) {
     return new Promise((resolve) => {
         const requiredResources = {};
@@ -205,7 +204,6 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
         checkCondition();
     })
 }
-
 export async function stageBuilding(app, island, allTextResources, flags, blocks, containerForMap) {
     if (!flags['hummer'])
     {
@@ -245,7 +243,6 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
         }
       });
 }
-
 export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer) {
     const coordsStart = {
         x: 0,
@@ -393,7 +390,7 @@ export async function main(allContainer, app, island) {
         StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
     });
     await Promise.all([promiseForStartStage]);
-    
+
     MakePlayerReady();
     const promiseForWaitingForPlayers = new Promise(function(resolve) {
         const waitingForPlayers = setInterval(() => {
@@ -402,12 +399,12 @@ export async function main(allContainer, app, island) {
                 clearInterval(waitingForPlayers);
                 resolve();
             }
-        });
+        }, 1000);
     });
     await Promise.all([promiseForWaitingForPlayers]);
 
-    while (true) {
 
+    while (true) {
         stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, blocks.buildings);
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags);

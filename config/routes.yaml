@@ -71,7 +71,7 @@ get_ids_players:
   controller: App\Controller\LobbyPlaceController::getPlayersIdsInLobby
 make_players_not_ready:
   path: /make_players_not_ready
-  method: POST
+  methods: POST
   controller: App\Controller\LobbyPlaceController::makePlayersNotReady
 
 main_game:
