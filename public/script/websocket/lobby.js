@@ -3,12 +3,15 @@
 //172.20.10.2   телефон
 //10.250.104.17 IP Лехи
 document.addEventListener('DOMContentLoaded', () => {
-    const ws = new WebSocket('ws://10.250.105.56:8080');
+    const ws = new WebSocket('ws://10.250.104.24:8080');
 
     const quitButton = document.querySelector('.logout');
+    let keyRoom = '';
     
+    let heartbeatLobby;
     ws.onopen = () => {
         joinLobby();
+        heartbeatLobby = setInterval(heartbeat, 500);
     }
     
     ws.onmessage = (event) => {
@@ -36,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    ws.onclose = () => {
+        clearInterval(heartbeatLobby);
+    }
+
     async function joinLobby() {
         let responseUser = await fetch('/find_username', {
             method: 'GET',
@@ -61,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             status: 'guest',
             readiness: 'not ready'
         }));
+        keyRoom = lobbyData.key_room;
     }
 
     function showNewPlayer(userId, username, status, readiness) {
@@ -93,5 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify(data)
         });
+    }
+    
+    function heartbeat() {
+        ws.send(JSON.stringify({
+            type: 'heartbeat',
+            key_room: keyRoom
+        }));
     }
 });

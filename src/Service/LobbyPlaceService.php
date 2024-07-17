@@ -174,7 +174,7 @@ class LobbyPlaceService
         $result = [];
         foreach ($players as $player)
         {
-            array_push($result, $player.getPlayerId());
+            array_push($result, $player->getPlayerId());
         }
         return $result;
     }

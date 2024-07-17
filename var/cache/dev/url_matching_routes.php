@@ -26,9 +26,13 @@ return [
         '/find_count_players' => [[['_route' => 'find_count_players', '_controller' => 'App\\Controller\\LobbyPlaceController::findCountPLayersInLobby'], null, ['POST' => 0], null, false, false, null]],
         '/is_all_players_ready' => [[['_route' => 'is_all_players_ready', '_controller' => 'App\\Controller\\LobbyPlaceController::isAllPlayersReady'], null, ['POST' => 0], null, false, false, null]],
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
         '/get_ids_players' => [[['_route' => 'get_ids_players', '_controller' => 'App\\Controller\\LobbyPlaceController::getPlayersIdsInLobby'], null, ['POST' => 0], null, false, false, null]],
         '/make_players_not_ready' => [[['_route' => 'make_players_not_ready', '_controller' => 'App\\Controller\\LobbyPlaceController::makePlayersNotReady'], null, ['POST' => 0], null, false, false, null]],
+>>>>>>> Stashed changes
+=======
+        '/get_ids_players' => [[['_route' => 'get_ids_players', '_controller' => 'App\\Controller\\LobbyPlaceController::findPlayersIdsInLobby'], null, ['POST' => 0], null, false, false, null]],
 >>>>>>> Stashed changes
         '/start_game' => [[['_route' => 'start_game', '_controller' => 'App\\Controller\\GameController::startGame'], null, ['GET' => 0], null, false, false, null]],
         '/create_map' => [[['_route' => 'create_map', '_controller' => 'App\\Controller\\GameController::createGameMap'], null, ['POST' => 0], null, false, false, null]],

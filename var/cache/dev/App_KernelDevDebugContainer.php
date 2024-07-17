@@ -15,6 +15,7 @@ if (!\class_exists(App_KernelDevDebugContainer::class, false)) {
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 return new \ContainerHypuoLK\App_KernelDevDebugContainer([
     'container.build_hash' => 'HypuoLK',
     'container.build_id' => 'fde7c93d',
@@ -25,5 +26,12 @@ return new \ContainerGQAsEFm\App_KernelDevDebugContainer([
     'container.build_hash' => 'GQAsEFm',
     'container.build_id' => 'd7b7dee4',
     'container.build_time' => 1721218603,
+], __DIR__.\DIRECTORY_SEPARATOR.'ContainerGQAsEFm');
+>>>>>>> Stashed changes
+=======
+return new \ContainerGQAsEFm\App_KernelDevDebugContainer([
+    'container.build_hash' => 'GQAsEFm',
+    'container.build_id' => '1cb70f10',
+    'container.build_time' => 1721215021,
 ], __DIR__.\DIRECTORY_SEPARATOR.'ContainerGQAsEFm');
 >>>>>>> Stashed changes
