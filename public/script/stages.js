@@ -88,7 +88,7 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     console.log('Здания: ',CountsBuildings);
 }
 
-export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap)
+export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap, resolve)
 {
     const handleKeyDown = (event) => {
         const key = event.key;
@@ -125,6 +125,7 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
     await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
     await buildFarm(app, island, allTextResources, blocks, containerForMap);
     Game.stage += 1;
+    resolve();
 }
 
 async function buildCastle(app, island, allTextResources, blocks, containerForMap) {
@@ -387,10 +388,23 @@ export async function main(allContainer, app, island) {
         choiceTower: false,
     };
 
-
-
     const rules = new Rules(app);
-    await StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
+    const promiseForStartStage = new Promise(function(resolve) {
+        StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
+    });
+    await Promise.all([promiseForStartStage]);
+    
+    MakePlayerReady();
+    const promiseForWaitingForPlayers = new Promise(function(resolve) {
+        const waitingForPlayers = setInterval(() => {
+            let statusOfPlayer = CheckReadinessOfPlayers();
+            if (statusOfPlayer) {
+                clearInterval(waitingForPlayers);
+                resolve();
+            }
+        });
+    });
+    await Promise.all([promiseForWaitingForPlayers]);
 
     while (true) {
 

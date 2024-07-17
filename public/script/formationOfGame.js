@@ -280,6 +280,7 @@ export async function FormationOfGame() {
     }
     const numberOfUser = await GetUserNumber();
     const userIDInLobby = await getUsersIds();
+    MakePlayersNotReady();
     return {
         arrOfUserIdsInLobby: userIDInLobby,
         numberOfUser: numberOfUser.id,
