@@ -12,6 +12,8 @@ import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
 import { ChoiceEndCoords, MoveWarrior } from "./warrior.js";
+import {MakePlayersNotReady, MakePlayerReady, CheckReadinessOfPlayers} from './requestsForMainGame.js'
+
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -390,7 +392,26 @@ export async function main(allContainer, app, island) {
 
 
     const rules = new Rules(app);
+<<<<<<< Updated upstream
     await StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
+=======
+    const promiseForStartStage = new Promise(function(resolve) {
+        StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
+    });
+    await Promise.all([promiseForStartStage]);
+    
+    MakePlayerReady();
+    const promiseForWaitingForPlayers = new Promise(function(resolve) {
+        const waitingForPlayers = setInterval(async () => {
+            let statusOfPlayer = await CheckReadinessOfPlayers();
+            if (statusOfPlayer) {
+                clearInterval(waitingForPlayers);
+                resolve();
+            }
+        }, 1000);
+    });
+    await Promise.all([promiseForWaitingForPlayers]);
+>>>>>>> Stashed changes
 
     while (true) {
 

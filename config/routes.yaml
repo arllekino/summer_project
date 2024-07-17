@@ -68,7 +68,15 @@ is_all_players_ready:
 get_ids_players:
   path: /get_ids_players
   methods: POST
+<<<<<<< Updated upstream
   controller: App\Controller\LobbyPlaceController::findPlayersIdsInLobby
+=======
+  controller: App\Controller\LobbyPlaceController::getPlayersIdsInLobby
+make_players_not_ready:
+  path: /make_players_not_ready
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::makePlayersNotReady
+>>>>>>> Stashed changes
 
 main_game:
   path: /main_game/{keyRoom}
