@@ -66,9 +66,9 @@ is_all_players_ready:
   methods: POST
   controller: App\Controller\LobbyPlaceController::isAllPlayersReady
 get_ids_players:
-  path: /get_ids_players
+  path: /get_player_ids
   methods: POST
-  controller: App\Controller\LobbyPlaceController::findPlayersIdsInLobby
+  controller: App\Controller\LobbyPlaceController::getPlayersIdsInLobby
 
 main_game:
   path: /main_game/{keyRoom}
