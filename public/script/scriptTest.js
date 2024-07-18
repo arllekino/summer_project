@@ -34,6 +34,7 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     textures = await PIXI.Assets.load("/../imageParser/backgroundInfobox.json");
     textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
     textures = await PIXI.Assets.load("/../imageParser/diceEdges.json");
+    textures = await PIXI.Assets.load("/../imageParser/warrior.json");
 
     island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree);
 

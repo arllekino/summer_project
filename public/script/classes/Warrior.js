@@ -1,0 +1,66 @@
+export class Warrior {
+  constructor(app, name, x, y, hp, damage) {
+    this.name = name;
+    this.x = x;
+    this.y = y;
+    this.__hp = hp;
+    this.damage = damage;
+    this.sprite;
+    this.attacking = false;
+    this.attackDuration = 300;
+
+    this.initSprite(app, x, y);
+  }
+
+  initSprite(app, x, y) {
+    this.sprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_1.png`));
+    this.sprite.x = x;
+    this.sprite.y = y;
+    this.sprite.zIndex = 10;
+    this.sprite.anchor.set(0.5);
+    app.stage.addChild(this.sprite);
+
+    this.attackSprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_1_2.png`));
+    this.attackSprite.x = x;
+    this.attackSprite.y = y;
+    this.attackSprite.zIndex = 10;
+    this.attackSprite.anchor.set(0.5);
+    this.attackSprite.visible = false;
+    app.stage.addChild(this.attackSprite);
+  }
+
+  attack(target) {
+    if (!this.attacking && target) {
+      this.attacking = true;
+
+      if (target) {
+        target.__hp -= this.damage;
+        console.log(this.name, 'атаковал', target.name, 'и нанес', this.damage, 'урона!');
+      }
+
+      this.attackSprite.x = this.sprite.x;
+      this.attackSprite.y = this.sprite.y;
+
+      this.attackSprite.visible = false;
+      this.sprite.visible = true;
+
+      return new Promise(resolve => {
+        setTimeout(() => {
+          this.sprite.visible = false;
+          this.attackSprite.visible = true;
+          this.attacking = false;
+          resolve();
+        }, this.attackDuration);
+      });
+    }
+  }
+
+  destroy(app) {
+    this.sprite.destroy();
+    app.stage.removeChild(this.sprite);
+  }
+
+  getSprite() {
+    return this.sprite;
+  }
+}

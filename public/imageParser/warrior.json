@@ -1,0 +1,66 @@
+{
+    "frames": {
+        "warrior_1.png": {
+            "frame": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        },
+        "warrior_2.png": {
+            "frame": { "x": 16, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        },
+        "warrior_3.png": {
+            "frame": { "x": 32, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 105, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        },
+        "warrior_4.png": {
+            "frame": { "x": 48, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        },
+        "warrior_1_2.png": {
+            "frame": { "x": 0, "y": 16, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        },
+        "warrior_2_2.png": {
+            "frame": { "x": 16, "y": 16, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        },
+        "warrior_3_2.png": {
+            "frame": { "x": 32, "y": 16, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 105, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        },
+        "warrior_4_2.png": {
+            "frame": { "x": 48, "y": 16, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 }
+        }
+    },
+    "meta": {
+        "image": "/../assets/warriorSprites.png",
+        "format": "RGBA8888",
+        "size": { "w": 64, "h": 32 },
+        "scale": "1"
+    }
+}
