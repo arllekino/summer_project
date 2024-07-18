@@ -1,5 +1,6 @@
 import { Game } from "./classes/game.js";
-import { MakePlayerReady, CheckReadinessOfPlayers } from "./requestsForMainGame.js";
+import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
+import { getUsersIds } from "./formationOfGame.js";
 
 function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     const ticker = new PIXI.Ticker;
@@ -38,10 +39,11 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     ticker.start();
 }
 
-let waitingForPlayers = null;
-export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags) {
+
+export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser, arrPlayersId) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
+    let waitingForPlayers = null;
 
     const textTimer = new PIXI.Text();
     textTimer.style.fill = 0xFFFFFF;
@@ -52,26 +54,27 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags)
     app.stage.addChild(textTimer);
 
     function Ready(event) {
-        MakePlayerReady();
+        SendPlayerId(arrPlayersId, idUser);
         Game.playerReady = true;
         flags.wheelFlag = false;
         wheelBlock.removeEventListener("pointerdown", Ready);
     }
 
-    const timer = setInterval(() => {
+    const timer = setInterval(async () => {
         if (!flags.wheelFlag)
         {
             console.log('first');
             flags.wheelFlag = true;
             wheelBlock.addEventListener("pointerdown", Ready);
         }
-
-        if (Game.playerReady && !waitingForPlayers)
+        
+        if (!waitingForPlayers && Game.playerReady)
         {
             Game.playerReady = false;
             waitingForPlayers = setInterval(async () => {
-                let statusOfPlayer = await CheckReadinessOfPlayers();
-                if (statusOfPlayer) {
+                const userIDInLobby = await getUsersIds();
+                if (userIDInLobby.length === arrPlayersId.arr.length) {
+                    Game.isAllPlayersReady = true;
                     textTimer.text = "";
                     clearInterval(timer);
                     clearInterval(waitingForPlayers);
@@ -79,7 +82,7 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags)
                     RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
                     resolve();
                 }
-            }, 1000);
+            }, 100)
         }
 
         const now = new Date();
@@ -88,12 +91,12 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags)
         textTimer.text = `${Math.ceil(remain / 1000)}`;
 
         if (remain <= 0) {
-            Game.playerReady = false;
-            clearInterval(timer);
             if (waitingForPlayers)
             {
                 clearInterval(waitingForPlayers);
             }
+            Game.isAllPlayersReady = false
+            clearInterval(timer);
             waitingForPlayers = null;
             RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
         }

@@ -2,8 +2,14 @@
 //10.10.24.51   IP коливинга
 //172.20.10.2   телефон
 //10.250.104.17 IP Лехи
+
+export const webSocketObject = {
+    webSocket: undefined,
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const ws = new WebSocket('ws://10.250.105.56:8080');
+    webSocketObject.webSocket = ws;
 
     const quitButton = document.querySelector('.logout');
     let keyRoom = '';

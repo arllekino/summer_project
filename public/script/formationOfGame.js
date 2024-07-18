@@ -170,7 +170,6 @@ function MakeField(obj) {
             break;
     }
     
-    // const matrixOfField = new Array(widthOfField).fill(0).map(() => new Array(heightOfField).fill(0));
     let matrixOfField = [];
     for(let i = 0; i < widthOfField; i++)
     {
@@ -232,18 +231,15 @@ function InsertIslandIntoField(iter, matrixOfField) {
         startYOfFiled: 0,
     }
     GetBoundsForIsland(iter, bounds);
-    console.log(dimensions, 'aisyhuvdghasijndkas');
-    console.log(bounds, '[][][][][]]');
     for (let iterY = 0; iterY < dimensions.y; iterY++, bounds.iterYOfField++) {
         bounds.iterXOfField = bounds.startXOfFiled;
         for (let iterX = 0; iterX < dimensions.x; iterX++, bounds.iterXOfField++) {
-            console.log(bounds);
             matrixOfField[bounds.iterYOfField][bounds.iterXOfField] = islandTemplate[iterY][iterX];
         }
     }
 }
 
-async function InsertIslandsIntoField(obj, matrixOfField, resolve) {
+function InsertIslandsIntoField(obj, matrixOfField, resolve) {
     for (let iter = 0; iter < obj.countOfUser; iter++) {
         InsertIslandIntoField(iter, matrixOfField);
     }
