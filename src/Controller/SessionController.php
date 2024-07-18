@@ -18,11 +18,11 @@ class SessionController
         $this->session->set($name, $value);
     }   
 
-    public function getSession(string $name): ?int
+    public function getSession(string $name): mixed
     {
-        $sessionName = $this->session->get($name);
+        $value = $this->session->get($name);
 
-        return $sessionName;
+        return $value;
     }
 
     public function removeSession(string $name): void

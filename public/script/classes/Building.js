@@ -1,36 +1,58 @@
 import { Cell } from "./Cell.js"; 
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
+import { Rect } from "./Quadtree.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources)
+    constructor(app, cells, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks, containerForMap)
     {
         this.__hp = hp;
         this.__defense = defense;
+        this.name = name;
+        this.alias = alias;
         this.__buildType = buildType;
         this.__buildPtr = buildPtr;
+        this.givingResource = givingResource;
         this.__sprite;
-        this.__peopleCount;
+        this.__peopleCount = peopleCount;
+        this.interactivity = true;
         this.requiredResources = requiredResources;
         this.__droppingResources = {}
-        Object.entries(requiredResources).forEach(([key, value]) => { value = Math.floor(value / 2); this.__droppingResources[key] = value; });
-        console.log(this.__droppingResources);
+        Object.entries(requiredResources).forEach(([key, value]) => { 
+            if (value !== 1) { value = Math.floor(value / 2); } 
+            if (key == 'hammer') { value = 0}
+            if (value !== 0) {this.__droppingResources[key] = value;} 
+        });
         this.__matrixPattern = [];
         this.__eCells = [];
         this.__cellsStatus = {};
+        this.cellsBefore = [null, null, null, null, null, null, null, null, null]
         this.__stopMovingFlag = false;
         this.__bounds;
         this.initSprite(app);
-        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources));
-        app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells));
+        window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources, blocks, containerForMap));
+        app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells, quadTree));
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
+
+    getAlias()
+    {
+        return this.alias;
+    }
+
     getStopMovingFlag() {
         return this.__stopMovingFlag;
     }
 
+    getGivingResource() {
+        return this.givingResource;
+    }
+
     getHp() {
         return this.__hp;
+    }
+    getName() {
+        return this.name;
     }
     setHp(hp) 
     {
@@ -51,9 +73,12 @@ export class Building
     setTowerType(buildType) {
         this.__buildType = buildType;
     }
+    getTexture() {
+        return PIXI.Texture.from(`building_${this.__buildPtr}.png`);
+    }
     initSprite(app) {
         this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
-        this.__sprite.zIndex = 100;
+        this.__sprite.zIndex = 500;
         this.__sprite.alpha = 0.3;
         app.stage.addChild(this.__sprite);
     }
@@ -61,6 +86,7 @@ export class Building
     changeTexture(ptr) {
         this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
     }
+
     setPosition(x, y) {
         this.__sprite.position.set(x, y);
         this.__sprite.zIndex = y;
@@ -95,7 +121,7 @@ export class Building
             row.forEach((num) => {
                 var cell = null;
                 if (num === 1) {
-                    cell = new Cell(app, this.__buildType, 5);
+                    cell = new Cell(app, this.__buildType, 5, 0, 0);
                     cell.activate();
                     this.__cellsStatus[count] = null;
                     cell.setCellId(count);
@@ -109,7 +135,7 @@ export class Building
         })
     }
 
-    startMouseFollowing(event, cells) {
+    startMouseFollowing(event, cells, quadTree) {
         let position = event.data.global;
         if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
         if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
@@ -122,21 +148,49 @@ export class Building
         if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50);}
         this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
         this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
-        cells.forEach((cell) => {
-            cell.changeType(cell.getType());
-            this.__eCells.forEach((eCell => {
-                // this.__cellsStatus[eCell.getCellId()] = null
-                if ((eCell !== null) && (cell.intersectWithCell(eCell))) {
-                    cell.errorField();
-                    this.__cellsStatus[eCell.getCellId()] = null
-                    if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
-                        cell.okField();
+        // cells.forEach((cell) => {
+        //     cell.changeType(cell.getType());
+        //     this.__eCells.forEach((eCell => {
+        //         // this.__cellsStatus[eCell.getCellId()] = null
+        //         if ((eCell !== null) && (cell.intersectWithCell(eCell))) {
+        //             cell.errorField();
+        //             this.__cellsStatus[eCell.getCellId()] = null
+        //             if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
+        //                 cell.okField();
+        //             }
+        //             this.__cellsStatus[eCell.getCellId()] = cell;
+        //         }
+        //     }));
+        // });
+        this.__eCells.filter(eCell => eCell !== null).forEach( (eCell) => {
+            const cell = quadTree.query(new Rect(eCell.x + 7, eCell.y + 4, 5, 5));
+            if (cell.length > 0) {
+                if (cell[0] !== this.cellsBefore[eCell.getCellId()])
+                {
+                    if (this.cellsBefore[eCell.getCellId()] !== null)
+                    {
+                        this.cellsBefore[eCell.getCellId()].changeType(this.cellsBefore[eCell.getCellId()].getType());   
                     }
-                    this.__cellsStatus[eCell.getCellId()] = cell;
                 }
-            }));
-        });
+                this.cellsBefore[eCell.getCellId()] = cell[0];
+                cell[0].errorField();
+                this.__cellsStatus[eCell.getCellId()] = null;
+                if ((cell[0].getType() == 1) && (cell[0].getPtrTower() == -1)) {
+                    cell[0].okField();
+                }
+                this.__cellsStatus[eCell.getCellId()] = cell[0];
+            } 
+            else 
+            {
+                if (this.cellsBefore[eCell.getCellId()] !== null)
+                {
+                    this.cellsBefore[eCell.getCellId()].changeType(this.cellsBefore[eCell.getCellId()].getType());
+                    this.cellsBefore[eCell.getCellId()] = null;
+                }
+            }
+        })
     }
+        
 
     rotateMatrix(direction) {
         if (direction == 1) {
@@ -173,25 +227,29 @@ export class Building
         }
     }
 
-    buildBuilding(app, buildings, resources, allTextResources) {
-        const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() == -1)).length;
+    buildBuilding(app, buildings, resources, allTextResources, blocks, containerForMap) {
+        const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
-                element.setPtrTower(this.__buildType);
                 element.setPtrTower(this.getPtrTower());
             });
             this.__stopMovingFlag = true;
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event)).off('pointermove');
-            this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
+            // this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
+            this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x  + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
             this.clearPatterns();
             this.__sprite.zIndex = this.__sprite.y;
             this.__sprite.alpha = 1;
             buildings.push(this);
+            containerForMap.addChild(this.__sprite);
             for (const resource in this.requiredResources)
             {
                 resources[resource] -= this.requiredResources[resource];
             }
-            UpdateNumberOfResources(allTextResources, resources);
+            resources['inhabitants'] += this.__peopleCount;
+            console.log('GetAlias() here', this.getAlias());
+            blocks.buildings[this.getAlias()] += 1;
+            UpdateNumberOfResources(allTextResources, resources, blocks.buildings);
             // selectedBuilding.tint = 0xffffff;
         }
     }
@@ -217,9 +275,9 @@ export class Building
         this.__cellsStatus = {};
     }
 
-    mouseClick(app, buildings, resources, allTextResources) {
+    mouseClick(app, buildings, resources, allTextResources, blocks, containerForMap) {
         if (!this.__stopMovingFlag) {
-            this.buildBuilding(app, buildings, resources, allTextResources);
+            this.buildBuilding(app, buildings, resources, allTextResources, blocks, containerForMap);
         }
     }
 }

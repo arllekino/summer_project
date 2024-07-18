@@ -8,14 +8,16 @@
 	<div class="container">
 		<div class="intro">
 			<div class="intro__players">
-                {% for userName in userNames %}
-                    <div class="intro__player">
-					<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
-					<div class="block__user-name">
-						<span class="user-name">{{ userName }}</span>
+				{% for user in users %}
+					<div class="intro__player" id="{{ user.id }}">
+						<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
+						<div class="block__user-name">
+							<span class="user-name">{{ user.name }}</span>
+						</div>
+						<span class="{{ user.status }}">{{ user.status }}</span>
+						<span class="readiness">{{ user.readiness }}</span>
 					</div>
-				</div>                    
-                {% endfor %}
+				{% endfor %}
 			</div>
 			<div class="intro__block">
 				<div class="intro__lobby">
@@ -26,7 +28,6 @@
 								<button type"submit" class="intro__settings"></button>
 							</form>
 							<form action="/quit_lobby" class="intro__logout">
-                                <input type="hidden" name="keyRoom" value="{{ keyRoom }}"/>
 								<button type="submit" class="intro__but logout">
 									<span class="button-text">Выйти</span>
 									<img src="../images/home.jpg" alt="Описание картинки" class="button-image">
@@ -38,7 +39,8 @@
 						<p class="intro__code">{{ keyRoom }}</p>
 					</div>
 				</div>
-				<form action="/main_game" class="intro__play">
+				<form action="/start_game" class="intro__play">
+					<input type="hidden" name="keyRoom" value="{{ keyRoom }}">
 					<button type="submit" class="intro__but play">
 						<span class="button-text2">Начать игру</span>
 						<img src="../images/sword.svg" alt="Описание картинки" class="button-image2">
@@ -46,4 +48,8 @@
 				</form>
 			</div>
 		</div>
-	{% endblock %}
+	</div>	
+{% endblock %}
+{% block javascripts %}
+	<script type="module" src="/script/websocket/lobby.js"></script>
+{% endblock %}

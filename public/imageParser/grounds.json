@@ -47,7 +47,7 @@
 
     },
     "meta": {
-        "image": "/../assets/groundsTest.png",
+        "image": "/images/groundsTest.png",
         "format": "RGBA8888",
         "size": { "w": 256, "h": 64 },
         "scale": "1"

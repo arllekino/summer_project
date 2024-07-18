@@ -5,6 +5,7 @@ export class Resource
         this.sprite;
         this.resourceType = type;
         this.bounds;
+        this.interactivity = true;
         switch (type)
         {
             case 1:

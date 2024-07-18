@@ -30,7 +30,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/farmerHouseSprite.png",
+        "image": "/images/farmerHouseSprite.png",
         "format": "RGBA8888",
         "size": { "w": 105, "h": 400 },
         "scale": "1"

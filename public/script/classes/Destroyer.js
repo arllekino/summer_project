@@ -1,4 +1,4 @@
-import { intersects, distance } from "./CommonFunctions.js";
+import { mouseDistanceInContainer, mouseIntersectsInContainer, mouseIntersects, contains, mouseDistance } from "./CommonFunctions.js";
 import { Game } from "./game.js";
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 
@@ -29,7 +29,7 @@ export class Destroyer
             this.activation = false;
         }
 
-        click(e, objects, buildings, resources, resourcesOfUser, allTextResources)
+        click(e, objects, buildings, resources, resourcesOfUser, allTextResources, blocks, containerForMap)
         {
             if (!this.activation)
             {
@@ -44,10 +44,15 @@ export class Destroyer
             var min = 999999999999;
             var minDistObject = null;
             objects.forEach((object) => {
-                if (intersects(this.__sprite, object) && distance(this.__sprite, object) < min)
+                if (((mouseIntersectsInContainer(e, object, containerForMap) && mouseDistanceInContainer(e, object, containerForMap) < min && contains(buildings, object)) ||
+                (mouseIntersects(e, object) && mouseDistance(e, object) < min && contains(resources, object))) && object.interactivity)
                 {
                     minDistObject = object;
-                    min = distance(this.__sprite, object);
+                    min = mouseDistanceInContainer(e, object, containerForMap);
+                    if (contains(resources, object))
+                    {
+                        min = mouseDistance(e, object);
+                    }
                 }
             })
             if (minDistObject)
@@ -55,11 +60,16 @@ export class Destroyer
                 this.__sprite.destroy();
                 this.deactivate();
                 resourcesOfUser['hammer'] -= 1;
+                if (minDistObject.constructor.name !== 'Resource')
+                {
+                    blocks.buildings[minDistObject.getAlias()] -= 1;
+                    resourcesOfUser['inhabitants'] -= 1;
+                }
                 for (const resource in minDistObject.getDroppingResources())
                 {
                     resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
                 }
-                UpdateNumberOfResources(allTextResources, resourcesOfUser)
+                UpdateNumberOfResources(allTextResources, resourcesOfUser, blocks.buildings)
                 if (minDistObject.__cellsStatus['-1'])
                 {
                     minDistObject.sprite.destroy();
@@ -89,7 +99,7 @@ export class Destroyer
         }
 }
 
-export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, resourcesOfUser, allTextResources) {
+export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, resourcesOfUser, allTextResources, blocks, containerForMap) {
     document.addEventListener('keypress', (e) => {
         const key = e.key;
         if (key === 'z' && !hummer.activation && Game.stage === 3 && resourcesOfUser['hammer'] > 0) {
@@ -106,5 +116,5 @@ export function AddEventListenersForHammer(hummer, buildings, resources, buildin
     //     }
     // })
     document.addEventListener('mousemove', (e) => hummer.followMouse(e), true)
-    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources, resourcesOfUser, allTextResources))
+    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources, resourcesOfUser, allTextResources, blocks, containerForMap))
 }

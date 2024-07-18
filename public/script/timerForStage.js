@@ -1,4 +1,6 @@
 import { Game } from "./classes/game.js";
+import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
+import { getUsersIds } from "./formationOfGame.js";
 
 function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     const ticker = new PIXI.Ticker;
@@ -20,8 +22,12 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
             rotation = wheelBlock.rotation;
     }
 	ticker.add((time) => {
-		wheelBlock.rotation -= 0.03 * time.deltaTime;
-		if (wheelBlock.rotation <= rotation) {
+        if (wheelBlock.rotation > rotation)
+        {
+            wheelBlock.rotation -= 0.03 * time.deltaTime;
+        }
+		else
+        {
             if (stage == 4) {
                 wheelBlock.rotation = 0;
             }
@@ -33,9 +39,11 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     ticker.start();
 }
 
-export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
+
+export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser, arrPlayersId) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
+    let waitingForPlayers = null;
 
     const textTimer = new PIXI.Text();
     textTimer.style.fill = 0xFFFFFF;
@@ -45,15 +53,37 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
     textTimer.y = app.screen.height * percentageScreenHeight;
     app.stage.addChild(textTimer);
 
-    const timer = setInterval(() => {
+    function Ready(event) {
+        SendPlayerId(arrPlayersId, idUser);
+        Game.playerReady = true;
+        flags.wheelFlag = false;
+        wheelBlock.removeEventListener("pointerdown", Ready);
+    }
 
-        wheelBlock.addEventListener("click", function Ready() {
-            clearInterval(timer);
-            RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
-            textTimer.text = "";
-            Game.playerReady = true;
-            this.removeEventListener("click", Ready);
-        })
+    const timer = setInterval(async () => {
+        if (!flags.wheelFlag)
+        {
+            console.log('first');
+            flags.wheelFlag = true;
+            wheelBlock.addEventListener("pointerdown", Ready);
+        }
+        
+        if (!waitingForPlayers && Game.playerReady)
+        {
+            Game.playerReady = false;
+            waitingForPlayers = setInterval(async () => {
+                const userIDInLobby = await getUsersIds();
+                if (userIDInLobby.length === arrPlayersId.arr.length) {
+                    Game.isAllPlayersReady = true;
+                    textTimer.text = "";
+                    clearInterval(timer);
+                    clearInterval(waitingForPlayers);
+                    waitingForPlayers = null;
+                    RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
+                    resolve();
+                }
+            }, 100)
+        }
 
         const now = new Date();
         const remain = stopTime - now;
@@ -61,7 +91,13 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app) {
         textTimer.text = `${Math.ceil(remain / 1000)}`;
 
         if (remain <= 0) {
+            if (waitingForPlayers)
+            {
+                clearInterval(waitingForPlayers);
+            }
+            Game.isAllPlayersReady = false
             clearInterval(timer);
+            waitingForPlayers = null;
             RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
         }
     }, 1000);

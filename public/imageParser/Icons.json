@@ -9,7 +9,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/hammerIcon.png",
+        "image": "/images/hammerIcon.png",
         "format": "RGBA8888",
         "size": { "w": 33, "h": 33 },
         "scale": "1"

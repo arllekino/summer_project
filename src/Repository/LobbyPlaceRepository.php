@@ -18,16 +18,16 @@ class LobbyPlaceRepository
         $this->repository = $entityManager->getRepository(LobbyPlace::class);
     }
 
-    public function store(LobbyPlace $lobby): int
+    public function store(LobbyPlace $lobbyPlace): int
     {
-        $this->entityManager->persist($lobby);
+        $this->entityManager->persist($lobbyPlace);
         $this->entityManager->flush();
-        return $lobby->getLobbyId();       
+        return $lobbyPlace->getLobbyId();       
     }
 
-    public function update(LobbyPlace $lobby): void
+    public function update(LobbyPlace $lobbyPlace): void
     {
-        $this->entityManager->persist($lobby);
+        $this->entityManager->persist($lobbyPlace);
         $this->entityManager->flush();    
     }
 
@@ -43,13 +43,13 @@ class LobbyPlaceRepository
 
     public function findLastInsertLobby(): int
     {
-        $lobbies = $this->repository->findAll();
+        $lobbyPlaces = $this->repository->findAll();
         $maxIndex = 0;
-        foreach ($lobbies as $lobby)
+        foreach ($lobbyPlaces as $lobbyPlace)
         {
-            if ($maxIndex < $lobby->getLobbyId())
+            if ($maxIndex < $lobbyPlace->getLobbyId())
             {
-                $maxIndex = $lobby->getLobbyId();
+                $maxIndex = $lobbyPlace->getLobbyId();
             }
         }    
         return $maxIndex;

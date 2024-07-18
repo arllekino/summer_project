@@ -1,41 +1,43 @@
 import { DrawInfoBlocks, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { main } from "./stages.js";
-import { CreateIsland, worldMatrix } from "./classes/Map.js";
+import { CreateIsland } from "./classes/Map.js";
+import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
 
 (async () => {
+
+    const infoForUser = await FormationOfGame();
+
     const app = new PIXI.Application();
     await app.init({ background: '#00aeff', resizeTo: window });
 
     app.stage.interactive = true;
-    document.body.appendChild(app.canvas);
+    document.body.appendChild(app.canvas);    
 
-    const island = CreateIsland(worldMatrix);
+    const island = CreateIsland(infoForUser.matrixOfField);
     
     const allContainer = DrawInfoBlocks(app);
     
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
-    let texturess = await PIXI.Assets.load('/../imageParser/buildings.json');
-    texturess = await PIXI.Assets.load('/../imageParser/farmParser.json');
-    texturess = await PIXI.Assets.load('/../imageParser/playingHouse.json');
-    texturess = await PIXI.Assets.load('/../imageParser/wareHouse.json');
-    texturess = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
-    texturess = await PIXI.Assets.load('/../imageParser/greenCastle.json');
-    texturess = await PIXI.Assets.load('/../imageParser/Icons.json');
-    texturess = await PIXI.Assets.load('/../imageParser/resources.json');
+    textures = await PIXI.Assets.load('/../imageParser/buildings.json');
+    textures = await PIXI.Assets.load('/../imageParser/farmParser.json');
+    textures = await PIXI.Assets.load('/../imageParser/playingHouse.json');
+    textures = await PIXI.Assets.load('/../imageParser/wareHouse.json');
+    textures = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
+    textures = await PIXI.Assets.load('/../imageParser/greenCastle.json');
+    textures = await PIXI.Assets.load('/../imageParser/Icons.json');
+    textures = await PIXI.Assets.load('/../imageParser/resources.json');
+    textures = await PIXI.Assets.load("/../imageParser/backgroundInfobox.json");
+    textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
+    textures = await PIXI.Assets.load("/../imageParser/diceEdges.json");
+    textures = await PIXI.Assets.load("/../imageParser/wall.json")
+    textures = await PIXI.Assets.load("/../imageParser/warrior.json")
+    textures = await PIXI.Assets.load("/../imageParser/barracks.json");
+    textures = await PIXI.Assets.load("/../imageParser/warrior.json");
+    console.log(infoForUser)
+    island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree, island.quadTreeOfUserIsland, infoForUser.arrOfUserIdsInLobby);
+    
 
-    island.mapReader(island.matrixOfIsland, island.cells, app, island.resourcesOnIsland);
-
-    main(allContainer, app, island);    
-
-    const timer = new Timer(5000);
-
-    app.ticker.add(() => {
-        timer.update(app.ticker.elapsedMS);
-
-        if (timer.isExpired()) {
-            timer.pause();
-        }
-    });
+    main(allContainer, app, island, infoForUser.numberOfUser);
 
     return {
         stage: app.stage,

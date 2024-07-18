@@ -1,0 +1,31 @@
+{
+    "frames": {
+        "castleDice.png": {
+            "frame": { "x": 0, "y": 0, "w": 66, "h": 66 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 66 },
+            "sourceSize": { "w": 66, "h": 66 }
+        },
+        "houseDice.png": {
+            "frame": { "x": 0, "y":66, "w": 66, "h": 66 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 66 },
+            "sourceSize": { "w": 66, "h": 66 }
+        },
+        "farmerDice.png": {
+            "frame": { "x": 0, "y": 132, "w": 66, "h": 66 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 66 },
+            "sourceSize": { "w": 66, "h": 66 }
+        }
+    },
+    "meta": {
+        "image": "/images/buildingDices.png",
+        "format": "RGBA8888",
+        "size": { "w": 66, "h": 198 },
+        "scale": "1"
+    }
+}
