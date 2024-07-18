@@ -1,3 +1,5 @@
+import { Warrior } from './classes/Warrior.js';
+
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
     return cells[numberOfCellY * 20 + numberOfCellX].getBounds().x + cells[numberOfCellY * 20 + numberOfCellX].getBounds().width / 2;
 }
@@ -103,13 +105,7 @@ function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatri
         } else {
             distanceX += 10;
         }
-        // if (worldMatrix[minY][iter] === 1) {
-        //     distanceX += 1;
-        // } else {
-        //     distanceX += 10;
-        // }
     }
-
     return distanceX;
 }
 
@@ -126,11 +122,6 @@ function CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix
         } else {
             distanceX += 10;
         }
-        // if (worldMatrix[maxY][iter] === 1) {
-        //     distanceX += 1;
-        // } else {
-        //     distanceX += 10;
-        // }
     }
     return distanceX;
 }
@@ -148,11 +139,6 @@ function CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatri
         } else {
             distanceY += 10;
         }
-        // if (worldMatrix[iter][minX] === 1) {
-        //     distanceY += 1;
-        // } else {
-        //     distanceY += 10;
-        // }
     }
     return distanceY;
 }
@@ -170,11 +156,6 @@ function CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, maxX, worldMatrix
         } else {
             distanceY += 10;
         }
-        // if (worldMatrix[iter][maxX] === 1) {
-        //     distanceY += 1;
-        // } else {
-        //     distanceY += 10;
-        // }
     }
     return distanceY;
 }
@@ -402,69 +383,166 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells) {
     return reversedShortWay;
 }
 
-function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, warrior, resolve) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warrior, shortWay, cells) {
+    if (clickedBuilding) {
+        console.log('HP здания:', clickedBuilding.__hp);
+
+        const hpText = new PIXI.Text(`${clickedBuilding.name}: ${clickedBuilding.__hp}`, {
+            fontSize: 16,
+            fill: 0xffff00,
+            align: 'center'
+        });
+        hpText.zIndex = 500;
+        hpText.x = clickedBuilding.__sprite.x + clickedBuilding.__sprite.width / 2 - hpText.width / 2;
+        hpText.y = clickedBuilding.__sprite.y - 5;
+        app.stage.addChild(hpText);
+
+        await new Promise(resolve => setTimeout(resolve, 200)); // Ждем 300 мс, чтобы текст с HP был виден
+
+        let damageText = null;
+
+        while (clickedBuilding.__hp > 0) {
+            await warrior.attack(clickedBuilding);
+            console.log('HP здания после атаки:', clickedBuilding.__hp);
+            hpText.text = `${clickedBuilding.name}: ${clickedBuilding.__hp}`;
+
+            damageText = new PIXI.Text(`-${warrior.damage}`, {
+                fontSize: 16,
+                fill: 0xff0000,
+                align: 'center',
+                alpha: 0
+            });
+            damageText.zIndex = 501;
+            damageText.x = clickedBuilding.__sprite.x + clickedBuilding.__sprite.width / 2 - damageText.width / 2;
+            damageText.y = clickedBuilding.__sprite.y - 5 - 20;
+            app.stage.addChild(damageText);
+
+            for (let i = 0; i <= 10; i++) { // Анимация появления текста с уроном
+                damageText.alpha = i / 10;
+                await new Promise(resolve => setTimeout(resolve, 20));
+            }
+            await new Promise(resolve => setTimeout(resolve, 200)); // Ждем 200 мс, чтобы текст с уроном был виден
+
+            for (let i = 10; i >= 0; i--) { // Анимация исчезновения текста с уроном
+                damageText.alpha = i / 10;
+                await new Promise(resolve => setTimeout(resolve, 20));
+            }
+            app.stage.removeChild(damageText);
+
+            await new Promise(resolve => setTimeout(resolve, 100)); // Задержка между ударами
+        }
+        app.stage.removeChild(hpText);
+        warrior.sprite.visible = true;
+        warrior.attackSprite.visible = false;
+
+        await animateBuildingDestruction(clickedBuilding.__sprite);
+        clickedBuilding.__sprite.destroy();
+        buildings.splice(buildings.indexOf(clickedBuilding), 1);
+
+        for (const cellId in clickedBuilding.__cellsStatus) {
+            clickedBuilding.__cellsStatus[cellId].setPtrTower(-1);
+        }
+
+        const promiseBack = new Promise(function (resolve) {
+            MoveSprite(app, shortWay, cells, buildings, true, resolve, clickedBuilding, warrior);
+        });
+        await Promise.all([promiseBack]);
+        warrior.destroy(app);
+    }
+}
+
+async function animateBuildingDestruction(buildingSprite) {
+    const textureBackground = await PIXI.Assets.load("/../../assets/textures/debris.png");
+    const debrisSprite = new PIXI.Sprite(textureBackground);
+    debrisSprite.anchor.set(0.5); 
+
+    debrisSprite.x = buildingSprite.x + buildingSprite.width / 2 - debrisSprite.width / 2;
+    debrisSprite.y = buildingSprite.y + buildingSprite.height / 2 - debrisSprite.height / 2;
+
+    debrisSprite.scale.set(buildingSprite.width / debrisSprite.width, buildingSprite.height / debrisSprite.height);
+
+    // Случайное вращение обломков
+    debrisSprite.rotation = Math.random() * Math.PI * 2;
+
+    buildingSprite.parent.addChild(debrisSprite);
+
+    // Анимация
+    for (let i = 1; i >= 0; i -= 0.1) {
+        buildingSprite.alpha = i;
+        // Вращение обломков
+        debrisSprite.rotation += 0.005;
+        await new Promise(resolve => setTimeout(resolve, 50)); // Задержка 50 мс
+    }
+    debrisSprite.destroy();
+}
+
+
+
+
+function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warrior) {
     const ticker = new PIXI.Ticker;
     const speed = 0.8;
 
     const xCoord = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 5;
     const yCoord = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 7;
 
-    let isSpriteMoveRight = warrior.x <= xCoord;
-    let isSpriteMoveLeft = warrior.x >= xCoord;
-    let isSpriteMoveDown = warrior.y <= yCoord;
-    let isSpriteMoveUp = warrior.y >= yCoord;
+    let isSpriteMoveRight = warrior.getSprite().x <= xCoord;
+    let isSpriteMoveLeft = warrior.getSprite().x >= xCoord;
+    let isSpriteMoveDown = warrior.getSprite().y <= yCoord;
+    let isSpriteMoveUp = warrior.getSprite().y >= yCoord;
 
     ticker.add((time) => {
         if (isSpriteMoveRight) {
-            warrior.x += speed * time.deltaTime;
-            if (warrior.x >= xCoord) {
+            warrior.getSprite().x += speed * time.deltaTime;
+            if (warrior.getSprite().x >= xCoord) {
                 isSpriteMoveRight = !isSpriteMoveRight;
             }
         }
         if (isSpriteMoveLeft) {
-            warrior.x -= speed * time.deltaTime;
-            if (warrior.x <= xCoord) {
+            warrior.getSprite().x -= speed * time.deltaTime;
+            if (warrior.getSprite().x <= xCoord) {
                 isSpriteMoveLeft = !isSpriteMoveLeft;
             }
         }
         if (isSpriteMoveDown) {
-            warrior.y += speed * time.deltaTime;
-            if (warrior.y >= yCoord) {
+            warrior.getSprite().y += speed * time.deltaTime;
+            if (warrior.getSprite().y >= yCoord) {
                 isSpriteMoveDown = !isSpriteMoveDown;
             }
         }
         if (isSpriteMoveUp) {
-            warrior.y -= speed * time.deltaTime;
-            if (warrior.y <= yCoord) {
+            warrior.getSprite().y -= speed * time.deltaTime;
+            if (warrior.getSprite().y <= yCoord) {
                 isSpriteMoveUp = !isSpriteMoveUp;
             }
         }
-
         if (!isSpriteMoveRight && !isSpriteMoveLeft && !isSpriteMoveDown && !isSpriteMoveUp) {
             ticker.destroy();
             resolve();
         }
-
     })
     ticker.start();
 }
 
-async function MoveSprite(warrior, shortWay, cells, isShipSailingBack, resolve) {
-    if (!isShipSailingBack) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warrior) {
+    if (!isWarriorSailingBack) {
         let iter = 0;
         while (iter < shortWay.length) {
             const promise = new Promise(function (resolve) {
-                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, warrior, resolve);
+                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warrior);
             });
             await Promise.all([promise]);
+
+            if (iter === shortWay.length - 1) {
+                DestroyBuilding(app, buildings, clickedBuilding, warrior, shortWay, cells);
+            }
             iter++;
         }
-    }
-    else {
+    } else {
         let iter = shortWay.length - 1;
         while (iter >= 0) {
             const promise = new Promise(function (resolve) {
-                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, warrior, resolve);
+                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warrior);
             });
             await Promise.all([promise]);
             iter--;
@@ -473,13 +551,18 @@ async function MoveSprite(warrior, shortWay, cells, isShipSailingBack, resolve) 
     resolve();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings) {
-    const warrior = new PIXI.Sprite();
-    DrawWarrior(warrior, app, cells, "/../assets/textures/warrior.jpg", coordsStartWar.x, coordsStartWar.y);
-    const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, buildings);
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors) {
+    const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
+    const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
+
+    const warrior = new Warrior(app, "war", x, y, 40, 20);
+    warriors.push(warrior);
+
+    const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells);
 
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(warrior, shortWay, cells, false, resolve);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warrior);
     });
     await Promise.all([promiseForward]);
+
 }

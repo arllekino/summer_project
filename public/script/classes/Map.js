@@ -92,5 +92,6 @@ export function CreateIsland(worldMatrix) {
         ships: [],
         quadTree: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 10000),
         quadTreeOfUserIsland: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 961),
+        warriors: []
     }
 }

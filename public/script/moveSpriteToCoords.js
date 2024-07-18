@@ -205,7 +205,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
         const cellsAround = [];
         const previousCell = shortWay[shortWay.length - 1];
         for (let iter = 0; iter < 9; iter++) {
-            SetCoords(currentCoords, {x: previousCell.x, y: previousCell.y}, iter);
+            SetCoords(currentCoords, { x: previousCell.x, y: previousCell.y }, iter);
             if (currentCoords.x < 0 || currentCoords.y < 0) {
                 continue;
             }
@@ -227,7 +227,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
                 costPath = 1;
             }
             cell.costPath = costPath + previousCell.costPath;
-            cell.approximateCostPath = CalculateDistance({x: cell.x, y: cell.y}, coordsEnd, worldMatrix);
+            cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEnd, worldMatrix);
             cellsAround.push(cell);
         }
         let cellWithTheSmallestPath = cellsAround[0];
@@ -248,7 +248,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
 function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, sprite, resolve) {
     const ticker = new PIXI.Ticker;
     const speed = 0.8;
-    
+
     const xCoord = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 5;
     const yCoord = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 7;
 
@@ -283,13 +283,13 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, sprite, resolve) {
             }
         }
         sprite.zIndex = sprite.y;
-        
+
         if (!isSpriteMoveRight && !isSpriteMoveLeft && !isSpriteMoveDown && !isSpriteMoveUp) {
             ticker.destroy();
             resolve();
         }
-        
-	})
+
+    })
     ticker.start();
 }
 
@@ -297,7 +297,7 @@ async function MoveSprite(sprite, shortWay, cells, isShipSailingBack, resolve) {
     if (!isShipSailingBack) {
         let iter = 0;
         while (iter < shortWay.length) {
-            const promise = new Promise(function(resolve) {
+            const promise = new Promise(function (resolve) {
                 MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, sprite, resolve);
             });
             await Promise.all([promise]);
@@ -307,7 +307,7 @@ async function MoveSprite(sprite, shortWay, cells, isShipSailingBack, resolve) {
     else {
         let iter = shortWay.length - 1;
         while (iter >= 0) {
-            const promise = new Promise(function(resolve) {
+            const promise = new Promise(function (resolve) {
                 MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, sprite, resolve);
             });
             await Promise.all([promise]);
@@ -323,12 +323,12 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
             let minDist = 99999;
             let minDistObject = null;
             buildings.forEach((building) => {
-                if (mouseDistanceInContainer(event, building, containerForMap) < minDist && mouseIntersectsInContainer(event, building, containerForMap))
-                {
-                    minDist = mouseDistanceInContainer(event, building, containerForMap);
+                if (mouseDistance(event, building) < minDist && mouseIntersects(event, building)) {
+                    minDist = mouseDistance(event, building);
                     minDistObject = building;
                 }
-            })
+            });
+
             if (minDistObject) {
                 isBuildingPressed.state = true;
                 console.log(minDistObject);
@@ -336,12 +336,12 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
                 const index = cells.indexOf(minDistObject.__cellsStatus[4]);
                 coords.x = index % 20;
                 coords.y = (index - coords.x) / 20;
-                resolve();
+                resolve(minDistObject);
+            } else {
+                resolve(null);
             }
-            resolve();
-        }
-        else {
-            resolve();
+        } else {
+            resolve(null);
         }
         this.removeEventListener("pointerdown", getCoordsFromMatrix);
     });
@@ -354,10 +354,10 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
             x: event.pageX,
             y: event.pageY,
         }
-    
+
         // sprite.x = position.x - sprite.getBounds().width / 2;
         // sprite.y = position.y - sprite.getBounds().height / 2;
-    
+
         cellForShip.setDirectPositions(position.x + 20 - 40, position.y + 20 - 40);
 
         let intersectedCells = quadTree.query(new Rect(cellForShip.x, cellForShip.y, 5, 5)) 
@@ -419,8 +419,8 @@ export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, shi
     DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y, containerForMap);
     
     const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells);
-    const promiseForward = new Promise(function(resolve) {
-       MoveSprite(rect, shortWay, cells, false, resolve);
+    const promiseForward = new Promise(function (resolve) {
+        MoveSprite(rect, shortWay, cells, false, resolve);
     });
     await Promise.all([promiseForward]);
     resolve();

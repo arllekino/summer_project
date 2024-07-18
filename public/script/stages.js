@@ -1,7 +1,7 @@
 import { DrawBlockForDiceRoll, UpdateNumberOfResources, DrawNumberOfResources, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { startTimerForStage } from "./timerForStage.js";
 import { GetResources } from "./stages/resources.js";
-import { Destroyer, AddEventListenersForHammer } from "./classes/Destroyer.js"; 
+import { Destroyer, AddEventListenersForHammer } from "./classes/Destroyer.js";
 import { Game } from "./classes/game.js";
 import { ChoicePlaceForShip, MouseFollowingForShip, MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
@@ -19,8 +19,8 @@ import { getUsersIds } from "./formationOfGame.js";
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
     const blockButtonReRoll = new PIXI.Sprite();
-    
-    const promise = new Promise(function(resolve) {
+
+    const promise = new Promise(function (resolve) {
         DrawBlockForDiceRoll(containerForDiceRoll, app, containerCubes, blockButtonReRoll, resolve);
     });
     await Promise.all([promise]);
@@ -94,18 +94,16 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
 {
     const handleKeyDown = (event) => {
         const key = event.key;
-        if (island.buldingObject)
-        {
-            if (island.buldingObject.getStopMovingFlag())
-            {
+        if (island.buldingObject) {
+            if (island.buldingObject.getStopMovingFlag()) {
                 island.buildingMoment = false;
             }
             if (key === 'f' && island.buildingMoment && island.buldingObject && (Game.stage === 3 || Game.stage === 0)) {
                 island.buldingObject.clearPatterns();
                 island.buldingObject.clearCellsStatus()
-                island.buldingObject.rotateMatrix(-1); 
+                island.buldingObject.rotateMatrix(-1);
                 island.buldingObject.renderMatrixPattern(app);
-            } 
+            }
             else if (key === 'g' && island.buildingMoment && island.buldingObject && (Game.stage === 3 || Game.stage === 0)) {
                 island.buldingObject.clearPatterns();
                 island.buldingObject.clearCellsStatus();
@@ -115,8 +113,7 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
         }
     };
 
-    if (!flags['rotations'])
-    {
+    if (!flags['rotations']) {
         window.addEventListener('keydown', handleKeyDown);
         flags['rotations'] = true;
     }
@@ -142,12 +139,10 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
         ])
         island.buldingObject.renderMatrixPattern(app);
         const checkCondition = () => {
-            if (!island.buldingObject.getStopMovingFlag())
-            {
+            if (!island.buldingObject.getStopMovingFlag()) {
                 setTimeout(checkCondition, 100);
             }
-            else
-            {
+            else {
                 resolve();
             }
         }
@@ -165,15 +160,13 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
             [0, 0, 0],
         ])
         island.buldingObject.renderMatrixPattern(app);
-        island.buldingObject.__droppingResources = {wood: 1}
+        island.buldingObject.__droppingResources = { wood: 1 }
         blocks.infoBox.show(island.buldingObject);
         const checkCondition = () => {
-            if (!island.buldingObject.getStopMovingFlag())
-            {
+            if (!island.buldingObject.getStopMovingFlag()) {
                 setTimeout(checkCondition, 100);
             }
-            else
-            {
+            else {
                 resolve();
             }
         }
@@ -192,15 +185,13 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
             [1, 1, 0],
         ])
         island.buldingObject.renderMatrixPattern(app);
-        island.buldingObject.__droppingResources = {wood: 1}
+        island.buldingObject.__droppingResources = { wood: 1 }
         blocks.infoBox.show(island.buldingObject);
         const checkCondition = () => {
-            if (!island.buldingObject.getStopMovingFlag())
-            {
+            if (!island.buldingObject.getStopMovingFlag()) {
                 setTimeout(checkCondition, 100);
             }
-            else
-            {
+            else {
                 resolve();
             }
         }
@@ -217,9 +208,8 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
         flags['hummer'] = true;
     }
 
-    document.addEventListener("pointerdown", function(event) {
-        if (event.button === 2 && !island.buldingObject.getStopMovingFlag() && Game.stage === 3) 
-        {
+    document.addEventListener("pointerdown", function (event) {
+        if (event.button === 2 && !island.buldingObject.getStopMovingFlag() && Game.stage === 3) {
             event.preventDefault();
             island.buildingSprite.tint = 0xffffff;
             island.buldingObject.clearPatterns();
@@ -240,15 +230,14 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
                     minDistObject = building;
                 }
             })
-            if (minDistObject)
-            {
+            if (minDistObject) {
                 blocks.infoBox.show(minDistObject);
             }
         }
-      });
+    });
 }
 
-export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer) {
+export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors) {
     const coordsStart = {
         x: 0,
         y: 0,
@@ -259,16 +248,34 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
     const coordsOfBuilding = {
         x: 0,
         y: 0,
-    } 
+    }
+
+    let clickedBuilding = null;
+
     while (!isBuildingPressed.state) {
         const promise = new Promise(function(resolve) {
             GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed, allContainer.containerForMap);
         });
         await Promise.all([promise]);
+
         if (Game.stage !== 4) {
             isBuildingPressed.state = true;
+        } else {
+            clickedBuilding = await promise.then(async (resolve) => {
+                return await resolve;
+            });
+
+            console.log('clickedBuilding', clickedBuilding);
+
+            if (clickedBuilding) {
+                isBuildingPressed.state = true;
+                break;
+            } else {
+                console.log("Здание не найдено");
+            }
         }
     }
+
     const stopMoving = {
         state: false,
     };
@@ -293,7 +300,7 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
                         this.removeEventListener("click", getCoordsOfShip);
                     });
                 }, 500);
-                
+
             })
             await Promise.all([promise]);
             if (Game.stage !== 4) {
@@ -309,7 +316,7 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         });
         await Promise.all([promiseForMovingShip]);
         const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings);
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors);
     }
 }
 
@@ -363,7 +370,7 @@ export async function main(allContainer, app, island, idUser) {
 
     let blocks = {
         infoBox: new Infobox(app),
-        
+
         buildings: {
             houseVillage: 0,
             houseGrendee: 0,
