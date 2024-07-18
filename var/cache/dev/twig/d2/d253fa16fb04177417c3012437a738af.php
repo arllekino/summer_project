@@ -179,7 +179,7 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "javascripts"));
 
         // line 54
-        yield "\t<script type=\"text/javascript\" src=\"/script/websocket/lobby.js\"></script>
+        yield "\t<script type=\"module\" src=\"/script/websocket/lobby.js\"></script>
 ";
         
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
@@ -266,8 +266,8 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 \t</div>\t
 {% endblock %}
 {% block javascripts %}
-\t<script type=\"text/javascript\" src=\"/script/websocket/lobby.js\"></script>
+\t<script type=\"module\" src=\"/script/websocket/lobby.js\"></script>
 {% endblock %}
-", "lobby_page.html.twig", "D:\\GameProject\\summer_project\\templates\\lobby_page.html.twig");
+", "lobby_page.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\lobby_page.html.twig");
     }
 }

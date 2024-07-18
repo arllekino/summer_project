@@ -6,13 +6,15 @@ import { Game } from "./classes/game.js";
 import { ChoicePlaceForShip, MouseFollowingForShip, MoveSpriteToCoords, SetPositionShip } from "./moveSpriteToCoords.js";
 import { Building } from "./classes/Building.js";
 import { Infobox } from "./classes/Infobox.js";
-import { mouseDistance, mouseIntersectsInContainer, mouseDistanceInContainer, getRandomElementFormList } from "./classes/CommonFunctions.js";
+import { mouseIntersectsInContainer, mouseDistanceInContainer, getRandomElementFormList } from "./classes/CommonFunctions.js";
 import { Rules } from "./classes/Rules.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
 import { ChoiceEndCoords, MoveWarrior } from "./warrior.js";
-import { MakePlayerReady, CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
+import { CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
+import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
+import { getUsersIds } from "./formationOfGame.js";
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -25,7 +27,6 @@ export async function stageResources(containerForDiceRoll, app, resources, build
 
     GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
-
 
 export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildings, CountsBuildings, illObjects)
 {
@@ -312,7 +313,8 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
     }
 }
 
-export async function main(allContainer, app, island) {
+export async function main(allContainer, app, island, idUser) {
+
     allContainer.wheelBlock.interactive = true;
     allContainer.wheelBlock.buttonMode = true;
     allContainer.wheelBlock.cursor = "pointer";
@@ -390,12 +392,31 @@ export async function main(allContainer, app, island) {
     };
 
     const rules = new Rules(app);
+
+    MakePlayersNotReady();
+    const isAllPlayersReady = {
+        state: false,
+    };
+
+    const arrPlayersId = {
+        arr: [],
+    }
+    WaitingForPlayers(arrPlayersId);
+
     const promiseForStartStage = new Promise(function(resolve) {
         StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
-    });
+    })
     await Promise.all([promiseForStartStage]);
     
-    MakePlayerReady();
+    SendPlayerId(arrPlayersId, idUser);
+    while (!isAllPlayersReady.state) {
+        const userIDInLobby = await getUsersIds();
+        console.log(arrPlayersId);
+        console.log(userIDInLobby);
+        if (userIDInLobby.length === arrPlayersId.arr.length) {
+            isAllPlayersReady.state = true;
+        }
+    }
     const promiseForWaitingForPlayers = new Promise(function(resolve) {
         const waitingForPlayers = setInterval(async () => {
             let statusOfPlayer = await CheckReadinessOfPlayers();
