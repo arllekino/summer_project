@@ -13,8 +13,6 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);    
 
-    await getUsersIds();
-
     const island = CreateIsland(infoForUser.matrixOfField);
     
     const allContainer = DrawInfoBlocks(app);

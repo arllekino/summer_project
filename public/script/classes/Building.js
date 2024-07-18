@@ -247,6 +247,7 @@ export class Building
                 resources[resource] -= this.requiredResources[resource];
             }
             resources['inhabitants'] += this.__peopleCount;
+            console.log('GetAlias() here', this.getAlias());
             blocks.buildings[this.getAlias()] += 1;
             UpdateNumberOfResources(allTextResources, resources, blocks.buildings);
             // selectedBuilding.tint = 0xffffff;

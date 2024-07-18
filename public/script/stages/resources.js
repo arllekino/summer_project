@@ -187,6 +187,58 @@ function DeleteResourcesFromMainHouse(numberFace, resources) {
     }
 }
 
+function GetResourcesFromBarrack(numberFace, resources) {
+    switch (numberFace) {
+        case 1:
+            resources.wars += 4;
+            break;
+        case 2:
+            resources.wars += 3;
+            break;
+        case 3:
+            resources.wars += 1;
+            resources.money += 1;
+            break;
+        case 4:
+            resources.wars += 1;
+            resources.wood += 1;
+            break;
+        case 5:
+            resources.wars += 2;
+            break;
+        case 6:
+            resources.wars += 2;
+            resources.skulls += 1;
+            break;
+    }
+}
+
+function DeleteResourcesFromBarrack(numberFace, resources) {
+    switch (numberFace) {
+        case 1:
+            resources.wars -= 4;
+            break;
+        case 2:
+            resources.wars -= 3;
+            break;
+        case 3:
+            resources.wars -= 1;
+            resources.money -= 1;
+            break;
+        case 4:
+            resources.wars -= 1;
+            resources.wood -= 1;
+            break;
+        case 5:
+            resources.wars -= 2;
+            break;
+        case 6:
+            resources.wars -= 2;
+            resources.skulls -= 1;
+            break;
+    }
+}
+
 async function AddIconInInfoBlock(
 	containerCubes,
     containerDiceRoll,
@@ -230,6 +282,26 @@ export async function GetResources(buildings, containerCubes, containerDiceRoll,
         arrCubes.push(icon);
         AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
             percentageScreenHeight, PIXI.Texture.from(`${numberFace}face.png`), icon);
+
+        if (cubesInRow === 6) {
+            percentageScreenWidth = startPositionWidth;
+            percentageScreenHeight += STEP_HEIGHT;
+            cubesInRow = 0;
+        }
+    }
+
+    for (let i = 0; i < buildings.barrack; i++) {
+        let numberFace = ChooseRandomFaceOFCube();
+        GetResourcesFromBarrack(numberFace, resources);
+        if (cubesInRow != 0) {
+            percentageScreenWidth += STEP_WIDTH;
+        }
+        cubesInRow += 1;
+
+        const icon = new PIXI.Sprite();
+        arrCubes.push(icon);
+        AddIconInInfoBlock(containerCubes, containerDiceRoll, percentageScreenWidth, 
+            percentageScreenHeight, PIXI.Texture.from(`${numberFace + 18}face.png`), icon);
 
         if (cubesInRow === 6) {
             percentageScreenWidth = startPositionWidth;
@@ -392,6 +464,23 @@ function ReRoll(containerDiceRoll, resources, resolve) {
                 MoveCubeOnItsPosition(el.serialNumberInContainer, el.cube, containerDiceRoll);
             }, 1000);
         }
+        if (el.typeCube === "cubeOfBarrack") {
+            DeleteResourcesFromBarrack(el.numberOfFace - 18, resources);
+            el.cube.visible = false;
+
+            const numberFace = ChooseRandomFaceOFCube();
+            GetResourcesFromBarrack(numberFace, resources);
+
+            setTimeout(async () => {
+                const textureIconCube = PIXI.Texture.from(`${numberFace + 18}face.png`);
+                el.cube.texture = textureIconCube;
+                el.cube.visible = true;
+            }, 1000);
+
+            setTimeout(() => {
+                MoveCubeOnItsPosition(el.serialNumberInContainer, el.cube, containerDiceRoll);
+            }, 1000);
+        }
         if (el.typeCube === "cubeOfGrandee") {
             DeleteResourcesFromGrandee(el.numberOfFace - 6, resources);
             el.cube.visible = false;
@@ -409,7 +498,6 @@ function ReRoll(containerDiceRoll, resources, resolve) {
                 MoveCubeOnItsPosition(el.serialNumberInContainer, el.cube, containerDiceRoll);
             }, 1000);
         }
-        console.log(el.typeCube)
         if (el.typeCube === "cubeOfMainBuilding") {
             console.log(resources);
             console.log(el.numberOfFace);
@@ -478,9 +566,10 @@ function spriteCubeMove(spriteCube, containerDiceRoll, index, blockButtonReRoll)
     const arrPathTexture = spriteCube._texture.label.split("/");
     const numberOfFace = Number(arrPathTexture[0].slice(0, arrPathTexture[0].indexOf('f')));
     if (numberOfFace <= 6) { arrPathTexture.push('cubeOfVillage'); }
-    else if (numberOfFace > 12) { arrPathTexture.push('cubeOfMainBuilding'); }
-    else  { arrPathTexture.push('cubeOfGrandee'); }
-
+    else if (numberOfFace <= 12)  { arrPathTexture.push('cubeOfGrandee'); }
+    else if (numberOfFace <= 18) { arrPathTexture.push('cubeOfMainBuilding'); }
+    else { arrPathTexture.push('cubeOfBarrack'); }
+ 
     const infoAboutCube = {
         cube: spriteCube,
         typeCube: arrPathTexture[1],

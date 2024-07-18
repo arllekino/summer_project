@@ -368,8 +368,10 @@ export async function main(allContainer, app, island) {
             farm: 0,
             warehouse: 0,
             Castle: 0,
+            barrack: 0,
         },
         illObjects: {
+            barrack: 0,
             Castle: 0,
             houseVillage: 0,
             houseGrendee: 0,

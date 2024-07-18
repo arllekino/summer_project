@@ -171,8 +171,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				}
 			}
 			if ((textureName === 'barracks.png') && !island.buildingMoment) {
-				console.log('Барак появился');
-				const requiredResources = {stone: 2, hammer: 1};
+				const requiredResources = {stone: 0, hammer: 0};
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true
