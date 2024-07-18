@@ -7,4 +7,5 @@ export const Game = {
     warehouseAmountOfAdding: 6,
     playerReady: false,
     timeStage: 0,
+    isAllPlayersReady: false,
 }

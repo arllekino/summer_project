@@ -6,6 +6,7 @@ export async function WaitingForPlayers(arrPlayersId) {
         webSocketObject.webSocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             arrPlayersId.arr = data.arrPlayersId;
+            console.log(arrPlayersId.arr);
         };
     }
     else {

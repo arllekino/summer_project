@@ -394,9 +394,6 @@ export async function main(allContainer, app, island, idUser) {
     const rules = new Rules(app);
 
     MakePlayersNotReady();
-    const isAllPlayersReady = {
-        state: false,
-    };
 
     const arrPlayersId = {
         arr: [],
@@ -409,12 +406,10 @@ export async function main(allContainer, app, island, idUser) {
     await Promise.all([promiseForStartStage]);
     
     SendPlayerId(arrPlayersId, idUser);
-    while (!isAllPlayersReady.state) {
+    while (!Game.isAllPlayersReady) {
         const userIDInLobby = await getUsersIds();
-        console.log(arrPlayersId.arr);
-        console.log(userIDInLobby);
         if (userIDInLobby.length === arrPlayersId.arr.length) {
-            isAllPlayersReady.state = true;
+            Game.isAllPlayersReady = true;
         }
     }
     const promiseForWaitingForPlayers = new Promise(function(resolve) {
@@ -423,14 +418,16 @@ export async function main(allContainer, app, island, idUser) {
         }, 500);
     });
     await Promise.all([promiseForWaitingForPlayers]);
+    Game.isAllPlayersReady = false;
     
     while (true) {
 
         stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, blocks.buildings);
         const promiseForResources = new Promise(function(resolve) {
-            startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags);
+            startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser);
         });
         await Promise.all([promiseForResources]);
+        Game.isAllPlayersReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -450,6 +447,8 @@ export async function main(allContainer, app, island, idUser) {
             startTimerForStage(Game.timeStageForDisasters, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })
         await Promise.all([promiseForDisasters]);
+        Game.isAllPlayersReady = false;
+
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
         //         startTimerForStage(5, allContainer.wheelBlock, Game.stage, resolve, app, flags);
@@ -465,6 +464,8 @@ export async function main(allContainer, app, island, idUser) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })
         await Promise.all([promiseForBuildings]);
+        Game.isAllPlayersReady = false;
+
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
         //         startTimerForStage(5, allContainer.wheelBlock, Game.stage, resolve, app, flags);
@@ -479,6 +480,7 @@ export async function main(allContainer, app, island, idUser) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags);
         })
         await Promise.all([promiseForBattles]);
+        Game.isAllPlayersReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
