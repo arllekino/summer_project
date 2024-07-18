@@ -6,7 +6,7 @@ const urlRequests = {
     sendField: "/create_map",
     getField: "/find_map",
     getUserNumber: "/find_username",
-    getPlayerIds: "/get_ids_players"
+    getPlayerIds: "/get_player_ids"
 }
 
 async function GetCountOfUsers() {
