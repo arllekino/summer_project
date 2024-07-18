@@ -1,4 +1,6 @@
 import { Game } from "./classes/game.js";
+import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
+import { getUsersIds } from "./formationOfGame.js";
 
 function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     const ticker = new PIXI.Ticker;
@@ -38,7 +40,7 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
 }
 
 
-export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser) {
+export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser, arrPlayersId) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
     let waitingForPlayers = null;
@@ -50,9 +52,6 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags,
     textTimer.x = app.screen.width * percentageScreenWidth;
     textTimer.y = app.screen.height * percentageScreenHeight;
     app.stage.addChild(textTimer);
-    const arrPlayersId = {
-        arr: [],
-    };
 
     function Ready(event) {
         SendPlayerId(arrPlayersId, idUser);
@@ -72,10 +71,10 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags,
         if (!waitingForPlayers && Game.playerReady)
         {
             Game.playerReady = false;
-            const waitingForPlayers = setInterval(async () => {
+            waitingForPlayers = setInterval(async () => {
                 const userIDInLobby = await getUsersIds();
                 if (userIDInLobby.length === arrPlayersId.arr.length) {
-                    isAllPlayersReady.state = true;
+                    Game.isAllPlayersReady = true;
                     textTimer.text = "";
                     clearInterval(timer);
                     clearInterval(waitingForPlayers);
