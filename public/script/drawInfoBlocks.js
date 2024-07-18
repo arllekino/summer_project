@@ -170,6 +170,21 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 					island.buldingObject.renderMatrixPattern(app);
 				}
 			}
+			if ((textureName === 'barracks.png') && !island.buildingMoment) {
+				console.log('Барак появился');
+				const requiredResources = {stone: 2, hammer: 1};
+				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
+				{
+					island.buildingMoment = true
+					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Barrack', 'barrack', {}, 1, 100, 0, 2, 25, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+					island.buldingObject.setMatrixPattern([
+						[1, 1, 0],
+						[0, 1, 1],
+						[0, 1, 1],
+					])
+					island.buldingObject.renderMatrixPattern(app);
+				}
+			}
 			if ((textureName === 'farm.png') && !island.buildingMoment) {
 				const requiredResources = {wood: 1, hammer: 1};
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
@@ -291,7 +306,6 @@ export function UpdateNumberOfResources(allTextResources, resourcesOfUser, build
 			}
 			allTextResources[key].text = `${resourcesOfUser.wood}/${resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
-		console.log(buildings.warehouse)
 		if (key === "textForStone") {
 			if (resourcesOfUser.stone > resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse) {
 				resourcesOfUser.stone = resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse;

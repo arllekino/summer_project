@@ -219,7 +219,7 @@ export function GetBoundsForIsland(iter, bounds) {
     }
 }
 
-function InsertIslandIntoField(iter, matrixOfField) {
+function InsertIslandIntoField(iter, matrixOfField, playerField) {
     console.log(iter);
     const dimensions = {
         x: islandTemplate[0].length,
@@ -238,15 +238,18 @@ function InsertIslandIntoField(iter, matrixOfField) {
         bounds.iterXOfField = bounds.startXOfFiled;
         for (let iterX = 0; iterX < dimensions.x; iterX++, bounds.iterXOfField++) {
             console.log(bounds);
+            playerField.push(bounds.iterXOfField)
             matrixOfField[bounds.iterYOfField][bounds.iterXOfField] = islandTemplate[iterY][iterX];
         }
     }
+    console.log(playerField);
 }
 
-function InsertIslandsIntoField(obj, matrixOfField, resolve) {
-    console.log(obj);
+async function InsertIslandsIntoField(obj, matrixOfField, playerFields, resolve) {
+    const playerIds = await getUsersIds();
+    playerIds.sort();
     for (let iter = 0; iter < obj.countOfUser; iter++) {
-        InsertIslandIntoField(iter, matrixOfField);
+        InsertIslandIntoField(iter, matrixOfField, playerFields.playerIds[iter]);
     }
     resolve();
 }
@@ -254,6 +257,7 @@ function InsertIslandsIntoField(obj, matrixOfField, resolve) {
 export async function FormationOfGame() {
     const status = await CheckStatusOfUserInLobby();
     let matrixOfField = [];
+    const playerFields = {};
     if (status === "host") {
         const countOfUser = await GetCountOfUsers();
         const obj = {
@@ -261,7 +265,7 @@ export async function FormationOfGame() {
         }
         matrixOfField = MakeField(obj);
         const promise = new Promise(function(resolve) {
-            InsertIslandsIntoField(obj, matrixOfField, resolve);
+            InsertIslandsIntoField(obj, matrixOfField, playerFields, resolve);
         });
         await Promise.all([promise]);
         console.log(matrixOfField);

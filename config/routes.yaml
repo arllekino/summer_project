@@ -67,7 +67,7 @@ is_all_players_ready:
   methods: POST
   controller: App\Controller\LobbyPlaceController::isAllPlayersReady
 get_ids_players:
-  path: /get_ids_players
+  path: /get_player_ids
   methods: POST
   controller: App\Controller\LobbyPlaceController::getPlayersIdsInLobby
 make_players_not_ready:
