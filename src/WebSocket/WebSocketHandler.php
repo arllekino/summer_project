@@ -29,21 +29,17 @@ class WebSocketHandler implements MessageComponentInterface
     {
         $this->clients->attach($connection);
 
-        $i = 0;
-        foreach ($this->onDeletePlayers as $onDeletePlayer)
+        foreach ($this->onDeletePlayers as $key => $onDeletePlayer)
         {
             if ($onDeletePlayer['client'] === $connection)
             {
-                unset($this->onDeletePlayers[$i]);
+                unset($this->onDeletePlayers[$key]);
             }
-            $i++;
         }
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        // echo "\n" . $msg . "\n\n";
-
         $data = json_decode($msg, true);
 
         if ($data['type'] === 'heartbeat')
@@ -51,13 +47,21 @@ class WebSocketHandler implements MessageComponentInterface
             if (!empty($this->onDeletePlayers))
             {
                 $currentTime = time();
-                foreach ($this->onDeletePlayers as $onDeletePlayer)
+                foreach ($this->onDeletePlayers as $key => $onDeletePlayer)
                 {
-                    if ($currentTime - $onDeletePlayer['time'] >= self::ON_DELETE_TIME)
+                    var_dump($currentTime - $onDeletePlayer['time']);
+                    if ($onDeletePlayer['time'] !== null)
                     {
-                        $room = $this->rooms[$data['key_room']];
-                        $userId = array_search($onDeletePlayer['client'], $room);
-                        $this->deletePlayerFromRoom($room, $userId);
+                        if ($currentTime - $onDeletePlayer['time'] >= self::ON_DELETE_TIME)
+                        {
+                            $room = $this->rooms[$data['key_room']];
+                            $userId = array_search($onDeletePlayer['client'], $room);
+                            if ($userId)
+                            {
+                                $this->deletePlayerFromRoom($room, $userId);
+                            }
+                            unset($this->onDeletePlayers[$key]);
+                        }
                     }
                 }
             }
@@ -71,24 +75,26 @@ class WebSocketHandler implements MessageComponentInterface
             $this->roomStatuses[$data['key_room']] = self::LOBBY_STATUS;
         }
         
-        foreach ($this->clients as $client)
+        if ($data['type'] !== 'heartbeat')
         {
-            if ($from !== $client)
+            foreach ($this->clients as $client)
             {
-                // var_dump($data['key_room']);
-                // if (in_array($client, $this->rooms[$data['key_room']]))
-                // {
-                    $client->send($msg);
-                // }
-            } 
-            else 
-            {         
-                if ($data['type'] === 'new_player')
+                if ($from !== $client)
                 {
-                    $this->rooms[$data['key_room']][$data['user_id']] = $client;
+                    if (in_array($client, $this->rooms[$data['key_room']]))
+                    {
+                        $client->send($msg);
+                    }
+                } 
+                else 
+                {         
+                    if ($data['type'] === 'new_player')
+                    {
+                        $this->rooms[$data['key_room']][$data['user_id']] = $client;
+                    }
                 }
-            }
-        }    
+            }    
+        }
     }
 
     public function onClose(ConnectionInterface $connection)
@@ -133,20 +139,3 @@ class WebSocketHandler implements MessageComponentInterface
         }
     }
 }
-// foreach ($this->clients as $client)
-// {
-//     if ($connection === $client)
-//     {
-//         foreach ($this->rooms as $room)
-//         {
-//             if (in_array($client, $room))
-//             {
-//                 $key = array_search($client, $room);
-//                 unset($room[$key]);
-//                 $this->playerLeft($room, $key);
-//                 break;
-//             }
-//         }
-//         break;
-//     }
-// }

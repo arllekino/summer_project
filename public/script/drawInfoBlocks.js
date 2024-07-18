@@ -79,7 +79,7 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	container.visible = true;
 	container.zIndex = 10000;
 	const textureBackgroundLeft = await PIXI.Assets.load(
-		"/../assets/textures/diceRoll.svg",
+		"/../assets/textures/diceRoll.png",
 	);
 	const blockLeave = new PIXI.Sprite(textureBackgroundLeft);
 	container.addChild(blockLeave);
@@ -96,7 +96,7 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	containerCubes.y = container.height * percentageScreenHeightCubes;
 
 	const textureButton = await PIXI.Assets.load(
-		"/../assets/textures/buttonReRoll.svg",
+		"/../assets/textures/buttonReRoll.png",
 	);
 	blockButtonReRoll._texture = textureButton;    
     container.addChild(blockButtonReRoll);
