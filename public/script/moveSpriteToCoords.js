@@ -1,13 +1,13 @@
-import { mouseDistanceInContainer, mouseIntersects, mouseIntersectsInContainer } from "./classes/CommonFunctions.js";
+import { mouseDistanceInContainer, mouseIntersects, mouseIntersectsInContainer, mouseDistance } from "./classes/CommonFunctions.js";
 import { Game } from "./classes/game.js";
 import { Rect } from "./classes/Quadtree.js";
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
-    return cells[numberOfCellY * 20 + numberOfCellX].getBounds().x + cells[numberOfCellY * 20 + numberOfCellX].getBounds().width / 2;
+    return cells[numberOfCellY * 50 + numberOfCellX].getBounds().x + cells[numberOfCellY * 50 + numberOfCellX].getBounds().width / 2;
 }
 
 function GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
-    return cells[numberOfCellY * 20 + numberOfCellX].getBounds().y + cells[numberOfCellY * 20 + numberOfCellX].getBounds().height / 2;
+    return cells[numberOfCellY * 50 + numberOfCellX].getBounds().y + cells[numberOfCellY * 50 + numberOfCellX].getBounds().height / 2;
 }
 
 async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, numberOfCellY, containerForMap) {
@@ -187,29 +187,39 @@ function CreateCellForAlg(costPath, approximateCostPath, x, y, previousX, previo
     }
 }
 
-function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
-    const shortWay = [];
+function TheseCellsTheSame(cell1, cell2) {
+    if (cell1.x === cell2.x && cell1.y === cell2.y) {
+        return true;
+    }
+    return false;
+}
 
+function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
+    const calculatedCells = [];
+
+    const dirtyShortWay = [];
+    const consideredCells = [];
+    
     const cellStart = CreateCellForAlg(0, -1, coordsStart.x, coordsStart.y, -1, -1);
     cellStart.approximateCostPath = CalculateDistance(coordsStart, coordsEnd, worldMatrix);
-    shortWay.push(cellStart);
+    dirtyShortWay.push(cellStart);
 
     const currentCoords = {
         x: 0,
         y: 0,
         diagonalMovement: false,
     };
-
+    
     let pathHasBeenFound = false;
     while (!pathHasBeenFound) {
         const cellsAround = [];
-        const previousCell = shortWay[shortWay.length - 1];
+        const previousCell = dirtyShortWay[dirtyShortWay.length - 1];
         for (let iter = 0; iter < 9; iter++) {
             SetCoords(currentCoords, { x: previousCell.x, y: previousCell.y }, iter);
             if (currentCoords.x < 0 || currentCoords.y < 0) {
                 continue;
             }
-            if (currentCoords.x > 19 || currentCoords.y > 19) {
+            if (currentCoords.x > 50 || currentCoords.y > 50) {
                 continue;
             }
             if (currentCoords.x === previousCell.x && currentCoords.y === previousCell.y) {
@@ -226,9 +236,20 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
             else {
                 costPath = 1;
             }
+            let isCellConsidered = false;
+            for (let iterForConsideredCell = 0; iterForConsideredCell < consideredCells.length; iterForConsideredCell++) {
+                if (TheseCellsTheSame(consideredCells[iterForConsideredCell], cell)) {
+                    isCellConsidered = true;
+                    break;
+                }
+            }
+            if (isCellConsidered) {
+                continue;
+            }
             cell.costPath = costPath + previousCell.costPath;
             cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEnd, worldMatrix);
             cellsAround.push(cell);
+            calculatedCells.push(cell);
         }
         let cellWithTheSmallestPath = cellsAround[0];
         cellsAround.forEach(cell => {
@@ -236,13 +257,51 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells) {
                 cellWithTheSmallestPath = cell;
             }
         })
+        if (!cellWithTheSmallestPath) {
+            pathHasBeenFound = true;
+            break;
+        }
         if (cellWithTheSmallestPath.x === coordsEnd.x && cellWithTheSmallestPath.y === coordsEnd.y) {
             pathHasBeenFound = true;
         }
-        shortWay.push(cellWithTheSmallestPath);
+        consideredCells.push(cellWithTheSmallestPath);
+        let isCellCalculated = false;
+        let calculatedCell;
+        for (let iter = 0; iter < calculatedCells.length; iter++) {
+            if (TheseCellsTheSame(cellWithTheSmallestPath, calculatedCells[iter])) {
+                isCellCalculated = true;
+                calculatedCell = calculatedCells[iter];
+                break;
+            }
+        }
+        debugger;
+        if (isCellCalculated) {
+            dirtyShortWay.push(calculatedCell);
+        }
+        else {
+            dirtyShortWay.push(cellWithTheSmallestPath);
+        }
     }
 
-    return shortWay;
+    const shortWay = [];
+    shortWay.push(dirtyShortWay[dirtyShortWay.length - 1]);
+    for (let iter = dirtyShortWay.length - 2; iter >= 0; iter--) {
+        for (let iter2 = iter; iter2 >= 0; iter2--) {
+            if (shortWay[shortWay.length - 1].previousX === dirtyShortWay[iter2].x && shortWay[shortWay.length - 1].previousY === dirtyShortWay[iter2].y) {
+                shortWay.push(dirtyShortWay[iter2]);
+                iter = iter2;
+                break;
+            }
+        }
+    }
+
+    const reversedShortWay = shortWay.reverse();
+
+    reversedShortWay.forEach((cellShortWay) => {
+        cells[cellShortWay.y * 50 + cellShortWay.x].okField();
+    });
+
+    return reversedShortWay;
 }
 
 function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, sprite, resolve) {
@@ -317,31 +376,32 @@ async function MoveSprite(sprite, shortWay, cells, isShipSailingBack, resolve) {
     resolve();
 }
 
-export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildingPressed, containerForMap) {
+export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildingPressed, containerForMap, clickedBuilding) {
     document.addEventListener("pointerdown", function getCoordsFromMatrix(event) {
         if (Game.stage === 4) {
             let minDist = 99999;
             let minDistObject = null;
             buildings.forEach((building) => {
-                if (mouseDistance(event, building) < minDist && mouseIntersects(event, building)) {
-                    minDist = mouseDistance(event, building);
+                if (mouseDistanceInContainer(event, building, containerForMap) < minDist && mouseIntersectsInContainer(event, building, containerForMap))
+                {
+                    minDist = mouseDistanceInContainer(event, building, containerForMap);
                     minDistObject = building;
                 }
-            });
-
+            })
             if (minDistObject) {
                 isBuildingPressed.state = true;
                 console.log(minDistObject);
                 minDistObject.__cellsStatus[4].errorField();
                 const index = cells.indexOf(minDistObject.__cellsStatus[4]);
-                coords.x = index % 20;
-                coords.y = (index - coords.x) / 20;
-                resolve(minDistObject);
-            } else {
-                resolve(null);
+                coords.x = index % 50;
+                coords.y = (index - coords.x) / 50;
+                clickedBuilding.building = minDistObject;
+                resolve();
             }
-        } else {
-            resolve(null);
+            resolve();
+        }
+        else {
+            resolve();
         }
         this.removeEventListener("pointerdown", getCoordsFromMatrix);
     });
@@ -361,6 +421,7 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
         cellForShip.setDirectPositions(position.x + 20 - 40, position.y + 20 - 40);
 
         let intersectedCells = quadTree.query(new Rect(cellForShip.x, cellForShip.y, 5, 5)) 
+        console.log(intersectedCells);
         if (cellBefore === null && intersectedCells.length > 0)
         {
             cellBefore = intersectedCells[0];
@@ -380,23 +441,24 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
             let MiddleLeftCellIsland = false;
             let MiddleRightCellIsland = false;
             let DownMiddleCellIsland = false;
-            if (cells[index - 20]) {
-                TopMiddleCellIsland = (cells[index - 20].getType() === 1 || cells[index - 20].getType() === 2);
+            if (cells[index - 50]) {
+                TopMiddleCellIsland = (cells[index - 50].getType() === 1 || cells[index - 50].getType() === 2);
             }
             if (cells[index - 1]) {
-                MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 20].getType() === 2);
+                MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 1].getType() === 2);
             }
             if (cells[index + 1]) {
-                MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index - 20].getType() === 2);
+                MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index + 1].getType() === 2);
             }
-            if (cells[index + 20]) {
-                DownMiddleCellIsland = (cells[index + 20].getType() === 1 || cells[index - 20].getType() === 2);
+            if (cells[index + 50]) {
+                DownMiddleCellIsland = (cells[index + 50].getType() === 1 || cells[index + 50].getType() === 2);
             }
             if ((intersectedCells[0].getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
                 intersectedCells[0].okField();
                 cellForShipFromMap.cell = intersectedCells[0];
-                coords.x = index % 20;
-                coords.y = (index - coords.x) / 20;
+                console.log(coords, "asiudgasjdk");
+                coords.x = index % 50;
+                coords.y = (index - coords.x) / 50;
                 isThisRightCell.state = true;
             }
         }
@@ -417,7 +479,8 @@ export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip
 export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, containerForMap) {
     const rect = new PIXI.Sprite();
     DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y, containerForMap);
-    
+    console.log(coordsEnd, coordsStart);
+    cells[coordsEnd.y * 50 + coordsEnd.x].okField();
     const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells);
     const promiseForward = new Promise(function (resolve) {
         MoveSprite(rect, shortWay, cells, false, resolve);

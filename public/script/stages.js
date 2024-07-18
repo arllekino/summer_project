@@ -11,7 +11,7 @@ import { Rules } from "./classes/Rules.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
-import { ChoiceEndCoords, MoveWarrior } from "./warrior.js";
+import { ChoiceEndCoords, MoveWarrior } from "./moveWarrior.js";
 import { CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
 import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
@@ -250,29 +250,18 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         y: 0,
     }
 
-    let clickedBuilding = null;
+    const clickedBuilding = {
+        building: null,
+    };
 
     while (!isBuildingPressed.state) {
         const promise = new Promise(function(resolve) {
-            GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed, allContainer.containerForMap);
+            GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed, allContainer.containerForMap, clickedBuilding);
         });
         await Promise.all([promise]);
 
         if (Game.stage !== 4) {
             isBuildingPressed.state = true;
-        } else {
-            clickedBuilding = await promise.then(async (resolve) => {
-                return await resolve;
-            });
-
-            console.log('clickedBuilding', clickedBuilding);
-
-            if (clickedBuilding) {
-                isBuildingPressed.state = true;
-                break;
-            } else {
-                console.log("Здание не найдено");
-            }
         }
     }
 
@@ -488,7 +477,7 @@ export async function main(allContainer, app, island, idUser) {
         // }
 
         Game.stage++;
-        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer);
+        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors);
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })

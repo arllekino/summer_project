@@ -1,11 +1,11 @@
 import { Warrior } from './classes/Warrior.js';
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
-    return cells[numberOfCellY * 20 + numberOfCellX].getBounds().x + cells[numberOfCellY * 20 + numberOfCellX].getBounds().width / 2;
+    return cells[numberOfCellY * 50 + numberOfCellX].getBounds().x + cells[numberOfCellY * 50 + numberOfCellX].getBounds().width / 2;
 }
 
 function GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
-    return cells[numberOfCellY * 20 + numberOfCellX].getBounds().y + cells[numberOfCellY * 20 + numberOfCellX].getBounds().height / 2;
+    return cells[numberOfCellY * 50 + numberOfCellX].getBounds().y + cells[numberOfCellY * 50 + numberOfCellX].getBounds().height / 2;
 }
 
 async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numberOfCellY) {
@@ -51,7 +51,7 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
             cellWithTheSmallestPath1 = cell;
         }
     })
-    if (cells[cellWithTheSmallestPath1.y * 20 + cellWithTheSmallestPath1.x].__ptrTower !== -1) {
+    if (cells[cellWithTheSmallestPath1.y * 50 + cellWithTheSmallestPath1.x].__ptrTower !== -1) {
         const currentCoords = {
             x: 0,
             y: 0,
@@ -66,7 +66,7 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
             if (worldMatrix[currentCoords.y][currentCoords.x] === 0) {
                 continue;
             }
-            if (cells[currentCoords.y * 20 + currentCoords.x].__ptrTower !== -1) {
+            if (cells[currentCoords.y * 50 + currentCoords.x].__ptrTower !== -1) {
                 continue;
             }
             const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, cellWithTheSmallestPath1.x, cellWithTheSmallestPath1.y);
@@ -95,7 +95,7 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
 function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells) {
     let distanceX = 0;
     for (let iter = minX; iter < maxX; iter++) {
-        let cellIndex = minY * 20 + iter;
+        let cellIndex = minY * 50 + iter;
         if (worldMatrix[minY][iter] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceX += 1;
@@ -112,7 +112,7 @@ function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatri
 function CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix, cells) {
     let distanceX = 0;
     for (let iter = minX; iter < maxX; iter++) {
-        let cellIndex = maxY * 20 + iter;
+        let cellIndex = maxY * 50 + iter;
         if (worldMatrix[maxY][iter] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceX += 1;
@@ -129,7 +129,7 @@ function CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix
 function CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatrix, cells) {
     let distanceY = 0;
     for (let iter = minY; iter < maxY; iter++) {
-        let cellIndex = iter * 20 + minX;
+        let cellIndex = iter * 50 + minX;
         if (worldMatrix[iter][minX] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceY += 1;
@@ -146,7 +146,7 @@ function CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatri
 function CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, maxX, worldMatrix, cells) {
     let distanceY = 0;
     for (let iter = minY; iter < maxY; iter++) {
-        let cellIndex = iter * 20 + maxX;
+        let cellIndex = iter * 50 + maxX;
         if (worldMatrix[iter][maxX] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceY += 1;
@@ -303,7 +303,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells) {
             if (worldMatrix[currentCoords.y][currentCoords.x] !== 1 && worldMatrix[currentCoords.y][currentCoords.x] !== 2) {
                 continue;
             }
-            if (cells[currentCoords.x + currentCoords.y * 20].__ptrTower !== -1) {
+            if (cells[currentCoords.x + currentCoords.y * 50].__ptrTower !== -1) {
                 continue;
             }
             const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, previousCell.x, previousCell.y);
@@ -377,34 +377,34 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells) {
     const reversedShortWay = shortWay.reverse();
 
     reversedShortWay.forEach((cellShortWay) => {
-        cells[cellShortWay.y * 20 + cellShortWay.x].okField();
+        cells[cellShortWay.y * 50 + cellShortWay.x].okField();
     });
 
     return reversedShortWay;
 }
 
 async function DestroyBuilding(app, buildings, clickedBuilding, warrior, shortWay, cells) {
-    if (clickedBuilding) {
-        console.log('HP здания:', clickedBuilding.__hp);
+    if (clickedBuilding.building) {
+        console.log('HP здания:', clickedBuilding.building.__hp);
 
-        const hpText = new PIXI.Text(`${clickedBuilding.name}: ${clickedBuilding.__hp}`, {
+        const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
             fontSize: 16,
             fill: 0xffff00,
             align: 'center'
         });
         hpText.zIndex = 500;
-        hpText.x = clickedBuilding.__sprite.x + clickedBuilding.__sprite.width / 2 - hpText.width / 2;
-        hpText.y = clickedBuilding.__sprite.y - 5;
+        hpText.x = clickedBuilding.building.__sprite.x + clickedBuilding.building.__sprite.width / 2 - hpText.width / 2;
+        hpText.y = clickedBuilding.building.__sprite.y - 5;
         app.stage.addChild(hpText);
 
         await new Promise(resolve => setTimeout(resolve, 200)); // Ждем 300 мс, чтобы текст с HP был виден
 
         let damageText = null;
 
-        while (clickedBuilding.__hp > 0) {
-            await warrior.attack(clickedBuilding);
-            console.log('HP здания после атаки:', clickedBuilding.__hp);
-            hpText.text = `${clickedBuilding.name}: ${clickedBuilding.__hp}`;
+        while (clickedBuilding.building.__hp > 0) {
+            await warrior.attack(clickedBuilding.building);
+            console.log('HP здания после атаки:', clickedBuilding.building.__hp);
+            hpText.text = `${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`;
 
             damageText = new PIXI.Text(`-${warrior.damage}`, {
                 fontSize: 16,
@@ -413,8 +413,8 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warrior, shortWa
                 alpha: 0
             });
             damageText.zIndex = 501;
-            damageText.x = clickedBuilding.__sprite.x + clickedBuilding.__sprite.width / 2 - damageText.width / 2;
-            damageText.y = clickedBuilding.__sprite.y - 5 - 20;
+            damageText.x = clickedBuilding.building.__sprite.x + clickedBuilding.building.__sprite.width / 2 - damageText.width / 2;
+            damageText.y = clickedBuilding.building.__sprite.y - 5 - 20;
             app.stage.addChild(damageText);
 
             for (let i = 0; i <= 10; i++) { // Анимация появления текста с уроном
@@ -435,12 +435,12 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warrior, shortWa
         warrior.sprite.visible = true;
         warrior.attackSprite.visible = false;
 
-        await animateBuildingDestruction(clickedBuilding.__sprite);
-        clickedBuilding.__sprite.destroy();
-        buildings.splice(buildings.indexOf(clickedBuilding), 1);
+        await animateBuildingDestruction(clickedBuilding.building.__sprite);
+        clickedBuilding.building.__sprite.destroy();
+        buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
 
-        for (const cellId in clickedBuilding.__cellsStatus) {
-            clickedBuilding.__cellsStatus[cellId].setPtrTower(-1);
+        for (const cellId in clickedBuilding.building.__cellsStatus) {
+            clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
         }
 
         const promiseBack = new Promise(function (resolve) {
