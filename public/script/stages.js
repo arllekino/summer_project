@@ -411,21 +411,16 @@ export async function main(allContainer, app, island, idUser) {
     SendPlayerId(arrPlayersId, idUser);
     while (!isAllPlayersReady.state) {
         const userIDInLobby = await getUsersIds();
-        console.log(arrPlayersId);
+        console.log(arrPlayersId.arr);
         console.log(userIDInLobby);
         if (userIDInLobby.length === arrPlayersId.arr.length) {
             isAllPlayersReady.state = true;
         }
     }
     const promiseForWaitingForPlayers = new Promise(function(resolve) {
-        const waitingForPlayers = setInterval(async () => {
-            let statusOfPlayer = await CheckReadinessOfPlayers();
-            if (statusOfPlayer) {
-                clearInterval(waitingForPlayers);
-                MakePlayersNotReady();
-                resolve();
-            }
-        }, 1000);
+        setTimeout(() => {
+            resolve();
+        }, 500);
     });
     await Promise.all([promiseForWaitingForPlayers]);
     

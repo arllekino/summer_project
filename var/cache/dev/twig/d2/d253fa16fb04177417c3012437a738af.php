@@ -268,6 +268,6 @@ class __TwigTemplate_47273ac1e54b7f5789a1edbbede5b8ac extends Template
 {% block javascripts %}
 \t<script type=\"module\" src=\"/script/websocket/lobby.js\"></script>
 {% endblock %}
-", "lobby_page.html.twig", "C:\\Users\\Anton\\EdgeOfFate\\main\\summer_project\\templates\\lobby_page.html.twig");
+", "lobby_page.html.twig", "D:\\GameProject\\summer_project\\templates\\lobby_page.html.twig");
     }
 }
