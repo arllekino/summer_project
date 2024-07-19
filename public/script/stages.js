@@ -203,6 +203,17 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
     })
 }
 
+function interruptBuilding(app, island)
+{
+    island.buildingSprite.tint = 0xffffff;
+    island.buldingObject.clearPatterns();
+    island.buldingObject.clearCellsStatus();
+    app.stage.on('pointermove', (event) => island.buldingObject.startMouseFollowing(event)).off('pointermove');
+    app.stage.removeChild(island.buldingObject.__sprite);
+    island.buldingObject.__sprite.destroy();
+    island.buildingMoment = false;
+}
+
 export async function stageBuilding(app, island, allTextResources, flags, blocks, containerForMap) {
     if (!flags['hummer'])
     {
@@ -215,13 +226,7 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     document.addEventListener("pointerdown", function (event) {
         if (event.button === 2 && !island.buldingObject.getStopMovingFlag() && Game.stage === 3) {
             event.preventDefault();
-            island.buildingSprite.tint = 0xffffff;
-            island.buldingObject.clearPatterns();
-            island.buldingObject.clearCellsStatus();
-            app.stage.on('pointermove', (event) => island.buldingObject.startMouseFollowing(event)).off('pointermove');
-            app.stage.removeChild(island.buldingObject.__sprite);
-            island.buldingObject.__sprite.destroy();
-            island.buildingMoment = false;
+            interruptBuilding(app, island);
         }
         if (event.button === 0 && island.buldingObject.getStopMovingFlag() && Game.stage === 3)
         {
@@ -469,6 +474,7 @@ export async function main(allContainer, app, island, idUser) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
         await Promise.all([promiseForBuildings]);
+        interruptBuilding(app, island);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
 
