@@ -18,6 +18,7 @@ export class Building
         this.interactivity = true;
         this.requiredResources = requiredResources;
         this.__droppingResources = {}
+        this.id = -1;
         Object.entries(requiredResources).forEach(([key, value]) => { 
             if (value !== 1) { value = Math.floor(value / 2); } 
             if (key == 'hammer') { value = 0}
@@ -240,6 +241,7 @@ export class Building
             this.clearPatterns();
             this.__sprite.zIndex = this.__sprite.y;
             this.__sprite.alpha = 1;
+            this.id = buildings.length + 1;
             buildings.push(this);
             containerForMap.addChild(this.__sprite);
             for (const resource in this.requiredResources)
