@@ -1,5 +1,5 @@
 import { Game } from "./classes/game.js";
-import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
+import { SendPlayerId } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
 
 function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
@@ -99,6 +99,7 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags,
             clearInterval(timer);
             waitingForPlayers = null;
             RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
+            resolve();  
         }
     }, 1000);
 }
