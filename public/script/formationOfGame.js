@@ -143,7 +143,6 @@ export const islandTemplate = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
 ];
 
-
 function MakeField(obj) {
     let widthOfField = 0;
     let heightOfField = 0;

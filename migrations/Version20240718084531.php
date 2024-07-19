@@ -82,6 +82,7 @@ final class Version20240718084531 extends AbstractMigration
         $tableIslandBuild->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $tableIslandBuild->addColumn('build_type', Types::STRING, ['length' => 50, 'notnull' => true]);
         $tableIslandBuild->addColumn('build_matrix' , Types::TEXT, ['notnull' => true]);
+        $tableIslandBuild->addColumn('build_ptr', Types::INTEGER, ['notnull' => true]);
         $tableIslandBuild->addColumn('illness', Types::BOOLEAN, ['notnull' => true]);
         $tableIslandBuild->addColumn('destroyed', Types::BOOLEAN, ['notnull' => true]);
         $tableIslandBuild->addColumn('key_room', Types::STRING, ['length' => 4, 'notnull' => true]);

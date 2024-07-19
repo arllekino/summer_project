@@ -11,6 +11,7 @@ class IslandBuild
     private int $hp;
     private BuildType $buildType;
     private string $buildMatrix;
+    private int $buildPtr;
     private bool $illness;
     private bool $destroyed;
     private string $keyRoom;
@@ -20,6 +21,7 @@ class IslandBuild
         int $hp,
         BuildType $buildType,
         string $buildMatrix,
+        int $buildPtr,
         bool $illness,
         bool $destroyed,
         string $keyRoom
@@ -29,6 +31,7 @@ class IslandBuild
         $this->hp = $hp;
         $this->buildType = $buildType;
         $this->buildMatrix = $buildMatrix;
+        $this->buildPtr = $buildPtr;
         $this->illness = $illness;
         $this->destroyed = $destroyed;
         $this->keyRoom = $keyRoom;
@@ -49,6 +52,10 @@ class IslandBuild
     public function getBuildMatrix(): string
     {
         return $this->buildMatrix;    
+    }
+    public function getBuildPtr(): int
+    {
+        return $this->buildPtr;
     }
     public function getIllness(): bool
     {

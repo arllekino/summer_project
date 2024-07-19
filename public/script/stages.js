@@ -128,10 +128,14 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
 }
 
 async function buildCastle(app, island, allTextResources, blocks, containerForMap) {
+    const dimensions = {
+        x: island.matrixOfIsland[0].length,
+        y: island.matrixOfIsland.length,
+    }
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap, dimensions, false);
         island.buldingObject.setMatrixPattern([
             [1, 1, 1],
             [1, 1, 1],
@@ -150,10 +154,14 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
     })
 }
 async function buildFarmerHouse(app, island, allTextResources, blocks, containerForMap) {
+    const dimensions = {
+        x: island.matrixOfIsland[0].length,
+        y: island.matrixOfIsland.length,
+    }
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap, dimensions, false);
         island.buldingObject.setMatrixPattern([
             [0, 0, 0],
             [0, 1, 0],
@@ -175,10 +183,14 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
 }
 
 async function buildFarm(app, island, allTextResources, blocks, containerForMap) {
+    const dimensions = {
+        x: island.matrixOfIsland[0].length,
+        y: island.matrixOfIsland.length,
+    }
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap, dimensions, false);
         island.buldingObject.setMatrixPattern([
             [1, 1, 0],
             [1, 1, 0],
@@ -357,7 +369,7 @@ export async function main(allContainer, app, island, idUser) {
 
     window.addEventListener('keydown', handleKeyDown);
 
-    let blocks = {
+    const blocks = {
         infoBox: new Infobox(app),
 
         buildings: {
@@ -396,7 +408,7 @@ export async function main(allContainer, app, island, idUser) {
     const arrPlayersId = {
         arr: [],
     }
-    WaitingForPlayers(arrPlayersId);
+    WaitingForPlayers(arrPlayersId, app, island, allTextResources, blocks, allContainer.containerForMap);
 
     const promiseForStartStage = new Promise(function(resolve) {
         StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
