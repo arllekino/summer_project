@@ -83,7 +83,6 @@ class WebSocketHandler implements MessageComponentInterface
                 {
                     if (in_array($client, $this->rooms[$data['key_room']]))
                     {
-                        var_dump($msg);
                         $client->send($msg);
                     }
                 } 
@@ -94,7 +93,7 @@ class WebSocketHandler implements MessageComponentInterface
                         $this->rooms[$data['key_room']][$data['user_id']] = $client;
                     }
                 }
-            }
+            }    
         }
     }
 
