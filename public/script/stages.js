@@ -392,9 +392,6 @@ export async function main(allContainer, app, island) {
 
 
     const rules = new Rules(app);
-<<<<<<< Updated upstream
-    await StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
-=======
     const promiseForStartStage = new Promise(function(resolve) {
         StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
     });
@@ -411,7 +408,6 @@ export async function main(allContainer, app, island) {
         }, 1000);
     });
     await Promise.all([promiseForWaitingForPlayers]);
->>>>>>> Stashed changes
 
     while (true) {
 

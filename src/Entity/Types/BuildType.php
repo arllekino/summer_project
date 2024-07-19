@@ -6,10 +6,10 @@ namespace App\Entity\Types;
 
 enum BuildType
 {
+    case Castle;
     case Farm;
     case Barrack;
     case Defence;
-    case Church;
 	case Wall;
 	case HousePeasant;
 	case HouseNobles;
