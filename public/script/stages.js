@@ -53,7 +53,10 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     })
     ObjectsBuildings.forEach((value) => {
         value.__sprite.alpha = 1;
-        value.interactivity = true;
+        if (value.getAlias() !== 'Castle')
+        {
+            value.interactivity = true;
+        }
     })
     // проверка на голодающих
     if (resourcesOfUser.wheat < 0)
@@ -61,7 +64,7 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
         for (let i = 0; i < Math.abs(resourcesOfUser.wheat); i++)
         {
             let building = getRandomElementFormList(ObjectsBuildings);
-            while (building.getAlias() === 'warehouse' && building in illList)
+            while (building.getAlias() === 'warehouse' && building.getAlias() === 'wall' && building in illList)
             {
                 building = getRandomElementFormList(ObjectsBuildings);
             }
@@ -138,6 +141,7 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
             [1, 1, 1],
         ])
         island.buldingObject.renderMatrixPattern(app);
+        island.buldingObject.interactivity = false;
         const checkCondition = () => {
             if (!island.buldingObject.getStopMovingFlag()) {
                 setTimeout(checkCondition, 100);

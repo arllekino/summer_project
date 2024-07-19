@@ -57,6 +57,7 @@ export class Destroyer
             })
             if (minDistObject)
             {
+                console.log(minDistObject);
                 this.__sprite.destroy();
                 this.deactivate();
                 resourcesOfUser['hammer'] -= 1;

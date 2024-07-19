@@ -47,10 +47,11 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags,
 
     const textTimer = new PIXI.Text();
     textTimer.style.fill = 0xFFFFFF;
-    const percentageScreenWidth = 0.494;
+    const percentageScreenWidth = 0.48;
 	const percentageScreenHeight = 0.02;
     textTimer.x = app.screen.width * percentageScreenWidth;
     textTimer.y = app.screen.height * percentageScreenHeight;
+    textTimer.zIndex = 99999999;
     app.stage.addChild(textTimer);
 
     function Ready(event) {

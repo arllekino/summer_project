@@ -486,7 +486,7 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             el.cube.visible = false;
 
             const numberFace = ChooseRandomFaceOFCube();
-            GetResourcesFromVillage(numberFace, resources);
+            GetResourcesFromGrandee(numberFace, resources);
 
             setTimeout(async () => {
                 const textureIconCube = PIXI.Texture.from(`${numberFace + 6}face.png`);
@@ -499,14 +499,11 @@ function ReRoll(containerDiceRoll, resources, resolve) {
             }, 1000);
         }
         if (el.typeCube === "cubeOfMainBuilding") {
-            console.log(resources);
-            console.log(el.numberOfFace);
             DeleteResourcesFromMainHouse(el.numberOfFace - 12, resources);
             el.cube.visible = false;
-            console.log(resources);
+
             const numberFace = ChooseRandomFaceOFCube();
             GetResourcesFromMainHouse(numberFace, resources);
-            console.log(resources);
             setTimeout(async () => {
                 const textureIconCube = PIXI.Texture.from(`${numberFace + 12}face.png`);
                 el.cube.texture = textureIconCube;
