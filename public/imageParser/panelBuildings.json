@@ -36,7 +36,7 @@
             "sourceSize": { "w": 50, "h": 50 }
         },
         "barracks.png": {
-            "frame": { "x": 200, "y": 0, "w": 50, "h": 50 },
+            "frame": { "x": 0, "y": 50, "w": 50, "h": 50 },
             "rotated": false,
             "trimmed": true,
             "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 50 },
@@ -44,7 +44,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/textures/panelBuildingSprites.png",
+        "image": "/images/panelBuildingSprites.png",
         "format": "RGBA8888",
         "size": { "w": 300, "h": 50 },
         "scale": "1"
