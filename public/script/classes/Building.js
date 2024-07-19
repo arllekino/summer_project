@@ -5,7 +5,7 @@ import { SendBuilding } from "../websocket/logicForStage.js";
 
 export class Building
 {
-    constructor(app, cells, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, blocks, containerForMap, dimensions, anotherBuilding)
+    constructor(app, cells, userBuildings, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, buildingCountsOfUser, containerForMap, dimensions, anotherBuilding)
     {
         this.__hp = hp;
         this.__defense = defense;
@@ -33,7 +33,7 @@ export class Building
         this.__bounds;
         this.initSprite(app);
         if (!anotherBuilding) {
-            window.addEventListener('click', () => this.mouseClick(app, buildings, resources, allTextResources, blocks, containerForMap, cells, dimensions));
+            window.addEventListener('click', () => this.mouseClick(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions));
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event, cells, quadTree));
         }
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
@@ -233,7 +233,7 @@ export class Building
         }
     }
 
-    displayBuildingOtherPlayer(buildings, resources, allTextResources, blocks, containerForMap) {
+    displayBuildingOtherPlayer(buildings, resources, allTextResources, containerForMap) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -248,18 +248,11 @@ export class Building
             this.id = buildings.length + 1;
             buildings.push(this);
             containerForMap.addChild(this.__sprite);
-            for (const resource in this.requiredResources)
-            {
-                resources[resource] -= this.requiredResources[resource];
-            }
-            resources['inhabitants'] += this.__peopleCount;
-            blocks.buildings[this.getAlias()] += 1;
-            UpdateNumberOfResources(allTextResources, resources, blocks.buildings);
             // selectedBuilding.tint = 0xffffff;
         }
     }
 
-    buildBuilding(app, buildings, resources, allTextResources, blocks, containerForMap, cells, dimensions) {
+    buildBuilding(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -275,14 +268,15 @@ export class Building
             this.__sprite.alpha = 1;
             this.id = buildings.length + 1;
             buildings.push(this);
+            userBuildings.push(this);
             containerForMap.addChild(this.__sprite);
             for (const resource in this.requiredResources)
             {
                 resources[resource] -= this.requiredResources[resource];
             }
             resources['inhabitants'] += this.__peopleCount;
-            blocks.buildings[this.getAlias()] += 1;
-            UpdateNumberOfResources(allTextResources, resources, blocks.buildings);
+            buildingCountsOfUser[this.getAlias()] += 1;
+            UpdateNumberOfResources(allTextResources, resources, buildingCountsOfUser);
             SendBuilding(this, cells, dimensions);
             // selectedBuilding.tint = 0xffffff;
         }
@@ -309,9 +303,9 @@ export class Building
         this.__cellsStatus = {};
     }
 
-    mouseClick(app, buildings, resources, allTextResources, blocks, containerForMap, cells, dimensions) {
+    mouseClick(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions) {
         if (!this.__stopMovingFlag) {
-            this.buildBuilding(app, buildings, resources, allTextResources, blocks, containerForMap, cells, dimensions);
+            this.buildBuilding(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions);
         }
     }
 }

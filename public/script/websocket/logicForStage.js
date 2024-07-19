@@ -85,7 +85,7 @@ function GetParamForBuilding(data, infoAboutBulding) {
     }
 }
 
-export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, blocks, containerForMap) {
+export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap) {
     if (webSocketObject.webSocket) {
         webSocketObject.webSocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -111,13 +111,13 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     y: island.matrixOfIsland.length,
                 }
                 console.log(infoAboutBulding);
-                const building = new Building(app, island.cells, island.buildings, island.quadTree, infoAboutBulding.name, infoAboutBulding.alias, infoAboutBulding.givingResource, infoAboutBulding.peopleCount, infoAboutBulding.hp, infoAboutBulding.defense, infoAboutBulding.buildType, infoAboutBulding.buildPtr, infoAboutBulding.requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap, dimensions, true);
+                const building = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTree, infoAboutBulding.name, infoAboutBulding.alias, infoAboutBulding.givingResource, infoAboutBulding.peopleCount, infoAboutBulding.hp, infoAboutBulding.defense, infoAboutBulding.buildType, infoAboutBulding.buildPtr, infoAboutBulding.requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, true);
                 console.log();
                 data.build_matrix.forEach((coord) => {
                     building.__cellsStatus[coord.index] = island.cells[coord.y * dimensions.y + coord.x];
                     building.__cellsStatus[coord.index].setCellId = coord.index;
                 });
-                building.displayBuildingOtherPlayer(island.buildings, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+                building.displayBuildingOtherPlayer(island.buildings, island.resourcesOfUser, allTextResources, containerForMap);
             }
         };
     }

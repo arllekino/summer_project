@@ -29,7 +29,7 @@ export class Destroyer
             this.activation = false;
         }
 
-        click(e, objects, buildings, resources, resourcesOfUser, allTextResources, blocks, containerForMap)
+        click(e, objects, buildings, resources, resourcesOfUser, allTextResources, buildingCountsOfUser, containerForMap)
         {
             if (!this.activation)
             {
@@ -62,14 +62,14 @@ export class Destroyer
                 resourcesOfUser['hammer'] -= 1;
                 if (minDistObject.constructor.name !== 'Resource')
                 {
-                    blocks.buildings[minDistObject.getAlias()] -= 1;
+                    buildingCountsOfUser[minDistObject.getAlias()] -= 1;
                     resourcesOfUser['inhabitants'] -= 1;
                 }
                 for (const resource in minDistObject.getDroppingResources())
                 {
                     resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
                 }
-                UpdateNumberOfResources(allTextResources, resourcesOfUser, blocks.buildings)
+                UpdateNumberOfResources(allTextResources, resourcesOfUser, buildingCountsOfUser)
                 if (minDistObject.__cellsStatus['-1'])
                 {
                     minDistObject.sprite.destroy();
@@ -99,7 +99,7 @@ export class Destroyer
         }
 }
 
-export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, resourcesOfUser, allTextResources, blocks, containerForMap) {
+export function AddEventListenersForHammer(hummer, buildings, resources, buildingMoment, app, resourcesOfUser, allTextResources, buildingCountsOfUser, containerForMap) {
     document.addEventListener('keypress', (e) => {
         const key = e.key;
         if (key === 'z' && !hummer.activation && Game.stage === 3 && resourcesOfUser['hammer'] > 0) {
@@ -116,5 +116,5 @@ export function AddEventListenersForHammer(hummer, buildings, resources, buildin
     //     }
     // })
     document.addEventListener('mousemove', (e) => hummer.followMouse(e), true)
-    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources, resourcesOfUser, allTextResources, blocks, containerForMap))
+    document.addEventListener('pointerdown', (e) => hummer.click(e, [...buildings, ...resources], buildings, resources, resourcesOfUser, allTextResources, buildingCountsOfUser, containerForMap))
 }
