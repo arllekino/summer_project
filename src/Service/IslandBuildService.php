@@ -51,7 +51,7 @@ class IslandBuildService
             $arrayIslandBuild = [
                 'build_id' => $islandBuild->getId(),
                 'hp' => $islandBuild->getHp(),
-                'build-type' => $islandBuild->getBuildType(),
+                'build_type' => $islandBuild->getBuildType(),
                 'build_matrix' => $islandBuild->getBuildMatrix(),
                 'illness' => $islandBuild->getIllness(),
                 'destroyed' => $islandBuild->getDestroyed()
