@@ -211,7 +211,7 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
     })
 }
 
-export async function stageBuilding(app, island, allTextResources, flags, containerForMap) {
+export async function stageBuilding(app, island, allTextResources, flags, blocks, containerForMap) {
     if (!flags['hummer'])
     {
         const hummer = new Destroyer(app)
@@ -390,14 +390,14 @@ export async function main(allContainer, app, island, idUser) {
     const arrPlayersId = {
         arr: [],
     }
-    WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap);
+    await WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap);
 
     const promiseForStartStage = new Promise(function(resolve) {
         StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
     })
     await Promise.all([promiseForStartStage]);
     
-    SendPlayerId(arrPlayersId, idUser);
+    await SendPlayerId(arrPlayersId, idUser);
     while (!Game.isAllPlayersReady) {
         const userIDInLobby = await getUsersIds();
         if (userIDInLobby.length === arrPlayersId.arr.length) {
@@ -422,6 +422,7 @@ export async function main(allContainer, app, island, idUser) {
         await Promise.all([promiseForResources]);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -431,9 +432,9 @@ export async function main(allContainer, app, island, idUser) {
         //     Game.playerReady = false;
         // }
         UpdateNumberOfResources(allTextResources, island.resourcesOfUser, island.buildingCountsOfUser);
-        setTimeout(() => {
+        ///setTimeout(() => {
             allContainer.containerForDiceRoll.visible = false;
-        }, 1500);
+        //}, 100);
         Game.stage++;
 
         stageDisasters(allTextResources, island.resourcesOfUser, island.buildingsOfUserIsland, island.buildingCountsOfUser, island.illObjects);
@@ -443,6 +444,7 @@ export async function main(allContainer, app, island, idUser) {
         await Promise.all([promiseForDisasters]);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -454,13 +456,14 @@ export async function main(allContainer, app, island, idUser) {
 
         Game.stage++;
 
-        stageBuilding(app, island, allTextResources, flags, allContainer.containerForMap);
+        stageBuilding(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
         await Promise.all([promiseForBuildings]);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -478,6 +481,7 @@ export async function main(allContainer, app, island, idUser) {
         await Promise.all([promiseForBattles]);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
