@@ -97,6 +97,31 @@ end_game:
   path: /end_game
   controller: App\Controller\GameController::endGame
 
+create_build:
+  path: /create_build
+  methods: POST
+  controller: App\Controller\IslandBuildController::createIslandBuild
+view_all_builds:
+  path: /view_all_builds
+  methods: GET
+  controller: App\Controller\IslandBuildController::viewAllBuilds
+set_hp_to_build:
+  path: set_hp_to_build
+  methods: POST
+  controller: App\Controller\IslandBuildController::setNewHpToBuild
+set_illness_to_build:
+  path: set_illness_to_build
+  methods: POST
+  controller: App\Controller\IslandBuildController::setIllnessToBuild
+unset_illness_to_build:
+  path: unset_illness_to_build
+  methods: POST
+  controller: App\Controller\IslandBuildController::unsetIllnessToBuild
+delete_build:
+  path: delete_build
+  methods: POST
+  controller: App\Controller\IslandBuildController::deleteBuild
+
 error_page:
   path: /error_page/{messageCode}
   methods: GET
