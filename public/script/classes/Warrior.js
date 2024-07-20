@@ -16,7 +16,7 @@ export class Warrior {
     this.sprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_1.png`));
     this.sprite.x = x;
     this.sprite.y = y;
-    this.sprite.zIndex = 10;
+    this.sprite.zIndex = 400;
     this.sprite.anchor.set(0.5);
     app.stage.addChild(this.sprite);
 
@@ -29,13 +29,13 @@ export class Warrior {
     app.stage.addChild(this.attackSprite);
   }
 
-  attack(target) {
+  attack(target, damage) {
     if (!this.attacking && target) {
       this.attacking = true;
 
       if (target) {
-        target.__hp -= this.damage;
-        console.log(this.name, 'атаковал', target.name, 'и нанес', this.damage, 'урона!');
+        target.__hp -= damage;
+        console.log(this.name, 'атаковал', target.name, 'и нанес', damage, 'урона!');
       }
 
       this.attackSprite.x = this.sprite.x;
