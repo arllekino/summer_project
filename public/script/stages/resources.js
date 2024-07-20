@@ -247,8 +247,6 @@ async function AddIconInInfoBlock(
 	pathToFile,
     icon,
 ) {
-    // console.log(containerCubes, containerDiceRoll, percentageScreenWidth, percentageScreenHeight, pathToFile, icon, 'iagdyuasgudgas');
-	// const textureIcon = await PIXI.Assets.load(pathToFile);
     icon.texture = pathToFile;
     console.log(pathToFile);
     icon.x = containerDiceRoll.width * percentageScreenWidth;

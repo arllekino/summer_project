@@ -364,7 +364,6 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells) {
     const shortWay = [];
     shortWay.push(dirtyShortWay[dirtyShortWay.length - 1]);
     for (let iter = dirtyShortWay.length - 2; iter >= 0; iter--) {
-        debugger;
         for (let iter2 = iter; iter2 >= 0; iter2--) {
             if (shortWay[shortWay.length - 1].previousX === dirtyShortWay[iter2].x && shortWay[shortWay.length - 1].previousY === dirtyShortWay[iter2].y) {
                 shortWay.push(dirtyShortWay[iter2]);
@@ -475,9 +474,6 @@ async function animateBuildingDestruction(buildingSprite) {
     }
     debrisSprite.destroy();
 }
-
-
-
 
 function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warrior) {
     const ticker = new PIXI.Ticker;

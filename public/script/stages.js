@@ -217,13 +217,15 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
 
 function interruptBuilding(app, island)
 {
-    island.buildingSprite.tint = 0xffffff;
-    island.buldingObject.clearPatterns();
-    island.buldingObject.clearCellsStatus();
-    app.stage.on('pointermove', (event) => island.buldingObject.startMouseFollowing(event)).off('pointermove');
-    app.stage.removeChild(island.buldingObject.__sprite);
-    island.buldingObject.__sprite.destroy();
-    island.buildingMoment = false;
+    if (island.buildingSprite) {
+        island.buildingSprite.tint = 0xffffff;
+        island.buldingObject.clearPatterns();
+        island.buldingObject.clearCellsStatus();
+        app.stage.on('pointermove', (event) => island.buldingObject.startMouseFollowing(event)).off('pointermove');
+        app.stage.removeChild(island.buldingObject.__sprite);
+        island.buldingObject.__sprite.destroy();
+        island.buildingMoment = false;
+    }
 }
 
 export async function stageBuilding(app, island, allTextResources, flags, blocks, containerForMap) {
@@ -285,7 +287,6 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
             isBuildingPressed.state = true;
         }
     }
-
     const stopMoving = {
         state: false,
     };
@@ -301,20 +302,28 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
     }
     if (isBuildingPressed.state && Game.stage === 4) {
         let cellForShip = new Cell(app, -1, 5);
+        function getCoordsOfShip(resolve) {
+            ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve);
+            if (Game.stage !== 4) {
+                resolve();
+            }
+            if (isThisRightCell.state) {
+                app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
+            }
+        }
         while (!stopMoving.state) {
             const promise = new Promise(function(resolve) {
-                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree))
-                setTimeout(() => {
-                    document.addEventListener("click", function getCoordsOfShip() {
-                        ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve);
-                        this.removeEventListener("click", getCoordsOfShip);
-                    });
-                }, 500);
-
+                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve));
+                app.stage.on("click", () => getCoordsOfShip(resolve));
+                if (Game.stage !== 4) {
+                    resolve();
+                }
             })
             await Promise.all([promise]);
             if (Game.stage !== 4) {
                 cellForShip = null;
+                app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");
+                app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
                 stopMoving.state = true;
             }
         }

@@ -274,7 +274,6 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions) {
                 break;
             }
         }
-        debugger;
         if (isCellCalculated) {
             dirtyShortWay.push(calculatedCell);
         }
@@ -390,7 +389,6 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
             })
             if (minDistObject) {
                 isBuildingPressed.state = true;
-                console.log(minDistObject);
                 minDistObject.__cellsStatus[4].errorField();
                 const index = cells.indexOf(minDistObject.__cellsStatus[4]);
                 coords.x = index % 50;
@@ -408,7 +406,7 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
 }
 
 let cellBefore = null;
-export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap, quadTree) {
+export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve) {
     if (cellForShip) {
         const position = {
             x: event.pageX,
@@ -421,7 +419,6 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
         cellForShip.setDirectPositions(position.x + 20 - 40, position.y + 20 - 40);
 
         let intersectedCells = quadTree.query(new Rect(cellForShip.x, cellForShip.y, 5, 5)) 
-        console.log(intersectedCells);
         if (cellBefore === null && intersectedCells.length > 0)
         {
             cellBefore = intersectedCells[0];
@@ -435,6 +432,10 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
                 cellBefore = intersectedCells[0];
             }
             intersectedCells[0].errorField();
+            if (Game.stage !== 4) {
+                intersectedCells[0].changeType(intersectedCells[0].getType());
+                resolve();
+            }
             isThisRightCell.state = false;
             const index = cells.indexOf(intersectedCells[0]);
             let TopMiddleCellIsland = false;
@@ -456,7 +457,6 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
             if ((intersectedCells[0].getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
                 intersectedCells[0].okField();
                 cellForShipFromMap.cell = intersectedCells[0];
-                console.log(coords, "asiudgasjdk");
                 coords.x = index % 50;
                 coords.y = (index - coords.x) / 50;
                 isThisRightCell.state = true;
@@ -466,9 +466,9 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
 }
 
 export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve) {
+    console.log(isThisRightCell, "1 hfp");
     if (isThisRightCell.state) {
         stopMoving.state = true;
-        console.log(cellForShipFromMap);
         cellForShipFromMap.cell.changeType(0);
         cellForShip = null;
         app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");

@@ -74,7 +74,6 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             container.addChild(cell.__sprite);
         })
     })
-    console.log(cellsOfUserIsland, "тут наш остров");
 }
 
 export function CreateIsland(worldMatrix) {

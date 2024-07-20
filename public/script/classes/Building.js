@@ -81,7 +81,6 @@ export class Building
         return PIXI.Texture.from(`building_${this.__buildPtr}.png`);
     }
     initSprite(app) {
-        console.log(this.__buildPtr);
         this.__sprite = new PIXI.Sprite(PIXI.Texture.from(`building_${this.__buildPtr}.png`));
         this.__sprite.zIndex = 500;
         this.__sprite.alpha = 0.3;
@@ -142,7 +141,6 @@ export class Building
 
     startMouseFollowing(event, cells, quadTree) {
         let position = event.data.global;
-        console.log(this.__eCells, "987");
         if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
         if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
         if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50);}
@@ -261,7 +259,6 @@ export class Building
             this.__stopMovingFlag = true;
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event)).off('pointermove');
             // this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
-            console.log(this.__cellsStatus);
             this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x  + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
             this.clearPatterns();
             this.__sprite.zIndex = this.__sprite.y;
