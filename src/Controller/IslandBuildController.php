@@ -34,6 +34,7 @@ class IslandBuildController extends AbstractController
             $data['hp'],
             $data['build_type'],
             $data['build_matrix'],
+            $data['build_ptr'],
             $sessionKeyRoom
         );
 

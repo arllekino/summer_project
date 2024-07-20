@@ -35,7 +35,6 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     textures = await PIXI.Assets.load("/../imageParser/warrior.json");
 
     island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree, island.quadTreeOfUserIsland, infoForUser.arrOfUserIdsInLobby);
-    
 
     main(allContainer, app, island, infoForUser.numberOfUser);
 
