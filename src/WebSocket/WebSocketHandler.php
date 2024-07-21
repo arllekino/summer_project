@@ -39,7 +39,7 @@ class WebSocketHandler implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $data = json_decode($msg, true);
-
+        var_dump($data);
         if ($data['type'] === 'heartbeat')
         {
             $currentTime = time();
@@ -49,11 +49,14 @@ class WebSocketHandler implements MessageComponentInterface
                 {
                     $lobby = $this->lobbies[$data['key_room']];
                     $game = $this->games[$data['key_room']];
-                    $room = $lobby ?? $game; 
-                    $userId = array_search($onDeletePlayer['client'], $room);
-                    if ($userId)
+                    $room = $lobby ?? $game;
+                    if ( $room !== null)
                     {
-                        $this->deletePlayerFromRoom($room, $userId);
+                        $userId = array_search($onDeletePlayer['client'], $room);
+                        if ($userId)
+                        {
+                            $this->deletePlayerFromRoom($room, $userId);
+                        }
                     }
                     unset($this->onDeletePlayers[$key]);
                 }
@@ -66,13 +69,14 @@ class WebSocketHandler implements MessageComponentInterface
             {
                 if ($from !== $client)
                 {
-                    if ($this->lobbies[$data['key_room']] !== null && in_array($client, $this->lobbies[$data['key_room']]))
+                    if (isset($this->lobbies[$data['key_room']]) && in_array($client, $this->lobbies[$data['key_room']]))
                     {
                         $client->send($msg);
                     }
                     if ($this->games[$data['key_room']] !== null && in_array($client, $this->games[$data['key_room']]))
                     {
                         $client->send($msg);
+                        var_dump('fuck you bitch');
                     }
                 } 
                 else 

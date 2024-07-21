@@ -142,7 +142,6 @@ export class Building
 
     startMouseFollowing(event, cells, quadTree) {
         let position = event.data.global;
-        console.log(this.__eCells, "987");
         if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
         if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
         if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50);}

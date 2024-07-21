@@ -1,7 +1,49 @@
 import { Building } from "../classes/Building.js";
 import { Cell } from "../classes/Cell.js";
 import { MakePlayerReady } from "../requestsForMainGame.js";
-import { webSocketObject } from "./lobby.js";
+// import { webSocketObject } from "./lobby.js";
+
+const webSocketObject = {
+    webSocket: null,
+}
+
+const ws = new WebSocket('ws://10.250.105.56:8080');
+
+let lobbyKey;
+
+let userId;
+
+ws.onopen = () => {
+    joinGame();
+}
+
+async function joinGame() {
+    let responseLobby = await fetch('/find_key_room', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    const dataLobby = await responseLobby.json();
+    lobbyKey = dataLobby.key_room;
+    
+    let responseUser = await fetch('/find_username', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    const dataUser = await responseUser.json();
+    userId = dataUser.id;
+
+    console.log('отправка');
+    ws.send(JSON.stringify({
+        from: 'game',
+        type: 'new_player',
+        user_id: userId,
+        key_room: lobbyKey,
+    }));
+}
 
 function GetParamForBuilding(data, infoAboutBulding) {
     switch (data.typeOfBuilding) {
@@ -86,10 +128,11 @@ function GetParamForBuilding(data, infoAboutBulding) {
 }
 
 export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap) {
-    if (webSocketObject.webSocket) {
-        webSocketObject.webSocket.onmessage = (event) => {
+    if (ws) {
+        console.log('ДАТА БЛЯ СУКА');
+        ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log(data);
+            console.log(data, 'ДАТА СУКА');
             if (data.type === "waiting") {
                 arrPlayersId.arr = data.arrPlayersId;
             }
@@ -127,24 +170,18 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
 }
 
 export async function SendPlayerId(arrPlayersId, idPlayer) {
-    if (webSocketObject.webSocket) {
+    if (ws) {
         arrPlayersId.arr.push(idPlayer);
         arrPlayersId.arr.sort();
-
-        let responseLobby = await fetch('/find_key_room', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            }
-        });
-        let lobbyData = await responseLobby.json();
+        
 
         const data = {
+            from: 'game',
             type: 'waiting',
             arrPlayersId: arrPlayersId.arr,
-            key_room: lobbyData.key_room,
+            key_room: lobbyKey,
         }
-        webSocketObject.webSocket.send(JSON.stringify(data));
+        ws.send(JSON.stringify(data));
         MakePlayerReady();
     }
     else {
@@ -153,7 +190,7 @@ export async function SendPlayerId(arrPlayersId, idPlayer) {
 }
 
 export async function SendBuilding(building, cells, dimensions) {
-    if (webSocketObject.webSocket) {
+    if (ws) {
         let responseLobby = await fetch('/find_key_room', {
             method: 'GET',
             headers: {
@@ -200,6 +237,7 @@ export async function SendBuilding(building, cells, dimensions) {
         }
 
         const data = {
+            from: 'game',
             type: 'building',
             hp: building.__hp,
             typeOfBuilding: typeOfBuilding,
@@ -208,7 +246,7 @@ export async function SendBuilding(building, cells, dimensions) {
             id: building.id,
             key_room: lobbyData.key_room,
         }
-        webSocketObject.webSocket.send(JSON.stringify(data));
+        ws.send(JSON.stringify(data));
     }
     else {
         console.log("соединение разорвалось");
