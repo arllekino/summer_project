@@ -179,7 +179,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				}
 			}
 			if ((textureName === 'barracks.png') && !island.buildingMoment) {
-				const requiredResources = {stone: 2, wood: 1, money: 2, hammer: 0};
+				const requiredResources = {stone: 2, wood: 1, money: 2, hammer: 1};
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true
@@ -188,6 +188,20 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 						[1, 1, 0],
 						[0, 1, 1],
 						[0, 1, 1],
+					])
+					island.buldingObject.renderMatrixPattern(app);
+				}
+			}
+			if ((textureName === 'tower.png') && !island.buildingMoment) {
+				const requiredResources = {stone: 2, wood: 2, money: 1, hammer: 1};
+				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
+				{
+					island.buildingMoment = true
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTree, 'Tower', 'tower', {}, 1, 100, 0, 2, 29, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false);
+					island.buldingObject.setMatrixPattern([
+						[0, 0, 0],
+						[0, 1, 0],
+						[0, 0, 0],
 					])
 					island.buldingObject.renderMatrixPattern(app);
 				}

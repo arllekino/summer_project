@@ -7,7 +7,7 @@ const webSocketObject = {
     webSocket: null,
 }
 
-const ws = new WebSocket('ws://10.250.105.56:8080');
+const ws = new WebSocket('ws://192.168.0.16:8080');
 
 let lobbyKey;
 
