@@ -583,8 +583,8 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
                 const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
 
                 // Смещение по X в разные стороны
-                offsetX = (groupIndex % 2 === 0) ? 5 : -5; // Вправо для четных, влево для нечетных групп
-                offsetY = previousLeaderSprite.y - targetY + 5 * groupIndex; // Смещение по Y относительно предыдущего лидера
+                offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
+                offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
             }
 
             group.forEach((warrior, index) => {
@@ -593,9 +593,9 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
                 // Смещение в разные стороны (внутри группы)
                 let internalOffsetX = 0;
                 if (index === 0) {
-                    internalOffsetX = -5; // Левый воин
+                    internalOffsetX = -8; // Левый воин
                 } else if (index === 2) {
-                    internalOffsetX = 5; // Правый воин
+                    internalOffsetX = 8; // Правый воин
                 }
 
                 // Движение воина к целевой позиции с учетом смещения
