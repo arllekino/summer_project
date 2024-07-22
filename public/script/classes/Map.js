@@ -19,7 +19,7 @@ const TResources = {
     skulls: 0,
 }
 
-function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser, quadTree, quadTreeOfUserIsland, arrOfUserIdsInLobby) {
+function mapReader(container, worldMatrix, cells, app, worldResources, resources, cellsOfUserIsland, numberOfUser, quadTree, quadTreeOfUserIsland, arrOfUserIdsInLobby) {
     const index = arrOfUserIdsInLobby.indexOf(numberOfUser);
     const coordsOfLeftTop = {
         iterXOfField: 0,
@@ -42,9 +42,13 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             }
             if (num >= 3)
             {
+                const dimensions = {
+                    x: worldMatrix[0].length,
+                    y: worldMatrix.length,
+                }
                 cell.setPtrTower(9);
                 cell.changeType(1);
-                resource.object = new Resource(app, num - 2);
+                resource.object = new Resource(app, num - 2, cell, dimensions);
                 resource.object.__cellsStatus['-1'] = cell;
             }
             cell.__sprite.zIndex = -999;
@@ -70,6 +74,10 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
                 container.addChild(resource.object.sprite);
             }
             cells.push(cell);
+            if (resource.object)
+            {
+                worldResources.push(resource.object)
+            }
             quadTree.insert(cell);
             container.addChild(cell.__sprite);
         })
@@ -84,6 +92,7 @@ export function CreateIsland(worldMatrix) {
         cellsOfUserIsland: [],
         mapReader: mapReader,
         resourcesOnIsland: [],
+        worldResources: [],
         buildings: [],
         buildingsOfUserIsland: [],
         buildingCountsOfUser: {

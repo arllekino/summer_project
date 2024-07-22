@@ -8,6 +8,7 @@ export class Warrior {
     this.sprite;
     this.attacking = false;
     this.attackDuration = 300;
+    this.app = app;
 
     this.initSprite(app, x, y);
   }
@@ -53,6 +54,43 @@ export class Warrior {
         }, this.attackDuration);
       });
     }
+  }
+
+  getHp()
+  {
+    return this.__hp;
+  }
+  damaged(damage)
+  {
+    const fireTextures = []
+    for (let i = 1; i <= 8; i++)
+    {
+      const texture = PIXI.Texture.from(`fire_${i}.png`);
+      fireTextures.push(texture);
+    }
+    for (let i = 8; i >= 1; i--)
+    {
+      const texture = PIXI.Texture.from(`fire_${i}.png`);
+      fireTextures.push(texture);
+    }
+
+    const fire = new PIXI.AnimatedSprite(fireTextures);
+    fire.animationSpeed = 0.3;
+    fire.anchor.set(0.5);
+    fire.zIndex = this.sprite.zIndex + 1;
+    fire.position.set(this.x, this.y)
+    this.app.stage.addChild(fire)
+    fire.play();
+    setTimeout(() => {
+      fire.stop();
+      this.app.stage.removeChild(fire);
+      fire.destroy();
+      this.__hp -= damage;
+      if (this.__hp <= 0)
+      {
+        this.destroy(this.app);
+      }
+    }, 900)
   }
 
   destroy(app) {

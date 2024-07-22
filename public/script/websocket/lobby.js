@@ -33,16 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.type === 'player_disconnected') {
             deletePlayer(data.user_id);    
         }        
-        if (data.type === 'checking_other_users_request') {
-            users.push(data.username);
-            ws.send(JSON.stringify({
-                type: 'checking_other_users_response',
-                username: username
-            }));
-        }
-        if (data.type === 'checking_other_users_response') {
-            users.push(data.username);
-        }
     };
 
     ws.onclose = () => {
@@ -67,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let lobbyData = await responseLobby.json();
 
         ws.send(JSON.stringify({
+            from: 'lobby',
             type: 'new_player',
             key_room: lobbyData.key_room,
             user_id: userData.id,
@@ -111,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function heartbeat() {
         ws.send(JSON.stringify({
+            from: 'lobby',
             type: 'heartbeat',
             key_room: keyRoom
         }));
