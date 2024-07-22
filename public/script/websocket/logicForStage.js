@@ -69,6 +69,17 @@ function GetParamForBuilding(data, infoAboutBulding) {
             infoAboutBulding.buildPtr = data.build_ptr;
             infoAboutBulding.requiredResources = {wood: 2, hammer: 1};
             break;
+        case "houseVillage":
+            infoAboutBulding.name = "Farmer House";
+            infoAboutBulding.alias = "houseVillage";
+            infoAboutBulding.givingResource = {};
+            infoAboutBulding.peopleCount = 1;
+            infoAboutBulding.hp = 100;
+            infoAboutBulding.defense = 50;
+            infoAboutBulding.buildType = 3;
+            infoAboutBulding.buildPtr = data.build_ptr;
+            infoAboutBulding.requiredResources = {wood: 2, hammer: 1};
+            break;
         case "farm":
             infoAboutBulding.name = "Farm";
             infoAboutBulding.alias = "farm";
@@ -113,6 +124,18 @@ function GetParamForBuilding(data, infoAboutBulding) {
             infoAboutBulding.buildPtr = data.build_ptr;
             infoAboutBulding.requiredResources = {stone: 2, hammer: 1, wood: 1, money: 2};
             break;
+        case "tower":
+            infoAboutBulding.name = "Tower";
+            infoAboutBulding.alias = "tower";
+            infoAboutBulding.givingResource = {};
+            infoAboutBulding.peopleCount = 1;
+            infoAboutBulding.hp = 150;
+            infoAboutBulding.defense = 20;
+            infoAboutBulding.buildType = 5;
+            infoAboutBulding.buildPtr = data.build_ptr;
+            infoAboutBulding.requiredResources = {stone: 2, wood: 2, money: 1, hammer: 1};
+            infoAboutBulding.damage = 20;
+            break;
         default:
             infoAboutBulding.name = "Farmer House";
             infoAboutBulding.alias = "houseVillage";
@@ -145,15 +168,14 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     buildType: 0,
                     buildPtr: 0,
                     requiredResources: {},
+                    damage: 0,
                 }
                 GetParamForBuilding(data, infoAboutBulding);
                 const dimensions = {
                     x: island.matrixOfIsland[0].length,
                     y: island.matrixOfIsland.length,
                 }
-                console.log(infoAboutBulding);
-                const building = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTree, infoAboutBulding.name, infoAboutBulding.alias, infoAboutBulding.givingResource, infoAboutBulding.peopleCount, infoAboutBulding.hp, infoAboutBulding.defense, infoAboutBulding.buildType, infoAboutBulding.buildPtr, infoAboutBulding.requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, true);
-                console.log();
+                const building = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTree, infoAboutBulding.name, infoAboutBulding.alias, infoAboutBulding.givingResource, infoAboutBulding.peopleCount, infoAboutBulding.hp, infoAboutBulding.defense, infoAboutBulding.buildType, infoAboutBulding.buildPtr, infoAboutBulding.requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, true, infoAboutBulding.damage);
                 data.build_matrix.forEach((coord) => {
                     building.__cellsStatus[coord.index] = island.cells[coord.y * dimensions.y + coord.x];
                     building.__cellsStatus[coord.index].setCellId = coord.index;
@@ -243,6 +265,9 @@ export async function SendBuilding(building, cells, dimensions) {
                 break;
             case "barrack":
                 typeOfBuilding = "barrack";
+                break;
+            case "tower":
+                typeOfBuilding = "tower";
                 break;
             default:
                 typeOfBuilding = "houseVillage";

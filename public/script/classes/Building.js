@@ -5,7 +5,7 @@ import { SendBuilding } from "../websocket/logicForStage.js";
 
 export class Building
 {
-    constructor(app, cells, userBuildings, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, buildingCountsOfUser, containerForMap, dimensions, anotherBuilding)
+    constructor(app, cells, userBuildings, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, buildingCountsOfUser, containerForMap, dimensions, anotherBuilding, damage)
     {
         this.__hp = hp;
         this.__defense = defense;
@@ -21,6 +21,8 @@ export class Building
         this.__droppingResources = {}
         this.id = -1;
         this.dimensions = dimensions;
+        this.damage = damage;
+        this.attackTimer = null;
         Object.entries(requiredResources).forEach(([key, value]) => { 
             if (value !== 1) { value = Math.floor(value / 2); } 
             if (key == 'hammer') { value = 0}
@@ -32,6 +34,7 @@ export class Building
         this.cellsBefore = [null, null, null, null, null, null, null, null, null]
         this.__stopMovingFlag = false;
         this.__bounds;
+        this.hitChance = 100;
         this.initSprite(app);
         if (!anotherBuilding) {
             window.addEventListener('click', () => this.mouseClick(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions));
@@ -308,4 +311,41 @@ export class Building
             this.buildBuilding(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions);
         }
     }
+
+    startAttack(enemiesArray)
+    {
+        let targetEnemy = null;
+        this.attackTimer = setInterval(()=> {
+            if (!targetEnemy && enemiesArray != [])
+            {
+                targetEnemy = enemiesArray[Math.floor(Math.random() * enemiesArray.length)]
+            }
+            if (!targetEnemy)
+            {
+                this.stopAttack()
+                return;
+            }
+            if (Math.random() * 100 >= this.hitChance)
+            {
+                console.log('Мимо')
+                return;
+            }
+            if (targetEnemy.getHp() - this.damage <= 0)
+            {
+                targetEnemy.damaged(this.damage);
+                enemiesArray.splice(enemiesArray.indexOf(targetEnemy), 1); 
+                targetEnemy = null;
+            }
+            else
+            {
+                targetEnemy.damaged(this.damage);
+            }
+        }, 2000)
+    }
+
+    stopAttack()
+    {
+        clearInterval(this.attackTimer);
+    }
+
 }
