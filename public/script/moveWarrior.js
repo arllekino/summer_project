@@ -400,7 +400,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
                 break;
             }
         }
-        cells[cellWithTheSmallestPath.x + cellWithTheSmallestPath.y * 50].okField();
+        // cells[cellWithTheSmallestPath.x + cellWithTheSmallestPath.y * 50].okField();
         if (isCellCalculated) {
             dirtyShortWay.push(calculatedCell);
         }
