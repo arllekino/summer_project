@@ -488,32 +488,68 @@ async function animateBuildingDestruction(buildingSprite) {
     debrisSprite.destroy();
 }
 
-async function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) {
-    const speed = 0.8;
+
+function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) {
+    const speed = 0.6;
     const targetX = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 5;
     const targetY = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 7;
+
+    const groupSize = 3;
+    const groups = [];
+    let currentGroup = [];
+    for (let i = 0; i < warriors.length; i++) {
+        currentGroup.push(warriors[i]);
+
+        if (currentGroup.length === groupSize) {
+            groups.push(currentGroup);
+            currentGroup = [];
+        }
+    }
+    if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+    }
 
     let allWarriorsReached = false;
 
     const ticker = new PIXI.Ticker();
     ticker.add((time) => {
-        let allWarriorsReached = true;
-        warriors.forEach((warrior, index) => {
-            const sprite = warrior.getSprite();
-            const angle = (2 * Math.PI * index) / warriors.length; // Угол для каждого воина
-            const radius = 10; // Радиус круга
+        allWarriorsReached = true;
 
-            const dx = targetX + index * radius * Math.cos(angle) - sprite.x;
-            const dy = targetY + index * radius * Math.sin(angle) - sprite.y;
+        groups.forEach((group, groupIndex) => {
+            let offsetX = 0; // Смещение по X для каждой группы
+            let offsetY = 0; // Смещение по Y для каждой группы
 
-            if (Math.sqrt(dx * dx + dy * dy) <= 1) {
-                sprite.x = targetX + index * radius * Math.cos(angle);
-                sprite.y = targetY + index * radius * Math.sin(angle);
-            } else {
-                allWarriorsReached = false;
-                sprite.x += dx / Math.sqrt(dx * dx + dy * dy) * speed * time.deltaTime;
-                sprite.y += dy / Math.sqrt(dx * dx + dy * dy) * speed * time.deltaTime;
+            // Смещение относительно предыдущей группы
+            if (groupIndex > 0) {
+                const previousGroup = groups[groupIndex - 1];
+                const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
+
+                // Смещение по X в разные стороны
+                offsetX = (groupIndex % 2 === 0) ? 5 : -5; // Вправо для четных, влево для нечетных групп
+                offsetY = previousLeaderSprite.y - targetY + 5 * groupIndex; // Смещение по Y относительно предыдущего лидера
             }
+
+            group.forEach((warrior, index) => {
+                const sprite = warrior.getSprite();
+
+                // Смещение в разные стороны (внутри группы)
+                let internalOffsetX = 0;
+                if (index === 0) {
+                    internalOffsetX = -5; // Левый воин
+                } else if (index === 2) {
+                    internalOffsetX = 5; // Правый воин
+                }
+
+                // Движение воина к целевой позиции с учетом смещения
+                const dx = targetX + offsetX + internalOffsetX - sprite.x;
+                const dy = targetY + offsetY - sprite.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 1) {
+                    sprite.x += dx / distance * speed * time.deltaTime;
+                    sprite.y += dy / distance * speed * time.deltaTime;
+                    allWarriorsReached = false;
+                }
+            });
         });
 
         if (allWarriorsReached) {
@@ -524,7 +560,6 @@ async function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warr
 
     ticker.start();
 }
-
 
 async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors) {
     if (!isWarriorSailingBack) {
@@ -551,8 +586,9 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
 
-    const numWarriors = 7;
+    const numWarriors = 5;
     const warriorGroup = [];
+
     for (let i = 0; i < numWarriors; i++) {
         const warrior = new Warrior(app, "war", x, y, 40, 3 + i);
         warriorGroup.push(warrior)
