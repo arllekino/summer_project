@@ -278,10 +278,6 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         building: null,
     };
 
-    towers.forEach(tower => {
-        tower.startAttack(warriors);
-    })
-
     while (!isBuildingPressed.state) {
         const promise = new Promise(function(resolve) {
             GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed, allContainer.containerForMap, clickedBuilding);
@@ -342,6 +338,9 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
         cells[coordsStartForWarrior.y * 50 + coordsStartForWarrior.x].okField();
         MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, allContainer.containerForMap);
+        towers.forEach(tower => {
+            tower.startAttack(warriors);
+        })
     }
 }
 

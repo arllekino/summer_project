@@ -75,10 +75,9 @@ export class Warrior {
     }
 
     const fire = new PIXI.AnimatedSprite(fireTextures);
-    fire.animationSpeed = 0.3;
-    fire.anchor.set(0.5);
+    fire.animationSpeed = 0.7;
     fire.zIndex = this.sprite.zIndex + 1;
-    fire.position.set(this.x, this.y)
+    fire.position.set(this.sprite.getBounds().x, this.sprite.getBounds().y)
     this.app.stage.addChild(fire)
     fire.play();
     setTimeout(() => {
@@ -90,7 +89,7 @@ export class Warrior {
       {
         this.destroy(this.app);
       }
-    }, 900)
+    }, 300)
   }
 
   destroy(app) {
