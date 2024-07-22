@@ -20,6 +20,7 @@ export class Building
         this.requiredResources = requiredResources;
         this.__droppingResources = {}
         this.id = -1;
+        this.dimensions = dimensions;
         Object.entries(requiredResources).forEach(([key, value]) => { 
             if (value !== 1) { value = Math.floor(value / 2); } 
             if (key == 'hammer') { value = 0}

@@ -7,7 +7,7 @@ const webSocketObject = {
     webSocket: null,
 }
 
-const ws = new WebSocket('ws://192.168.0.16:8080');
+const ws = new WebSocket('ws://10.250.104.153:8080');
 
 let lobbyKey;
 
@@ -129,10 +129,8 @@ function GetParamForBuilding(data, infoAboutBulding) {
 
 export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap) {
     if (ws) {
-        console.log('ДАТА БЛЯ СУКА');
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log(data, 'ДАТА СУКА');
             if (data.type === "waiting") {
                 arrPlayersId.arr = data.arrPlayersId;
             }
@@ -161,6 +159,41 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     building.__cellsStatus[coord.index].setCellId = coord.index;
                 });
                 building.displayBuildingOtherPlayer(island.buildings, island.resourcesOfUser, allTextResources, containerForMap);
+            }
+            if (data.type === "destroying") {
+                [...island.buildings, ...island.worldResources].forEach(object => {
+                    const arrCoords = [];
+                    for (let key in object.__cellsStatus) {
+                        const index = island.cells.indexOf(object.__cellsStatus[key]);
+                        const x = index % object.dimensions.x;
+                        const y = (index - x) / object.dimensions.y;
+                        const coords = {
+                            x: x,
+                            y: y,
+                            index: key,
+                        }
+                        arrCoords.push(coords);
+                    }
+                    if (JSON.stringify(arrCoords) === JSON.stringify(data.cellsStatus))
+                    {
+                        console.log('_____КОНТАКТ____');
+                        if (object.__cellsStatus['-1'])
+                        {
+                            object.sprite.destroy();
+                            object.__cellsStatus['-1'].setPtrTower(-1);
+                            island.worldResources.splice(island.worldResources.indexOf(object), 1);
+                            
+                            return;
+                        }
+                        for (const cellId in object.__cellsStatus)
+                        {
+                            object.__cellsStatus[cellId].setPtrTower(-1);
+                        }
+                        object.__sprite.destroy();
+                        island.buildings.splice(island.buildings.indexOf(object), 1); 
+                        return;
+                    }
+                });
             }
         };
     }
@@ -191,13 +224,6 @@ export async function SendPlayerId(arrPlayersId, idPlayer) {
 
 export async function SendBuilding(building, cells, dimensions) {
     if (ws) {
-        let responseLobby = await fetch('/find_key_room', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            }
-        });
-        let lobbyData = await responseLobby.json();
         let typeOfBuilding;
         switch (building.alias) {
             case "Castle":
@@ -243,8 +269,38 @@ export async function SendBuilding(building, cells, dimensions) {
             typeOfBuilding: typeOfBuilding,
             build_matrix: arrCoords,
             build_ptr: building.__buildPtr,
-            id: building.id,
-            key_room: lobbyData.key_room,
+            id: userId,
+            key_room: lobbyKey,
+        }
+        ws.send(JSON.stringify(data));
+    }
+    else {
+        console.log("соединение разорвалось");
+    }
+}
+
+export async function SendDestroyBuilding(object, cells) {
+    const arrCoords = [];
+    console.log(object)
+    for (let key in object.__cellsStatus) {
+        const index = cells.indexOf(object.__cellsStatus[key]);
+        const x = index % object.dimensions.x;
+        const y = (index - x) / object.dimensions.y;
+        const coords = {
+            x: x,
+            y: y,
+            index: key,
+        }
+        arrCoords.push(coords);
+    }
+    console.log(arrCoords);
+    if (ws) {
+        const data = {
+            from: 'game',
+            type: 'destroying',
+            cellsStatus: arrCoords,
+            id: userId,
+            key_room: lobbyKey,
         }
         ws.send(JSON.stringify(data));
     }

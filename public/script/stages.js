@@ -233,7 +233,7 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     {
         const hummer = new Destroyer(app)
         AddEventListenersForHammer(hummer, island.buildingsOfUserIsland, island.resourcesOnIsland,
-             island.buildingMoment, app, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap);
+            island.cells, app, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap);
         flags['hummer'] = true;
     }
 

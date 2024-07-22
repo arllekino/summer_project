@@ -1,9 +1,10 @@
 export class Resource
 {
-    constructor(app, type, cell)
+    constructor(app, type, cell, dimensions)
     {
         this.sprite;
         this.resourceType = type;
+        this.dimensions = dimensions;
         this.bounds;
         this.interactivity = true;
         switch (type)
