@@ -423,11 +423,9 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
             }
         }
 
-        shortWay.forEach((cellShortWay) => {
-            cells[cellShortWay.y * 50 + cellShortWay.x].okField();
-        });
-
-        console.log(shortWay);
+        // shortWay.forEach((cellShortWay) => {
+        //     cells[cellShortWay.y * 50 + cellShortWay.x].okField();
+        // });
 
         return shortWay;
     }
@@ -445,9 +443,9 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
 
         const reversedShortWay = shortWay.reverse();
 
-        reversedShortWay.forEach((cellShortWay) => {
-            cells[cellShortWay.y * 50 + cellShortWay.x].okField();
-        });
+        // reversedShortWay.forEach((cellShortWay) => {
+        //     cells[cellShortWay.y * 50 + cellShortWay.x].okField();
+        // });
 
         return reversedShortWay;
     }
