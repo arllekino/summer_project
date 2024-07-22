@@ -1,3 +1,4 @@
+import { mouseDistanceInContainer, mouseIntersectsInContainer } from './classes/CommonFunctions.js';
 import { Warrior } from './classes/Warrior.js';
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
@@ -272,6 +273,52 @@ function TheseCellsTheSame(cell1, cell2) {
     return false;
 }
 
+function FindBuildingNear(cell, coordsEndWar, worldMatrix, cells) {
+    const currentCoords = {
+        x: 0,
+        y: 0,
+        diagonalMovement: false,
+    }
+    const centralCell = {
+        x: cell.x,
+        y: cell.y
+    }
+    const arrCellWithBuilding = [];
+    for (let iter = 0; iter < 9; iter++) {
+        SetCoords(currentCoords, centralCell, iter);
+        const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, centralCell.x, centralCell.y);
+        let costPath = 0;
+        if (currentCoords.diagonalMovement) {
+            costPath = 1.4;
+        }
+        else {
+            costPath = 1;
+        }
+        cell.costPath = costPath;
+        cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells);
+        if (cells[currentCoords.x + currentCoords.y * 50].__ptrTower !== -1) {
+            arrCellWithBuilding.push(cell);
+        }
+    }
+    if (arrCellWithBuilding.length !== 0) {
+        let cellWithTheSmallestPath = arrCellWithBuilding[0];
+        arrCellWithBuilding.forEach(cell => {
+            if ((cell.approximateCostPath + cell.costPath) <= (cellWithTheSmallestPath.costPath + cellWithTheSmallestPath.approximateCostPath)) {
+                cellWithTheSmallestPath = cell;
+            }
+        })
+        return {
+            x: cellWithTheSmallestPath.x,
+            y: cellWithTheSmallestPath.y,
+            approximateCostPath: cellWithTheSmallestPath.approximateCostPath,
+            hasBuildingFound: true,
+        }
+    }
+    return {
+        hasBuildingFound: false,
+    }
+}
+
 function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound) {
     const calculatedCells = [];
 
@@ -353,37 +400,60 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
                 break;
             }
         }
+        cells[cellWithTheSmallestPath.x + cellWithTheSmallestPath.y * 50].okField();
         if (isCellCalculated) {
             dirtyShortWay.push(calculatedCell);
         }
         else {
             dirtyShortWay.push(cellWithTheSmallestPath);
         }
-
     }
 
     const shortWay = [];
-    shortWay.push(dirtyShortWay[dirtyShortWay.length - 1]);
-    for (let iter = dirtyShortWay.length - 2; iter >= 0; iter--) {
-        for (let iter2 = iter; iter2 >= 0; iter2--) {
-            if (shortWay[shortWay.length - 1].previousX === dirtyShortWay[iter2].x && shortWay[shortWay.length - 1].previousY === dirtyShortWay[iter2].y) {
-                shortWay.push(dirtyShortWay[iter2]);
-                iter = iter2;
-                break;
+    if (!hasAShortWayFound.state) {
+        for (let iter = 0; iter < dirtyShortWay.length; iter++) {
+            shortWay.push(dirtyShortWay[iter]);
+            if (dirtyShortWay[iter + 1]) {
+                if (dirtyShortWay[iter + 1].approximateCostPath >= dirtyShortWay[iter].approximateCostPath) {
+                    const infoAboutCell = FindBuildingNear(dirtyShortWay[iter], coordsEndWar, worldMatrix, cells);
+                    if (infoAboutCell.hasBuildingFound) {
+                        break;
+                    }
+                }
             }
         }
+
+        shortWay.forEach((cellShortWay) => {
+            cells[cellShortWay.y * 50 + cellShortWay.x].okField();
+        });
+
+        console.log(shortWay);
+
+        return shortWay;
     }
+    else {
+        shortWay.push(dirtyShortWay[dirtyShortWay.length - 1]);
+        for (let iter = dirtyShortWay.length - 2; iter >= 0; iter--) {
+            for (let iter2 = iter; iter2 >= 0; iter2--) {
+                if (shortWay[shortWay.length - 1].previousX === dirtyShortWay[iter2].x && shortWay[shortWay.length - 1].previousY === dirtyShortWay[iter2].y) {
+                    shortWay.push(dirtyShortWay[iter2]);
+                    iter = iter2;
+                    break;
+                }
+            }
+        }
 
-    const reversedShortWay = shortWay.reverse();
+        const reversedShortWay = shortWay.reverse();
 
-    // reversedShortWay.forEach((cellShortWay) => {
-    //     cells[cellShortWay.y * 50 + cellShortWay.x].okField();
-    // });
+        reversedShortWay.forEach((cellShortWay) => {
+            cells[cellShortWay.y * 50 + cellShortWay.x].okField();
+        });
 
-    return reversedShortWay;
+        return reversedShortWay;
+    }
 }
 
-async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve) {
     if (clickedBuilding.building) {
 
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
@@ -450,6 +520,7 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
             clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
         }
     }
+    resolve();
 }
 
 async function animateBuildingDestruction(buildingSprite) {
@@ -514,52 +585,29 @@ async function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warr
     ticker.start();
 }
 
-function FindBuildingNear(cell, coordsEndWar, worldMatrix, cells) {
-    const currentCoords = {
-        x: 0,
-        y: 0,
-        diagonalMovement: false,
+function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap) {
+    let minDist = 99999;
+    let minDistObject = null;
+    const bounds = {
+        x: GetXCoordFromMatrixWorld(infoAboutCell.x, infoAboutCell.y, cells),
+        y: GetYCoordFromMatrixWorld(infoAboutCell.x, infoAboutCell.y, cells),
+        width: 1,
+        height: 1,
     }
-    const centralCell = {
-        x: cell.x,
-        y: cell.y
-    }
-    const arrCellWithBuilding = [];
-    for (let iter = 0; iter < 9; iter++) {
-        SetCoords(currentCoords, centralCell, iter);
-        const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, centralCell.x, centralCell.y);
-        let costPath = 0;
-        if (currentCoords.diagonalMovement) {
-            costPath = 1.4;
+    buildings.forEach((building) => {
+        if (mouseDistanceInContainer(bounds, building, containerForMap) < minDist && mouseIntersectsInContainer(bounds, building, containerForMap))
+        {
+            console.log(building);
+            minDist = mouseDistanceInContainer(bounds, building, containerForMap);
+            minDistObject = building;
         }
-        else {
-            costPath = 1;
-        }
-        cell.costPath = costPath;
-        cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells);
-        if (cells[currentCoords.x + currentCoords.y * 50].__ptrTower !== -1) {
-            arrCellWithBuilding.push(cell);
-        }
-    }
-    if (arrCellWithBuilding.length !== 0) {
-        let cellWithTheSmallestPath = arrCellWithBuilding[0];
-        arrCellWithBuilding.forEach(cell => {
-            if ((cell.approximateCostPath + cell.costPath) <= (cellWithTheSmallestPath.costPath + cellWithTheSmallestPath.approximateCostPath)) {
-                cellWithTheSmallestPath = cell;
-            }
-        })
-        return {
-            x: cellWithTheSmallestPath.x,
-            y: cellWithTheSmallestPath.y,
-            hasBuildingFound: true,
-        }
-    }
-    return {
-        hasBuildingFound: false,
+    })
+    if (minDistObject) {
+        buildingAround.building = minDistObject;
     }
 }
 
-async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath) {
     if (!isWarriorSailingBack) {
         let newShortWay = [];
         const hasNewPathBuilt = {
@@ -569,32 +617,42 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
             await new Promise(resolve => {
                 MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriors);
             });
-            if (!hasAShortWayFound.state) {
-                const infoAboutCell = FindBuildingNear(shortWay[iter], coordsEndWar, worldMatrix, cells);
-                if (infoAboutCell.hasBuildingFound) {
-                    
-                    DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells);
-                    hasAShortWayFound.state = false;
-
-                    newShortWay = GetShortWay({x: infoAboutCell.x, y: infoAboutCell.y}, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
-                    hasNewPathBuilt.state = true;
-
-                    MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix);
-                }
-            }
-            if (hasNewPathBuilt.state) {
-                break;
-            }
             if (iter === shortWay.length - 1) {
-                DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells);
-                const promiseBack = new Promise(function (resolve) {
-                    MoveSprite(app, shortWay, cells, buildings, true, resolve, clickedBuilding, warriors);
-                });
-                await Promise.all([promiseBack]);
+                if (!hasAShortWayFound.state) {
+                    const infoAboutCell = FindBuildingNear(shortWay[iter], coordsEndWar, worldMatrix, cells);
+                    if (infoAboutCell.hasBuildingFound) {
+                        const buildingAround = {
+                            building: null,
+                        }
+                        GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap);
+                        const promiseForDestroy = new Promise(function(resolve){
+                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve);
+                        });
+                        await Promise.all([promiseForDestroy]);
+                        hasAShortWayFound.state = false;
         
-                for (const warrior of warriors) {
-                    warrior.destroy(app);
+                        newShortWay = GetShortWay({x: infoAboutCell.x, y: infoAboutCell.y}, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
+                        hasNewPathBuilt.state = true;
+                        totalPath.way = totalPath.way.concat(newShortWay);
+        
+                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
+                    }
                 }
+                else {
+                    const promiseForDestroy = new Promise(function(resolve){
+                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve);
+                    });
+                    await Promise.all([promiseForDestroy]);
+                    const promiseBack = new Promise(function (resolve) {
+                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriors);
+                    });
+                    await Promise.all([promiseBack]);
+                    
+                    for (const warrior of warriors) {
+                        warrior.destroy(app);
+                    }
+                }
+                
             }
         }
     } else {
@@ -607,7 +665,7 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
     resolve();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors) {
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap) {
     const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
 
@@ -621,9 +679,13 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const hasAShortWayFound = {
         state: false,
     }
+    const totalPath = {
+        way: [],
+    }
     const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
+    totalPath.way = shortWay;
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
     });
     await Promise.all([promiseForward]);
 }

@@ -335,7 +335,8 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         });
         await Promise.all([promiseForMovingShip]);
         const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors);
+        cells[coordsStartForWarrior.y * 50 + coordsStartForWarrior.x].okField();
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, allContainer.containerForMap);
     }
 }
 

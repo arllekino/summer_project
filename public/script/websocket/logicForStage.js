@@ -186,7 +186,6 @@ export async function SendBuilding(building, cells, dimensions) {
                 break;
         }
         const arrCoords = [];
-        console.log(building.__cellsStatus, "123");
         for (let key in building.__cellsStatus) {
             const index = cells.indexOf(building.__cellsStatus[key]);
             const x = index % dimensions.x;
