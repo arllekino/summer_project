@@ -451,9 +451,11 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
     }
 }
 
-async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, towers) {
     if (clickedBuilding.building) {
-
+        towers.forEach(tower => {
+            tower.stopAttack(warriors);
+        });
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
             fontSize: 16,
             fill: 0xffff00,
@@ -470,7 +472,6 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
             for (const warrior of warriors) {
                 // Проверяем, не больше ли урон воина, чем HP здания
                 const damageToApply = Math.min(warrior.damage, clickedBuilding.building.__hp);
-
                 await warrior.attack(clickedBuilding.building, damageToApply);
                 hpText.text = `${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`;
 
@@ -513,7 +514,9 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
         await animateBuildingDestruction(clickedBuilding.building.__sprite);
         clickedBuilding.building.__sprite.destroy();
         buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
-
+        towers.forEach(tower => {
+            tower.startAttack(warriors);
+        });
         for (const cellId in clickedBuilding.building.__cellsStatus) {
             clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
         }
@@ -522,7 +525,7 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
 }
 
 async function animateBuildingDestruction(buildingSprite) {
-    const textureBackground = await PIXI.Assets.load("/../../assets/textures/debris.png");
+    const textureBackground = await PIXI.Texture.from(`debris.png`);
     const debrisSprite = new PIXI.Sprite(textureBackground);
     debrisSprite.anchor.set(0.5);
     debrisSprite.zIndex = 600;
@@ -568,48 +571,57 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
     }
 
     let allWarriorsReached = false;
+    let allWarriorsAlive = true;
 
     const ticker = new PIXI.Ticker();
     ticker.add((time) => {
         allWarriorsReached = true;
+        allWarriorsAlive = true;
 
         groups.forEach((group, groupIndex) => {
-            let offsetX = 0; // Смещение по X для каждой группы
-            let offsetY = 0; // Смещение по Y для каждой группы
+            let offsetX = 0;
+            let offsetY = 0;
 
-            // Смещение относительно предыдущей группы
             if (groupIndex > 0) {
                 const previousGroup = groups[groupIndex - 1];
-                const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
-
-                // Смещение по X в разные стороны
-                offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
-                offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
+                const previousLeaderSprite = previousGroup[0].getSprite();
+                offsetX = (groupIndex % 2 === 0) ? 5 : -5;
+                offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex;
             }
 
             group.forEach((warrior, index) => {
-                const sprite = warrior.getSprite();
+                if (warrior.isAlive()) {
+                    allWarriorsAlive = true;
 
-                // Смещение в разные стороны (внутри группы)
-                let internalOffsetX = 0;
-                if (index === 0) {
-                    internalOffsetX = -8; // Левый воин
-                } else if (index === 2) {
-                    internalOffsetX = 8; // Правый воин
-                }
+                    const sprite = warrior.getSprite();
 
-                // Движение воина к целевой позиции с учетом смещения
-                const dx = targetX + offsetX + internalOffsetX - sprite.x;
-                const dy = targetY + offsetY - sprite.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 1) {
-                    sprite.x += dx / distance * speed * time.deltaTime;
-                    sprite.y += dy / distance * speed * time.deltaTime;
-                    allWarriorsReached = false;
+                    let internalOffsetX = 0;
+                    if (index === 0) {
+                        internalOffsetX = -5;
+                    } else if (index === 2) {
+                        internalOffsetX = 5;
+                    }
+
+                    const dx = targetX + offsetX + internalOffsetX - sprite.x;
+                    const dy = targetY + offsetY - sprite.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance > 1) {
+                        sprite.x += dx / distance * speed * time.deltaTime;
+                        sprite.y += dy / distance * speed * time.deltaTime;
+                        allWarriorsReached = false;
+                    }
+                } else {
+                    const index = group.indexOf(warrior);
+                    if (index !== -1) {
+                        group.splice(index, 1);
+                    }
                 }
             });
         });
-
+        if (!allWarriorsAlive) {
+            ticker.destroy();
+            resolve();
+        }
         if (allWarriorsReached) {
             ticker.destroy();
             resolve();
@@ -618,6 +630,7 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
 
     ticker.start();
 }
+
 
 function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap) {
     let minDist = 99999;
@@ -629,8 +642,7 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
         height: 1,
     }
     buildings.forEach((building) => {
-        if (mouseDistanceInContainer(bounds, building, containerForMap) < minDist && mouseIntersectsInContainer(bounds, building, containerForMap))
-        {
+        if (mouseDistanceInContainer(bounds, building, containerForMap) < minDist && mouseIntersectsInContainer(bounds, building, containerForMap)) {
             console.log(building);
             minDist = mouseDistanceInContainer(bounds, building, containerForMap);
             minDistObject = building;
@@ -641,7 +653,7 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
     }
 }
 
-async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers) {
     if (!isWarriorSailingBack) {
         let newShortWay = [];
         const hasNewPathBuilt = {
@@ -659,34 +671,34 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                             building: null,
                         }
                         GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap);
-                        const promiseForDestroy = new Promise(function(resolve){
-                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve);
+                        const promiseForDestroy = new Promise(function (resolve) {
+                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve, towers);
                         });
                         await Promise.all([promiseForDestroy]);
                         hasAShortWayFound.state = false;
-        
-                        newShortWay = GetShortWay({x: infoAboutCell.x, y: infoAboutCell.y}, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
+
+                        newShortWay = GetShortWay({ x: infoAboutCell.x, y: infoAboutCell.y }, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
                         hasNewPathBuilt.state = true;
                         totalPath.way = totalPath.way.concat(newShortWay);
-        
-                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
+                        console.log(towers);
+                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers);
                     }
                 }
                 else {
-                    const promiseForDestroy = new Promise(function(resolve){
-                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve);
+                    const promiseForDestroy = new Promise(function (resolve) {
+                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, towers);
                     });
                     await Promise.all([promiseForDestroy]);
                     const promiseBack = new Promise(function (resolve) {
-                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriors);
+                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriors, towers);
                     });
                     await Promise.all([promiseBack]);
-                    
+
                     for (const warrior of warriors) {
                         warrior.destroy(app);
                     }
                 }
-                
+
             }
         }
     } else {
@@ -699,16 +711,14 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
     resolve();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap) {
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, resolve, towers) {
     const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
 
-    const numWarriors = 5;
-    const warriorGroup = [];
+    const numWarriors = 2;
 
     for (let i = 0; i < numWarriors; i++) {
         const warrior = new Warrior(app, "war", x, y, 40, 3 + i);
-        warriorGroup.push(warrior)
         warriors.push(warrior);
     }
     const hasAShortWayFound = {
@@ -719,8 +729,15 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     }
     const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
     totalPath.way = shortWay;
+    towers.forEach(tower => {
+        tower.startAttack(warriors);
+    });
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers);
     });
     await Promise.all([promiseForward]);
+    resolve();
+    towers.forEach(tower => {
+        tower.stopAttack(warriors);
+    });
 }

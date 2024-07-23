@@ -14,14 +14,14 @@ export class Warrior {
   }
 
   initSprite(app, x, y) {
-    this.sprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_1.png`));
+    this.sprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_3.png`));
     this.sprite.x = x;
     this.sprite.y = y;
     this.sprite.zIndex = 400;
     this.sprite.anchor.set(0.5);
     app.stage.addChild(this.sprite);
 
-    this.attackSprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_1_2.png`));
+    this.attackSprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_3_2.png`));
     this.attackSprite.x = x;
     this.attackSprite.y = y;
     this.attackSprite.zIndex = 10;
@@ -78,8 +78,8 @@ export class Warrior {
     fire.animationSpeed = 0.3;
     fire.anchor.set(0.5);
     fire.zIndex = this.sprite.zIndex + 1;
-    fire.position.set(this.x, this.y)
-    this.app.stage.addChild(fire)
+    fire.position.set(this.sprite.getBounds().x, this.sprite.getBounds().y);
+    this.app.stage.addChild(fire);
     fire.play();
     setTimeout(() => {
       fire.stop();
@@ -100,5 +100,8 @@ export class Warrior {
 
   getSprite() {
     return this.sprite;
+  }
+  isAlive() {
+    return this.__hp > 0;
   }
 }

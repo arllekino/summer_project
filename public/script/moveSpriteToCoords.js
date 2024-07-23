@@ -1,6 +1,7 @@
 import { mouseDistanceInContainer, mouseIntersects, mouseIntersectsInContainer, mouseDistance } from "./classes/CommonFunctions.js";
 import { Game } from "./classes/game.js";
 import { Rect } from "./classes/Quadtree.js";
+import { MoveWarrior } from "./moveWarrior.js";
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) {
     return cells[numberOfCellY * dimensions.y + numberOfCellX].getBounds().x + cells[numberOfCellY * dimensions.y + numberOfCellX].getBounds().width / 2;
@@ -14,8 +15,9 @@ async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, nu
     const x = GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) - 5;
     const y = GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) - 7;
 
-    const textureIcon = await PIXI.Assets.load(pathToFile);
+    const textureIcon = await PIXI.Texture.from(pathToFile);
     sprite.texture = textureIcon;
+    sprite.anchor.set(0.5);
 
     sprite.x = x;
     sprite.y = y;
@@ -199,7 +201,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions) {
 
     const dirtyShortWay = [];
     const consideredCells = [];
-    
+
     const cellStart = CreateCellForAlg(0, -1, coordsStart.x, coordsStart.y, -1, -1);
     cellStart.approximateCostPath = CalculateDistance(coordsStart, coordsEnd, worldMatrix);
     dirtyShortWay.push(cellStart);
@@ -209,7 +211,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions) {
         y: 0,
         diagonalMovement: false,
     };
-    
+
     let pathHasBeenFound = false;
     while (!pathHasBeenFound) {
         const cellsAround = [];
@@ -381,8 +383,7 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
             let minDist = 99999;
             let minDistObject = null;
             buildings.forEach((building) => {
-                if (mouseDistanceInContainer(event, building, containerForMap) < minDist && mouseIntersectsInContainer(event, building, containerForMap))
-                {
+                if (mouseDistanceInContainer(event, building, containerForMap) < minDist && mouseIntersectsInContainer(event, building, containerForMap)) {
                     minDist = mouseDistanceInContainer(event, building, containerForMap);
                     minDistObject = building;
                 }
@@ -417,16 +418,13 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
 
         cellForShip.setDirectPositions(position.x + 20 - 40, position.y + 20 - 40);
 
-        let intersectedCells = quadTree.query(new Rect(cellForShip.x, cellForShip.y, 5, 5)) 
-        if (cellBefore === null && intersectedCells.length > 0)
-        {
+        let intersectedCells = quadTree.query(new Rect(cellForShip.x, cellForShip.y, 5, 5))
+        if (cellBefore === null && intersectedCells.length > 0) {
             cellBefore = intersectedCells[0];
         }
 
-        if (intersectedCells.length > 0)
-        {
-            if (intersectedCells[0] !== cellBefore)
-            {
+        if (intersectedCells.length > 0) {
+            if (intersectedCells[0] !== cellBefore) {
                 cellBefore.changeType(cellBefore.getType());
                 cellBefore = intersectedCells[0];
             }
@@ -475,22 +473,29 @@ export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip
     }
 }
 
-export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, containerForMap) {
+export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, containerForMap, coordsStartForWarrior, buildings, clickedBuilding, warriors, towers) {
     const dimensions = {
         x: worldMatrix[0].length,
         y: worldMatrix.length,
     }
 
     const rect = new PIXI.Sprite();
-    DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y, containerForMap, dimensions);
+    DrawShip(rect, app, ships, cells, `blue_ship2.png`, coordsStart.x, coordsStart.y, containerForMap, dimensions);
+
     const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions);
     const promiseForward = new Promise(function (resolve) {
         MoveSprite(rect, shortWay, cells, false, resolve, dimensions);
     });
     await Promise.all([promiseForward]);
+
+    const promiseForMovingWarriors = new Promise(function (resolve) {
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, resolve, towers);
+    });
+    await Promise.all([promiseForMovingWarriors]);
+
+    const promiseBack = new Promise(function (resolve) {
+        MoveSprite(rect, shortWay, cells, true, resolve, dimensions);
+    });
+    await Promise.all([promiseBack]);
     resolve();
-    // const promiseBack = new Promise(function(resolve) {
-    //     MoveSprite(rect, shortWay, cells, true, resolve);
-    // });
-    // await Promise.all([promiseBack]);
 }

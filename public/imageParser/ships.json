@@ -1,0 +1,122 @@
+{
+    "frames": {
+        "yellow_ship1.png": {
+            "frame": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "red_ship1.png": {
+            "frame": { "x": 30, "y": 0, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "green_ship1.png": {
+            "frame": { "x": 60, "y": 0, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 13005, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "blue_ship1.png": {
+            "frame": { "x": 90, "y": 0, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "yellow_ship2.png": {
+            "frame": { "x": 0, "y": 30, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "red_ship2.png": {
+            "frame": { "x": 30, "y": 30, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "green_ship2.png": {
+            "frame": { "x": 60, "y": 30, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 13005, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "blue_ship2.png": {
+            "frame": { "x": 90, "y": 30, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "yellow_ship3.png": {
+            "frame": { "x": 0, "y": 60, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "red_ship3.png": {
+            "frame": { "x": 30, "y": 60, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "green_ship3.png": {
+            "frame": { "x": 60, "y": 60, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 13005, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "blue_ship3.png": {
+            "frame": { "x": 90, "y": 60, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "yellow_ship4.png": {
+            "frame": { "x": 0, "y": 90, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "red_ship4.png": {
+            "frame": { "x": 30, "y": 90, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "green_ship4.png": {
+            "frame": { "x": 60, "y": 90, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 13005, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        },
+        "blue_ship4.png": {
+            "frame": { "x": 90, "y": 90, "w": 30, "h": 30 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 30 },
+            "sourceSize": { "w": 30, "h": 30 }
+        }
+    },
+    "meta": {
+        "image": "/images/boatSprites.png",
+        "format": "RGBA8888",
+        "size": { "w": 120, "h": 120 },
+        "scale": "1"
+    }
+}

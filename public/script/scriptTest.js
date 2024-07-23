@@ -11,12 +11,12 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     await app.init({ background: '#00aeff', resizeTo: window });
 
     app.stage.interactive = true;
-    document.body.appendChild(app.canvas);    
+    document.body.appendChild(app.canvas);
 
     const island = CreateIsland(infoForUser.matrixOfField);
-    
+
     const allContainer = DrawInfoBlocks(app);
-    
+
     let textures = await PIXI.Assets.load('/../imageParser/grounds.json');
     textures = await PIXI.Assets.load('/../imageParser/buildings.json');
     textures = await PIXI.Assets.load('/../imageParser/farmParser.json');
@@ -35,6 +35,8 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     textures = await PIXI.Assets.load("/../imageParser/warrior.json");
     textures = await PIXI.Assets.load("/../imageParser/tower.json");
     textures = await PIXI.Assets.load("/../imageParser/fire.json");
+    textures = await PIXI.Assets.load("/../imageParser/ships.json");
+    textures = await PIXI.Assets.load("/../imageParser/debris.json");
 
     island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.worldResources, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree, island.quadTreeOfUserIsland, infoForUser.arrOfUserIdsInLobby);
 
