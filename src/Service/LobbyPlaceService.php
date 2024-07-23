@@ -116,6 +116,21 @@ class LobbyPlaceService
         $this->repository->update($lobbyPlace);
     }
 
+    public function makePlayersNotReady(string $keyRoom): void
+    {
+        $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
+        if (empty($lobbyPlaces))
+        {
+            throw new \UnexpectedValueException('Лобби не найдено');
+        }
+
+        foreach ($lobbyPlaces as $lobbyPlace)
+        {
+            $lobbyPlace->setReadiness(self::NOT_READY);
+            $this->repository->update($lobbyPlace);
+        }
+    }
+
     public function getPlayerReadiness(int $userId): string
     {
         $lobbyPlace = $this->repository->findByPlayerId($userId);
