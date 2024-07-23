@@ -451,7 +451,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
     }
 }
 
-async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, island) {
     if (clickedBuilding.building) {
 
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
@@ -513,6 +513,11 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
         await animateBuildingDestruction(clickedBuilding.building.__sprite);
         clickedBuilding.building.__sprite.destroy();
         buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
+        if (island.buildingsOfUserIsland.indexOf(clickedBuilding.building) !== -1)
+        {
+            island.buildingsOfUserIsland.splice(island.buildingsOfUserIsland.indexOf(clickedBuilding.building), 1);
+            island.buildingCountsOfUser[clickedBuilding.building.getAlias()] -= 1;
+        }
 
         for (const cellId in clickedBuilding.building.__cellsStatus) {
             clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
@@ -641,7 +646,7 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
     }
 }
 
-async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island) {
     if (!isWarriorSailingBack) {
         let newShortWay = [];
         const hasNewPathBuilt = {
@@ -660,7 +665,7 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                         }
                         GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap);
                         const promiseForDestroy = new Promise(function(resolve){
-                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve);
+                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve, island);
                         });
                         await Promise.all([promiseForDestroy]);
                         hasAShortWayFound.state = false;
@@ -669,16 +674,16 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                         hasNewPathBuilt.state = true;
                         totalPath.way = totalPath.way.concat(newShortWay);
         
-                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
+                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island);
                     }
                 }
                 else {
                     const promiseForDestroy = new Promise(function(resolve){
-                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve);
+                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, island);
                     });
                     await Promise.all([promiseForDestroy]);
                     const promiseBack = new Promise(function (resolve) {
-                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriors);
+                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island);
                     });
                     await Promise.all([promiseBack]);
                     
@@ -699,7 +704,7 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
     resolve();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap) {
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, island) {
     const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
 
@@ -720,7 +725,7 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
     totalPath.way = shortWay;
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island);
     });
     await Promise.all([promiseForward]);
 }
