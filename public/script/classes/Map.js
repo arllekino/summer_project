@@ -19,12 +19,21 @@ const TResources = {
     skulls: 0,
 }
 
-function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsland, numberOfUser, quadTree) {
+function mapReader(container, worldMatrix, cells, app, worldResources, resources, cellsOfUserIsland, numberOfUser, quadTree, quadTreeOfUserIsland, arrOfUserIdsInLobby) {
+    const index = arrOfUserIdsInLobby.indexOf(numberOfUser);
     const coordsOfLeftTop = {
         iterXOfField: 0,
         iterYOfField: 0,
+        startXOfFiled: 0,
+        startYOfFiled: 0,
     }
-    GetBoundsForIsland(numberOfUser, coordsOfLeftTop);
+    if (index !== -1) {
+        GetBoundsForIsland(index, coordsOfLeftTop);
+    }
+    else {
+        console.log("НЕТ ТАКОГО ИГРОКА В ЛОББИ");
+    }
+    
     worldMatrix.forEach((row, i) => {
         row.forEach((num, j) => {
             const cell = new Cell(app, -1, num, 500 + 20 * i, -500 + 20 * j);
@@ -33,9 +42,13 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             }
             if (num >= 3)
             {
+                const dimensions = {
+                    x: worldMatrix[0].length,
+                    y: worldMatrix.length,
+                }
                 cell.setPtrTower(9);
                 cell.changeType(1);
-                resource.object = new Resource(app, num - 2);
+                resource.object = new Resource(app, num - 2, cell, dimensions);
                 resource.object.__cellsStatus['-1'] = cell;
             }
             cell.__sprite.zIndex = -999;
@@ -44,6 +57,11 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             if (i >= coordsOfLeftTop.iterYOfField && j >= coordsOfLeftTop.iterXOfField 
                 && i <= coordsOfLeftTop.iterYOfField + 20 && j <= coordsOfLeftTop.iterXOfField + 20) {
                     cellsOfUserIsland.push(cell);
+                    quadTreeOfUserIsland.insert(cell);
+                    if (resource.object)
+                    {
+                        resources.push(resource.object);
+                    }
             }
 
             if (i % 2 == 0) {
@@ -53,10 +71,13 @@ function mapReader(container, worldMatrix, cells, app, resources, cellsOfUserIsl
             {
                 resource.object.setPosition(cell.getBounds().x + cell.getBounds().width / 2, cell.getBounds().y + cell.getBounds().height / 2 - 7)
                 resource.object.setZIndex(resource.object.getBounds().y - 15);
-                resources.push(resource.object);
                 container.addChild(resource.object.sprite);
             }
             cells.push(cell);
+            if (resource.object)
+            {
+                worldResources.push(resource.object)
+            }
             quadTree.insert(cell);
             container.addChild(cell.__sprite);
         })
@@ -71,11 +92,32 @@ export function CreateIsland(worldMatrix) {
         cellsOfUserIsland: [],
         mapReader: mapReader,
         resourcesOnIsland: [],
+        worldResources: [],
         buildings: [],
+        buildingsOfUserIsland: [],
+        buildingCountsOfUser: {
+            houseVillage: 0,
+            houseGrendee: 0,
+            farm: 0,
+            warehouse: 0,
+            Castle: 0,
+            barrack: 0,
+        },
+        illObjects: {
+            barrack: 0,
+            Castle: 0,
+            houseVillage: 0,
+            houseGrendee: 0,
+            farm: 0,
+            warehouse: 0,
+            inhabitants: 0,
+        },
         buildingMoment: false,
         buldingObject: null,
         buildingSprite: null,
         ships: [],
-        quadTree: new QuadTree(new Rect(0, 0, window.innerWidth * 20,  window.innerHeight * 1000), 900)
+        quadTree: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 10000),
+        quadTreeOfUserIsland: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 961),
+        warriors: []
     }
 }

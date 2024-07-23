@@ -1,4 +1,4 @@
-import {MakePlayersNotReady} from './requestsForMainGame.js'
+import { MakePlayersNotReady } from "./requestsForMainGame.js";
 
 const urlRequests = {
     countOfUser: "/find_count_players",
@@ -6,6 +6,7 @@ const urlRequests = {
     sendField: "/create_map",
     getField: "/find_map",
     getUserNumber: "/find_username",
+    getPlayerIds: "/get_player_ids"
 }
 
 async function GetCountOfUsers() {
@@ -100,17 +101,19 @@ async function SendField(matrixOfField) {
     }
 }
 
-async function GetField() {
-    const response = await fetch(urlRequests.getField, {
-        method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    })
+export async function getUsersIds()
+{
+    const response = await fetch(urlRequests.getPlayerIds, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
+
     if (response.ok) {
         const data = await response.json();
-        return data;
+        return data.ids_players.sort();
     }
     else {
         console.log(response.status);
@@ -140,7 +143,6 @@ export const islandTemplate = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
 ];
 
-
 function MakeField(obj) {
     let widthOfField = 0;
     let heightOfField = 0;
@@ -150,8 +152,8 @@ function MakeField(obj) {
             heightOfField = 50;
             break;
         case 2:
-            widthOfField = 100;
-            heightOfField = 50;
+            widthOfField = 50;
+            heightOfField = 100;
             break;
         case 3:
             widthOfField = 100;
@@ -167,7 +169,6 @@ function MakeField(obj) {
             break;
     }
     
-    // const matrixOfField = new Array(widthOfField).fill(0).map(() => new Array(heightOfField).fill(0));
     let matrixOfField = [];
     for(let i = 0; i < widthOfField; i++)
     {
@@ -217,7 +218,6 @@ export function GetBoundsForIsland(iter, bounds) {
 }
 
 function InsertIslandIntoField(iter, matrixOfField) {
-    console.log(iter);
     const dimensions = {
         x: islandTemplate[0].length,
         y: islandTemplate.length,
@@ -229,19 +229,15 @@ function InsertIslandIntoField(iter, matrixOfField) {
         startYOfFiled: 0,
     }
     GetBoundsForIsland(iter, bounds);
-    console.log(dimensions, 'aisyhuvdghasijndkas');
-    console.log(bounds, '[][][][][]]');
     for (let iterY = 0; iterY < dimensions.y; iterY++, bounds.iterYOfField++) {
         bounds.iterXOfField = bounds.startXOfFiled;
         for (let iterX = 0; iterX < dimensions.x; iterX++, bounds.iterXOfField++) {
-            console.log(bounds);
             matrixOfField[bounds.iterYOfField][bounds.iterXOfField] = islandTemplate[iterY][iterX];
         }
     }
 }
 
 function InsertIslandsIntoField(obj, matrixOfField, resolve) {
-    console.log(obj);
     for (let iter = 0; iter < obj.countOfUser; iter++) {
         InsertIslandIntoField(iter, matrixOfField);
     }
@@ -261,7 +257,6 @@ export async function FormationOfGame() {
             InsertIslandsIntoField(obj, matrixOfField, resolve);
         });
         await Promise.all([promise]);
-        console.log(matrixOfField);
         SendField(matrixOfField);
     }
     else {
@@ -278,7 +273,10 @@ export async function FormationOfGame() {
         await Promise.all([promise]);
     }
     const numberOfUser = await GetUserNumber();
+    const userIDInLobby = await getUsersIds();
+    MakePlayersNotReady();
     return {
+        arrOfUserIdsInLobby: userIDInLobby,
         numberOfUser: numberOfUser.id,
         matrixOfField: matrixOfField,
     };

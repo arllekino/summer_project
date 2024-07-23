@@ -217,6 +217,17 @@ class LobbyPlaceController extends AbstractController
         return new Response('OK');
     }
 
+    public function makePlayersNotReady(): Response
+    {
+        $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        try {
+            $this->lobbyService->makePlayersNotReady($sessionKeyRoom);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+        return new Response('OK');
+    }
+
     public function getPlayerStatus(): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);

@@ -33,6 +33,7 @@ join_lobby:
   controller: App\Controller\LobbyPlaceController::joinLobby
 find_key_room:
   path: /find_key_room
+  methods: GET
   controller: App\Controller\LobbyPlaceController::findKeyRoom  
 get_color_flag:
   path: /get_color_flag
@@ -78,7 +79,7 @@ is_host_exist:
   methods: POST
   controller: App\Controller\LobbyPlaceController::isHostExist
 get_ids_players:
-  path: /get_ids_players
+  path: /get_player_ids
   methods: POST
   controller: App\Controller\LobbyPlaceController::getPlayersIdsInLobby
 make_players_not_ready:

@@ -28,6 +28,7 @@ class IslandBuildService
             $input->getHp(),
             $buildType,
             json_encode($input->getBuildMatrix()),
+            $input->getBuildPtr(),
             false,
             false,
             $input->getKeyRoom()
@@ -53,6 +54,7 @@ class IslandBuildService
                 'hp' => $islandBuild->getHp(),
                 'build_type' => $islandBuild->getBuildType(),
                 'build_matrix' => $islandBuild->getBuildMatrix(),
+                'build_ptr' => $islandBuild->getBuildPtr(),
                 'illness' => $islandBuild->getIllness(),
                 'destroyed' => $islandBuild->getDestroyed()
             ];

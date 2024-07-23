@@ -29,10 +29,16 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     textures = await PIXI.Assets.load("/../imageParser/backgroundInfobox.json");
     textures = await PIXI.Assets.load("/../imageParser/buildingDices.json");
     textures = await PIXI.Assets.load("/../imageParser/diceEdges.json");
+    textures = await PIXI.Assets.load("/../imageParser/wall.json")
+    textures = await PIXI.Assets.load("/../imageParser/warrior.json")
+    textures = await PIXI.Assets.load("/../imageParser/barracks.json");
+    textures = await PIXI.Assets.load("/../imageParser/warrior.json");
+    textures = await PIXI.Assets.load("/../imageParser/tower.json");
+    textures = await PIXI.Assets.load("/../imageParser/fire.json");
 
-    island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree);
+    island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.worldResources, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree, island.quadTreeOfUserIsland, infoForUser.arrOfUserIdsInLobby);
 
-    main(allContainer, app, island);
+    main(allContainer, app, island, infoForUser.numberOfUser);
 
     return {
         stage: app.stage,
