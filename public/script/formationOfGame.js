@@ -143,7 +143,6 @@ export const islandTemplate = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
 ];
 
-
 function MakeField(obj) {
     let widthOfField = 0;
     let heightOfField = 0;
@@ -219,7 +218,6 @@ export function GetBoundsForIsland(iter, bounds) {
 }
 
 function InsertIslandIntoField(iter, matrixOfField) {
-    console.log(iter);
     const dimensions = {
         x: islandTemplate[0].length,
         y: islandTemplate.length,
@@ -259,7 +257,6 @@ export async function FormationOfGame() {
             InsertIslandsIntoField(obj, matrixOfField, resolve);
         });
         await Promise.all([promise]);
-        console.log(matrixOfField);
         SendField(matrixOfField);
     }
     else {

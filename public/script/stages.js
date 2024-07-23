@@ -15,6 +15,7 @@ import { ChoiceEndCoords, MoveWarrior } from "./moveWarrior.js";
 import { CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
 import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
+import { Warrior } from "./classes/Warrior.js";
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -53,7 +54,10 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     })
     ObjectsBuildings.forEach((value) => {
         value.__sprite.alpha = 1;
-        value.interactivity = true;
+        if (value.getAlias() !== 'Castle')
+        {
+            value.interactivity = true;
+        }
     })
     // проверка на голодающих
     if (resourcesOfUser.wheat < 0)
@@ -61,7 +65,7 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
         for (let i = 0; i < Math.abs(resourcesOfUser.wheat); i++)
         {
             let building = getRandomElementFormList(ObjectsBuildings);
-            while (building.getAlias() === 'warehouse' && building in illList)
+            while (building.getAlias() === 'warehouse' && building.getAlias() === 'wall' && building in illList)
             {
                 building = getRandomElementFormList(ObjectsBuildings);
             }
@@ -128,16 +132,22 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
 }
 
 async function buildCastle(app, island, allTextResources, blocks, containerForMap) {
+    const dimensions = {
+        x: island.matrixOfIsland[0].length,
+        y: island.matrixOfIsland.length,
+    }
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
         island.buldingObject.setMatrixPattern([
             [1, 1, 1],
             [1, 1, 1],
             [1, 1, 1],
         ])
         island.buldingObject.renderMatrixPattern(app);
+        island.buldingObject.interactivity = false;
+        Game.playing = true;
         const checkCondition = () => {
             if (!island.buldingObject.getStopMovingFlag()) {
                 setTimeout(checkCondition, 100);
@@ -150,10 +160,14 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
     })
 }
 async function buildFarmerHouse(app, island, allTextResources, blocks, containerForMap) {
+    const dimensions = {
+        x: island.matrixOfIsland[0].length,
+        y: island.matrixOfIsland.length,
+    }
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
         island.buldingObject.setMatrixPattern([
             [0, 0, 0],
             [0, 1, 0],
@@ -175,10 +189,14 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
 }
 
 async function buildFarm(app, island, allTextResources, blocks, containerForMap) {
+    const dimensions = {
+        x: island.matrixOfIsland[0].length,
+        y: island.matrixOfIsland.length,
+    }
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
         island.buldingObject.setMatrixPattern([
             [1, 1, 0],
             [1, 1, 0],
@@ -199,25 +217,32 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
     })
 }
 
+function interruptBuilding(app, island)
+{
+    if (!island.buldingObject.getStopMovingFlag()) {
+        island.buildingSprite.tint = 0xffffff;
+        island.buldingObject.clearPatterns();
+        island.buldingObject.clearCellsStatus();
+        app.stage.on('pointermove', (event) => island.buldingObject.startMouseFollowing(event)).off('pointermove');
+        app.stage.removeChild(island.buldingObject.__sprite);
+        island.buldingObject.__sprite.destroy();
+        island.buildingMoment = false;
+    }
+}
+
 export async function stageBuilding(app, island, allTextResources, flags, blocks, containerForMap) {
     if (!flags['hummer'])
     {
         const hummer = new Destroyer(app)
-        AddEventListenersForHammer(hummer, island.buildings, island.resourcesOnIsland,
-             island.buildingMoment, app, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+        AddEventListenersForHammer(hummer, island.buildingsOfUserIsland, island.resourcesOnIsland,
+            island.cells, app, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap);
         flags['hummer'] = true;
     }
 
     document.addEventListener("pointerdown", function (event) {
         if (event.button === 2 && !island.buldingObject.getStopMovingFlag() && Game.stage === 3) {
             event.preventDefault();
-            island.buildingSprite.tint = 0xffffff;
-            island.buldingObject.clearPatterns();
-            island.buldingObject.clearCellsStatus();
-            app.stage.on('pointermove', (event) => island.buldingObject.startMouseFollowing(event)).off('pointermove');
-            app.stage.removeChild(island.buldingObject.__sprite);
-            island.buldingObject.__sprite.destroy();
-            island.buildingMoment = false;
+            interruptBuilding(app, island);
         }
         if (event.button === 0 && island.buldingObject.getStopMovingFlag() && Game.stage === 3)
         {
@@ -237,7 +262,7 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     });
 }
 
-export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors) {
+export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors, towers, island) {
     const coordsStart = {
         x: 0,
         y: 0,
@@ -264,7 +289,6 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
             isBuildingPressed.state = true;
         }
     }
-
     const stopMoving = {
         state: false,
     };
@@ -280,20 +304,28 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
     }
     if (isBuildingPressed.state && Game.stage === 4) {
         let cellForShip = new Cell(app, -1, 5);
+        function getCoordsOfShip(resolve) {
+            ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve);
+            if (Game.stage !== 4) {
+                resolve();
+            }
+            if (isThisRightCell.state) {
+                app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
+            }
+        }
         while (!stopMoving.state) {
             const promise = new Promise(function(resolve) {
-                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree))
-                setTimeout(() => {
-                    document.addEventListener("click", function getCoordsOfShip() {
-                        ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve);
-                        this.removeEventListener("click", getCoordsOfShip);
-                    });
-                }, 500);
-
+                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve));
+                app.stage.on("click", () => getCoordsOfShip(resolve));
+                if (Game.stage !== 4) {
+                    resolve();
+                }
             })
             await Promise.all([promise]);
             if (Game.stage !== 4) {
                 cellForShip = null;
+                app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");
+                app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
                 stopMoving.state = true;
             }
         }
@@ -301,11 +333,32 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
     }
     if (stopMoving.state && Game.stage === 4) {
         const promiseForMovingShip = new Promise(function(resolve) {
-            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix,resolve, allContainer.containerForMap);
+            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix,resolve, allContainer.containerForMap, island);
         });
         await Promise.all([promiseForMovingShip]);
         const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors);
+        cells[coordsStartForWarrior.y * 50 + coordsStartForWarrior.x].okField();
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, allContainer.containerForMap, island);
+        towers.forEach(tower => {
+            tower.startAttack(warriors);
+        })
+    }
+}
+
+function checkDeath(island, arrPlayersId, idUser)
+{
+    if (island.buildingCountsOfUser.Castle === 0)
+    {
+        console.log('END LOSZER');
+        Game.playing = false;
+        setInterval(async () => {
+            console.log(arrPlayersId.arr);
+            if (arrPlayersId.arr.indexOf(idUser) === -1)
+            {
+                await SendPlayerId(arrPlayersId, idUser);
+            }
+            console.log(arrPlayersId.arr);
+        }, 4000)
     }
 }
 
@@ -357,30 +410,12 @@ export async function main(allContainer, app, island, idUser) {
 
     window.addEventListener('keydown', handleKeyDown);
 
-    let blocks = {
+    const blocks = {
         infoBox: new Infobox(app),
-
-        buildings: {
-            houseVillage: 0,
-            houseGrendee: 0,
-            farm: 0,
-            warehouse: 0,
-            Castle: 0,
-            barrack: 0,
-        },
-        illObjects: {
-            barrack: 0,
-            Castle: 0,
-            houseVillage: 0,
-            houseGrendee: 0,
-            farm: 0,
-            warehouse: 0,
-            inhabitants: 0,
-        }
     }
 
     const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
-    DrawBuildingsBlock(app, island, allTextResources, blocks, allContainer.containerForMap);
+    DrawBuildingsBlock(app, island, allTextResources, allContainer.containerForMap);
 
     const flags = {
         wheelFlag: false,
@@ -396,14 +431,14 @@ export async function main(allContainer, app, island, idUser) {
     const arrPlayersId = {
         arr: [],
     }
-    WaitingForPlayers(arrPlayersId);
+    await WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap);
 
     const promiseForStartStage = new Promise(function(resolve) {
         StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
     })
     await Promise.all([promiseForStartStage]);
     
-    SendPlayerId(arrPlayersId, idUser);
+    await SendPlayerId(arrPlayersId, idUser);
     while (!Game.isAllPlayersReady) {
         const userIDInLobby = await getUsersIds();
         if (userIDInLobby.length === arrPlayersId.arr.length) {
@@ -419,15 +454,18 @@ export async function main(allContainer, app, island, idUser) {
     Game.isAllPlayersReady = false;
     arrPlayersId.arr = [];
     
-    while (true) {
+    let promiseForWaiting = null;
 
-        stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, blocks.buildings);
+    while (Game.playing) {
+
+        stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, island.buildingCountsOfUser);
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         });
         await Promise.all([promiseForResources]);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -436,19 +474,26 @@ export async function main(allContainer, app, island, idUser) {
         //     await Promise.all([promiseForReady]);
         //     Game.playerReady = false;
         // }
-        UpdateNumberOfResources(allTextResources, island.resourcesOfUser, blocks.buildings);
-        setTimeout(() => {
+        UpdateNumberOfResources(allTextResources, island.resourcesOfUser, island.buildingCountsOfUser);
+        ///setTimeout(() => {
             allContainer.containerForDiceRoll.visible = false;
-        }, 1500);
+        //}, 100);
         Game.stage++;
+        promiseForWaiting = new Promise(function(resolve) {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+        await Promise.all([promiseForWaiting]);
 
-        stageDisasters(allTextResources, island.resourcesOfUser, island.buildings, blocks.buildings, blocks.illObjects);
+        stageDisasters(allTextResources, island.resourcesOfUser, island.buildingsOfUserIsland, island.buildingCountsOfUser, island.illObjects);
         const promiseForDisasters = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForDisasters, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
         await Promise.all([promiseForDisasters]);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -459,14 +504,22 @@ export async function main(allContainer, app, island, idUser) {
         // }
 
         Game.stage++;
+        promiseForWaiting = new Promise(function(resolve) {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+        await Promise.all([promiseForWaiting]);
 
         stageBuilding(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
         await Promise.all([promiseForBuildings]);
+        interruptBuilding(app, island);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -477,13 +530,26 @@ export async function main(allContainer, app, island, idUser) {
         // }
 
         Game.stage++;
-        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors);
+        promiseForWaiting = new Promise(function(resolve) {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+        await Promise.all([promiseForWaiting]);
+
+        const towers = island.buildingsOfUserIsland.filter(building => building.getAlias() === 'tower' )
+        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers, island);
         const promiseForBattles = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
         await Promise.all([promiseForBattles]);
+        towers.forEach(tower => {
+            tower.stopAttack();
+        })
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
+        Game.playerReady = false;
+        checkDeath(island, arrPlayersId, idUser);
 
         // if (Game.playerReady) {
         //     const promiseForReady = new Promise(function(resolve) {
@@ -494,5 +560,11 @@ export async function main(allContainer, app, island, idUser) {
         // }
 
         Game.stage = 1;
+        promiseForWaiting = new Promise(function(resolve) {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+        await Promise.all([promiseForWaiting]);
     }
 }

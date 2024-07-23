@@ -15,6 +15,7 @@
         </id>
         <field name="lobbyId" column="lobby_id" type="integer" nullable="false" />   
         <field name="playerId" column="player_id" type="integer" nullable="false" />   
+        <field name="colorFlag" column="color_flag" type="string" nullable="false"/>
         <field name="keyRoom" column="key_room" type="string" nullable="true" /> 
         <field name="status" column="status" type="string" nullable="false"/>  
         <field name="lobbyStatus" column="lobby_status" type="string" nullable="false"/>

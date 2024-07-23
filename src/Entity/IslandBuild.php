@@ -3,102 +3,83 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Entity\Types\ResourcesType;
-use App\Entity\Types\CubeType;
 use App\Entity\Types\BuildType;
 
 class IslandBuild
 {
     private ?int $id;
-    private BuildType $buildType;
     private int $hp;
-    private int $maxHp;
-    private ?ResourcesType $resourcesType;
-    private ?int $resourcesAmount;
-    private ?CubeType $cubeType;
-    private ?int $cubeAmount;
-    private ?ResourcesType $passiveAbility;
-    private ?int $amountOfPassiveAbility;
-
+    private BuildType $buildType;
+    private string $buildMatrix;
+    private int $buildPtr;
+    private bool $illness;
+    private bool $destroyed;
+    private string $keyRoom;
 
     public function __construct(
         ?int $id,
-        BuildType $buildType,
         int $hp,
-        int $maxHp,
-        ?ResourcesType $resourcesType,
-        ?int $resourcesAmount,
-        ?CubeType $cubeType,
-        ?int $cubeAmount,
-        ?ResourcesType $passiveAbility,
-        ?int $amountOfPassiveAbility
+        BuildType $buildType,
+        string $buildMatrix,
+        int $buildPtr,
+        bool $illness,
+        bool $destroyed,
+        string $keyRoom
     )
     {
         $this->id = $id;
-        $this->buildType = $buildType;
         $this->hp = $hp;
-        $this->maxHp = $maxHp;
-        $this->resourcesType = $resourcesType;
-        $this->resourcesAmount = $resourcesAmount;
-        $this->cubeType = $cubeType;
-        $this->cubeAmount = $cubeAmount;
-        $this->passiveAbility = $passiveAbility;
-        $this->amountOfPassiveAbility = $amountOfPassiveAbility;
+        $this->buildType = $buildType;
+        $this->buildMatrix = $buildMatrix;
+        $this->buildPtr = $buildPtr;
+        $this->illness = $illness;
+        $this->destroyed = $destroyed;
+        $this->keyRoom = $keyRoom;
     }
 
-
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;    
-    }
-    public function getBuildType(): BuildType
-    {
-        return $this->buildType;    
     }
     public function getHp(): int
     {
         return $this->hp;    
     }
-    public function getMaxHp(): int
+    public function getBuildType(): BuildType
     {
-        return $this->maxHp;    
+        return $this->buildType;    
     }
-    public function getResourcesType(): ?ResourcesType
+    public function getBuildMatrix(): string
     {
-        return $this->resourcesType;    
+        return $this->buildMatrix;    
     }
-    public function getResourcesAmount(): ?int
+    public function getBuildPtr(): int
     {
-        return $this->resourcesAmount;    
+        return $this->buildPtr;
     }
-    public function getCubeType(): ?CubeType
+    public function getIllness(): bool
     {
-        return $this->cubeType;    
+        return $this->illness;    
     }
-    public function getCubeAmount(): ?int
+    public function getDestroyed(): bool
     {
-        return $this->cubeAmount;    
+        return $this->destroyed;    
     }
-    public function getPassiveAbility(): ?ResourcesType
+    public function getKeyRoom(): string
     {
-        return $this->passiveAbility;    
+        return $this->keyRoom;
     }
-    public function getAmountOfPassiveAbility(): ?int
-    {
-        return $this->amountOfPassiveAbility;    
-    }
-
 
     public function setHp(int $hp): void
     {
-        $this->hp = $hp;
+        $this->hp = $hp;    
     }
-    public function setResourcesAmount(int $resourcesAmount): void
+    public function setIllness(bool $illness): void
     {
-        $this->resourcesAmount = $resourcesAmount;
+        $this->illness = $illness;    
     }
-    public function setCubeAmount(int $cubeAmount): void
+    public function setDestroyed(bool $destroyed): void
     {
-        $this->cubeAmount = $cubeAmount;
+        $this->destroyed = $destroyed;    
     }
 }

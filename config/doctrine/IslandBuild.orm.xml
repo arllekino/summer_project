@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\IslandBuild" table="island_build">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY" />
+        </id>
+        <field name="hp" column="hp" type="integer" nullable="false" />   
+        <field name="buildType" column="build_type" type="string" nullable="false" />   
+        <field name="buildMatrix" column="build_matrix" type="string" nullable="false"/>  
+        <field name="buildPtr" column="build_ptr" type="int" nullable="false"/>
+        <field name="illness" column="illness" type="bool" nullable="false"/>
+        <field name="destroyed" column="destroyed" type="bool" nullable="false"/>
+        <field name="keyRoom" column="key_room" type="string" nullable="false" /> 
+
+    </entity>
+
+</doctrine-mapping>

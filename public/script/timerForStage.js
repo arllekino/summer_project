@@ -40,18 +40,20 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
 }
 
 
-export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser, arrPlayersId) {
+export async function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser, arrPlayersId) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
     let waitingForPlayers = null;
 
     const textTimer = new PIXI.Text();
     textTimer.style.fill = 0xFFFFFF;
-    const percentageScreenWidth = 0.494;
+    const percentageScreenWidth = 0.48;
 	const percentageScreenHeight = 0.02;
     textTimer.x = app.screen.width * percentageScreenWidth;
     textTimer.y = app.screen.height * percentageScreenHeight;
+    textTimer.zIndex = 99999999;
     app.stage.addChild(textTimer);
+    const userIDInLobby = await getUsersIds();
 
     function Ready(event) {
         SendPlayerId(arrPlayersId, idUser);
@@ -68,21 +70,17 @@ export function startTimerForStage(time, wheelBlock, stage, resolve, app, flags,
             wheelBlock.addEventListener("pointerdown", Ready);
         }
         
-        if (!waitingForPlayers && Game.playerReady)
-        {
+        if (userIDInLobby.length === arrPlayersId.arr.length && Game.playerReady) {
             Game.playerReady = false;
-            waitingForPlayers = setInterval(async () => {
-                const userIDInLobby = await getUsersIds();
-                if (userIDInLobby.length === arrPlayersId.arr.length) {
-                    Game.isAllPlayersReady = true;
-                    textTimer.text = "";
-                    clearInterval(timer);
-                    clearInterval(waitingForPlayers);
-                    waitingForPlayers = null;
-                    RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
-                    resolve();
-                }
-            }, 100)
+            Game.isAllPlayersReady = true;
+            textTimer.text = "";
+            setTimeout(() => {
+                console.log('asd');
+                clearInterval(timer);
+                waitingForPlayers = null;
+                RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer);
+                resolve();
+            }, 300)
         }
 
         const now = new Date();

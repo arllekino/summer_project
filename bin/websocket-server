@@ -10,7 +10,7 @@ use App\WebSocket\WebSocketHandler;
 
 $loop = Loop::get();
 
-$ipAndPort = '10.250.105.23:8080'; //192.168.0.10 10.250.104.17
+$ipAndPort = '10.250.104.203:8080'; //192.168.0.10 10.250.104.17
 
 $webSock = new SocketServer($ipAndPort, [], $loop);
 $webServer = new IoServer(

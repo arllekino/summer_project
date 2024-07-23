@@ -9,20 +9,18 @@ use Ratchet\MessageComponentInterface;
 class WebSocketHandler implements MessageComponentInterface
 {
     private const LAST_PLAYER_IN_ROOM = 1;
-    private const LOBBY_STATUS = 'lobby';
-    private const GAME_STATUS = 'game';
     private const ON_DELETE_TIME = 10;
     protected $clients;
-    private $rooms;
+    private array $lobbies;
+    private array $games;
     private $onDeletePlayers;
-    private $roomStatuses;
     
     public function __construct()
     {
         $this->clients = new \SplObjectStorage;
-        $this->rooms = [];    
+        $this->lobbies = [];   
+        $this->games = []; 
         $this->onDeletePlayers = [];
-        $this->roomStatuses = [];
     }
 
     public function onOpen(ConnectionInterface $connection)
@@ -41,73 +39,93 @@ class WebSocketHandler implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $data = json_decode($msg, true);
-
+        var_dump($data);
         if ($data['type'] === 'heartbeat')
         {
-            if (!empty($this->onDeletePlayers))
+            $currentTime = time();
+            foreach ($this->onDeletePlayers as $key => $onDeletePlayer)
             {
-                $currentTime = time();
-                foreach ($this->onDeletePlayers as $key => $onDeletePlayer)
+                if ($currentTime - $onDeletePlayer['time'] >= self::ON_DELETE_TIME)
                 {
-                    var_dump($currentTime - $onDeletePlayer['time']);
-                    if ($onDeletePlayer['time'] !== null)
+                    $lobby = $this->lobbies[$data['key_room']];
+                    $game = $this->games[$data['key_room']];
+                    $room = $lobby ?? $game;
+                    if ( $room !== null)
                     {
-                        if ($currentTime - $onDeletePlayer['time'] >= self::ON_DELETE_TIME)
+                        $userId = array_search($onDeletePlayer['client'], $room);
+                        if ($userId)
                         {
-                            $room = $this->rooms[$data['key_room']];
-                            $userId = array_search($onDeletePlayer['client'], $room);
-                            if ($userId)
-                            {
-                                $this->deletePlayerFromRoom($room, $userId);
-                            }
-                            unset($this->onDeletePlayers[$key]);
+                            $this->deletePlayerFromRoom($room, $userId);
                         }
                     }
+                    unset($this->onDeletePlayers[$key]);
                 }
             }
-        }
-        if ($data['type'] === 'start_game')
-        {
-            $this->roomStatuses[$data['key_room']] = self::GAME_STATUS;
-        }
-        if ($data['type'] === 'end_game')
-        {
-            $this->roomStatuses[$data['key_room']] = self::LOBBY_STATUS;
         }
         
         if ($data['type'] !== 'heartbeat')
         {
+            var_dump($data);
             foreach ($this->clients as $client)
             {
                 if ($from !== $client)
                 {
-                    if (in_array($client, $this->rooms[$data['key_room']]))
+                    if (isset($this->lobbies[$data['key_room']]) && in_array($client, $this->lobbies[$data['key_room']]))
                     {
-                        var_dump($msg);
                         $client->send($msg);
+                    }
+                    if ($this->games[$data['key_room']] !== null && in_array($client, $this->games[$data['key_room']]))
+                    {
+                        $client->send($msg);
+                        var_dump('fuck you bitch');
                     }
                 } 
                 else 
                 {         
                     if ($data['type'] === 'new_player')
                     {
-                        $this->rooms[$data['key_room']][$data['user_id']] = $client;
+                        if ($data['from'] === 'lobby')
+                        {
+                            $this->lobbies[$data['key_room']][$data['user_id']] = $client;
+                        }
+                        if ($data['from'] === 'game')
+                        {
+                            $this->games[$data['key_room']][$data['user_id']] = $client;
+                        }
                     }
                 }
-            }
+            }    
         }
     }
 
     public function onClose(ConnectionInterface $connection)
     {
-        foreach ($this->rooms as $room)
+        foreach ($this->lobbies as $lobby)
         {
-            if (in_array($connection, $room))
+            if (in_array($connection, $lobby))
             {
-                if (count($room) === self::LAST_PLAYER_IN_ROOM)
+                if (count($lobby) === self::LAST_PLAYER_IN_ROOM)
                 {
-                    $id = array_search($connection, $room);
-                    $this->deletePlayerFromRoom($room, $id);
+                    $id = array_search($connection, $lobby);
+                    $this->deletePlayerFromRoom($lobby, $id);
+                } 
+                else 
+                {
+                    $this->onDeletePlayers[] = [
+                        'client' => $connection, 
+                        'time' => time()
+                    ]; 
+                }
+            }
+        }
+        foreach ($this->games as $game)
+        {
+            if (in_array($connection, $game))
+            {
+                if (count($game) === self::LAST_PLAYER_IN_ROOM)
+                {
+                    $id = array_search($connection, $game);
+                    $this->deletePlayerFromRoom($game, $id);
                 } 
                 else 
                 {

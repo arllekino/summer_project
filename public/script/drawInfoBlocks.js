@@ -25,12 +25,15 @@ async function DrawBlockResources(container, app) {
 	const percentageScreenHeight = 0.77;
 	container.x = app.screen.width * percentageScreenWidth;
 	container.y = app.screen.height * percentageScreenHeight;
+	container.zIndex = 9999999;
 
 	AddIconInInfoBlock(container, 0.03, 0.05, "/../assets/textures/SeedIcon.svg");
 	AddIconInInfoBlock(container, 0.03, 0.3, "/../assets/textures/WoodIcon.svg");
 	AddIconInInfoBlock(container, 0.03, 0.46, "/../assets/textures/StoneIcon.svg");
+	AddIconInInfoBlock(container, 0.03, 0.65, "/../assets/textures/SwordIcon.svg");
 	AddIconInInfoBlock(container, 0.6, 0.05, "/../assets/textures/CitizenIcon.svg");
 	AddIconInInfoBlock(container, 0.6, 0.3, "/../assets/textures/HammerIcon.svg");
+	AddIconInInfoBlock(container, 0.6, 0.57, "/../assets/textures/MoneyIcon.svg");
 }
 
 async function DrawBlockWheelEvents(app, wheelBlock) {
@@ -60,6 +63,7 @@ async function DrawBlockAboveTheWheelEvents(container, app) {
 	const percentageScreenHeight = 0.66;
 	container.x = app.screen.width * percentageScreenWidth;
 	container.y = app.screen.height * percentageScreenHeight;
+	container.zIndex = 999999;
 }
 
 async function DrawBlockTimer(container, app) {
@@ -73,6 +77,7 @@ async function DrawBlockTimer(container, app) {
 	const percentageScreenHeight = 0.01;
 	container.x = app.screen.width * percentageScreenWidth;
 	container.y = app.screen.height * percentageScreenHeight;
+	container.zIndex = 99999999;
 }
 
 export async function DrawBlockForDiceRoll(container, app, containerCubes, blockButtonReRoll, resolve) {
@@ -110,7 +115,7 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	resolve();
 }
 
-export async function DrawBlockBuildings(container, app, island, allTextResources, blocks, containerForMap) {
+export async function DrawBlockBuildings(container, app, island, allTextResources, containerForMap) {
 	const textureBackground = await PIXI.Assets.load(
 		"/../assets/textures/BuildingsPanel.svg",
 	);
@@ -155,13 +160,16 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 					island.buildingMoment = false;
 				}
 			}
-
+			const dimensions = {
+				x: island.matrixOfIsland[0].length,
+				y: island.matrixOfIsland.length,
+			}
 			if ((textureName === 'richHouse.png') && !island.buildingMoment) {
 				const requiredResources = {stone: 2, hammer: 1};
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'House', 'houseGrendee', {}, 1, 100, 0, 2, 5, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'House', 'houseGrendee', {}, 1, 100, 0, 2, 5, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
 					island.buldingObject.setMatrixPattern([
 						[0, 0, 0],
 						[0, 1, 0],
@@ -171,15 +179,29 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				}
 			}
 			if ((textureName === 'barracks.png') && !island.buildingMoment) {
-				const requiredResources = {stone: 0, hammer: 0};
+				const requiredResources = {stone: 2, wood: 1, money: 2, hammer: 1};
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTree, 'Barrack', 'barrack', {}, 1, 100, 0, 2, 25, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Barrack', 'barrack', {}, 1, 100, 0, 2, 25, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[0, 1, 1],
 						[0, 1, 1],
+					])
+					island.buldingObject.renderMatrixPattern(app);
+				}
+			}
+			if ((textureName === 'tower.png') && !island.buildingMoment) {
+				const requiredResources = {}; //{stone: 2, wood: 2, money: 1, hammer: 1}
+				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
+				{
+					island.buildingMoment = true
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Tower', 'tower', {}, 1, 100, 0, 2, 29, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 20);
+					island.buldingObject.setMatrixPattern([
+						[0, 0, 0],
+						[0, 1, 0],
+						[0, 0, 0],
 					])
 					island.buldingObject.renderMatrixPattern(app);
 				}
@@ -189,7 +211,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -203,7 +225,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Warehouse', 'warehouse', {}, 1, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Warehouse', 'warehouse', {}, 1, 100, 0, 3, 9, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
 					island.buldingObject.setMatrixPattern([
 						[1, 1, 0],
 						[1, 1, 0],
@@ -217,7 +239,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true;
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 50, 3, 13, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 50, 3, 13, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
 					island.buldingObject.setMatrixPattern([
 						[0, 0, 0],
 						[0, 1, 0],
@@ -231,7 +253,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true
-					island.buldingObject = new Building(app, island.cells, island.buildings, island.quadTreeOfUserIsland, 'Wall', 'wall', {}, 0, 100, 0, 2, 21, requiredResources, island.resourcesOfUser, allTextResources, blocks, containerForMap);
+					island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Wall', 'wall', {}, 0, 100, 0, 2, 21, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
 					island.buldingObject.setMatrixPattern([
 						[0, 0, 0],
 						[0, 1, 0],
@@ -253,10 +275,10 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 
 
 
-export function DrawBuildingsBlock(app, island, allTextResources, blocks, containerForMap) {
+export function DrawBuildingsBlock(app, island, allTextResources, containerForMap) {
 	const containerForBuilding = new PIXI.Container();
 	app.stage.addChild(containerForBuilding);
-	DrawBlockBuildings(containerForBuilding, app, island, allTextResources, blocks, containerForMap);
+	DrawBlockBuildings(containerForBuilding, app, island, allTextResources, containerForMap);
 }
 
 function DrawTextOnContainer(text, containerForResources, numberOfResources, percentageScreenWidth, percentageScreenHeight) {
@@ -275,10 +297,15 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 	DrawTextOnContainer(textForWood, containerForResources, resourcesOfUser.wood, 0.25, 0.25);
 	const textForStone = new PIXI.Text();
 	DrawTextOnContainer(textForStone, containerForResources, resourcesOfUser.stone, 0.25, 0.46);
+	const textForWars = new PIXI.Text();
+	DrawTextOnContainer(textForWars, containerForResources, resourcesOfUser.money, 0.25, 0.70);
 	const textForHammer = new PIXI.Text();
 	DrawTextOnContainer(textForHammer, containerForResources, resourcesOfUser.hammer, 0.75, 0.3);
 	const textForInhabitants = new PIXI.Text();
 	DrawTextOnContainer(textForInhabitants, containerForResources, resourcesOfUser.inhabitants, 0.75, 0.07);
+	const textForMoney = new PIXI.Text();
+	DrawTextOnContainer(textForMoney, containerForResources, resourcesOfUser.inhabitants, 0.75, 0.58);
+
     
 	const allTextResources = {
 		textForWheat: textForWheat,
@@ -286,6 +313,8 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 		textForStone: textForStone,
 		textForHammer: textForHammer,
 		textForInhabitants: textForInhabitants,
+		textForMoney: textForMoney,
+		textForWars: textForWars,
 	}
 
 	return allTextResources;
@@ -299,11 +328,20 @@ export function UpdateNumberOfResources(allTextResources, resourcesOfUser, build
 			}
 			allTextResources[key].text = `${resourcesOfUser.wheat}/${resourcesOfUser.maxWheat + Game.warehouseAmountOfAdding * buildings.warehouse}`;
 		}
+		if (key === "textForMoney") {
+			allTextResources[key].text = `${resourcesOfUser.money}`;
+		}
 		if (key === "textForWood") {
 			if (resourcesOfUser.wood > resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse) {
 				resourcesOfUser.wood = resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse;
 			}
 			allTextResources[key].text = `${resourcesOfUser.wood}/${resourcesOfUser.maxWood + Game.warehouseAmountOfAdding * buildings.warehouse}`;
+		}
+		if (key === "textForWars") {
+			if (resourcesOfUser.wars > resourcesOfUser.maxWars + Game.barracksAmountOfAdding * buildings.barrack) {
+				resourcesOfUser.wars = resourcesOfUser.maxWars + Game.barracksAmountOfAdding * buildings.barrack;
+			}
+			allTextResources[key].text = `${resourcesOfUser.wars}/${resourcesOfUser.maxWars + Game.barracksAmountOfAdding * buildings.barrack}`;
 		}
 		if (key === "textForStone") {
 			if (resourcesOfUser.stone > resourcesOfUser.maxStone + Game.warehouseAmountOfAdding * buildings.warehouse) {
