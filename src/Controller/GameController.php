@@ -39,13 +39,32 @@ class GameController extends AbstractController
             );
         }
 
-        $keyRoom = $request->get('keyRoom');
-        $this->session->setSession(self::SESSION_KEY_GAME, $keyRoom);     
-        $this->lobbyService->setGameStatus($keyRoom); 
-        return $this->redirectToRoute(
-            'main_game',
-            ['keyRoom' => $keyRoom]
-        );
+        $data = json_decode($request->getContent(), true);
+        $keyRoom = $data['key_room'];
+
+        try {
+            $readiness = $this->lobbyService->isAllPlayersReady($keyRoom);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        if ($readiness)
+        {
+            $this->session->setSession(self::SESSION_KEY_GAME, $keyRoom);     
+            $this->lobbyService->setGameStatus($keyRoom); 
+        }
+        
+        return new Response(json_encode([
+            'readiness' => $readiness
+        ]));
+    }
+
+    public function addUserToGame(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $this->session->setSession(self::SESSION_KEY_GAME, $data['key_room']);
+
+        return new Response('OK');
     }
 
     public function mainGame(): Response
@@ -55,7 +74,7 @@ class GameController extends AbstractController
         {
             return $this->redirectToRoute(
                 'login_form', 
-                ['message' => 'Сначала вы должны войти в аккаунт']
+                ['message' => 'В первую очередь надо войти в аккаунт']
             );
         }
 

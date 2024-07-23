@@ -10,12 +10,14 @@
 			<div class="intro__players">
 				{% for user in users %}
 					<div class="intro__player" id="{{ user.id }}">
-						<img src="../images/blueFlag200x200.png" alt="Описание картинки" class="flag-image">
+						<img src="../images/{{ user.color_flag }}Flag200x200.png" id="{{user.color_flag}}" alt="Описание картинки" class="flag-image">
 						<div class="block__user-name">
 							<span class="user-name">{{ user.name }}</span>
 						</div>
-						<span class="{{ user.status }}">{{ user.status }}</span>
-						<span class="readiness">{{ user.readiness }}</span>
+						<span class="player__status player__status_{{ user.status }}">{{ user.status }}</span>
+						<span class="readiness{% if user.readiness == 'Не готов' %} not_ready{% elseif user.readiness == 'Готов' %} ready{% endif %}" id="readiness_{{ user.id }}">
+							{{ user.readiness }}
+						</span>
 					</div>
 				{% endfor %}
 			</div>
@@ -27,25 +29,31 @@
 							<form action="">
 								<button type"submit" class="intro__settings"></button>
 							</form>
-							<form action="/quit_lobby" class="intro__logout">
-								<button type="submit" class="intro__but logout">
+							<div class="intro__logout">
+								<button  class="intro__but logout" id="quit_button">
 									<span class="button-text">Выйти</span>
 									<img src="../images/home.jpg" alt="Описание картинки" class="button-image">
 								</button>
-							</form>
+							</div>
 						</div>
 					</div>
 					<div class="intro__block-code">
 						<p class="intro__code">{{ keyRoom }}</p>
 					</div>
 				</div>
-				<form action="/start_game" class="intro__play">
-					<input type="hidden" name="keyRoom" value="{{ keyRoom }}">
-					<button type="submit" class="intro__but play">
-						<span class="button-text2">Начать игру</span>
-						<img src="../images/sword.svg" alt="Описание картинки" class="button-image2">
+				<div class="intro__player-readiness">
+					<button type="submit" id="button_readiness" class="intro__but play">
+						<span id ="readiness" class="button-text2">{{ user_readiness }}</span>
 					</button>
-				</form>
+				</div>
+				{% if user_status == 'host' %}
+					<div class="intro__play">
+						<button type="submit" class="intro__but play" id="button_start_game">
+							<span class="button-text2">Начать игру</span>
+							<img src="../images/sword.svg" alt="Описание картинки" class="button-image2">
+						</button>
+					</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>	

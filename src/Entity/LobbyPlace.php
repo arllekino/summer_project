@@ -8,6 +8,7 @@ class LobbyPlace
     private ?int $id;
     private int $lobbyId;
     private int $playerId;
+    private string $colorFlag;
     private ?string $keyRoom;
     private string $status;
     private string $lobbyStatus;
@@ -17,6 +18,7 @@ class LobbyPlace
         ?int $id,
         int $lobbyId,
         int $playerId,
+        string $colorFlag,
         ?string $keyRoom,
         string $status,
         string $lobbyStatus,
@@ -26,6 +28,7 @@ class LobbyPlace
         $this->id = $id;
         $this->lobbyId = $lobbyId;
         $this->playerId = $playerId;
+        $this->colorFlag = $colorFlag;
         $this->keyRoom = $keyRoom;
         $this->status = $status;
         $this->lobbyStatus = $lobbyStatus;
@@ -39,6 +42,10 @@ class LobbyPlace
     public function getLobbyId(): int
     {
         return $this->lobbyId;    
+    }
+    public function getColorFlag(): string
+    {
+        return $this->colorFlag;    
     }
     public function getKeyRoom(): ?string
     {

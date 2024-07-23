@@ -11,8 +11,8 @@ class WebSocketHandler implements MessageComponentInterface
     private const LAST_PLAYER_IN_ROOM = 1;
     private const ON_DELETE_TIME = 10;
     protected $clients;
-    private $lobbies;
-    private $games;
+    private array $lobbies;
+    private array $games;
     private $onDeletePlayers;
     
     public function __construct()
@@ -62,6 +62,7 @@ class WebSocketHandler implements MessageComponentInterface
         
         if ($data['type'] !== 'heartbeat')
         {
+            var_dump($data);
             foreach ($this->clients as $client)
             {
                 if ($from !== $client)

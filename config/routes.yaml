@@ -34,17 +34,25 @@ join_lobby:
 find_key_room:
   path: /find_key_room
   controller: App\Controller\LobbyPlaceController::findKeyRoom  
+get_color_flag:
+  path: /get_color_flag
+  methods: GET
+  controller: App\Controller\LobbyPlaceController::getPlayerColorFlag
 lobby_page:
   path: /lobby_page/{keyRoom}
   methods: GET
   controller: App\Controller\LobbyPlaceController::lobbyPage    
 quit_lobby:
   path: /quit_lobby
-  controller: App\Controller\LobbyPlaceController::quitFromLooby
+  controller: App\Controller\LobbyPlaceController::quitFromLobby
 kick_from_lobby:
   path: /kick_from_lobby
   methods: POST
   controller: App\Controller\LobbyPlaceController::kickFromLobby  
+make_guest_host:
+  path: /make_guest_host
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::makeGuestHost
 make_player_ready:
   path: /make_player_ready
   methods: POST
@@ -65,6 +73,10 @@ is_all_players_ready:
   path: /is_all_players_ready
   methods: POST
   controller: App\Controller\LobbyPlaceController::isAllPlayersReady
+is_host_exist:
+  path: /is_host_exist
+  methods: POST
+  controller: App\Controller\LobbyPlaceController::isHostExist
 get_ids_players:
   path: /get_ids_players
   methods: POST
@@ -76,11 +88,15 @@ make_players_not_ready:
 
 main_game:
   path: /main_game/{keyRoom}
-  controller: App\Controller\GameController::mainGame
+  controller: App\Controller\GameController::mainGame  
 start_game:
   path: /start_game
-  methods: GET
+  methods: POST
   controller: App\Controller\GameController::startGame
+add_user_to_game:
+  path: /add_user_to_game
+  methods: POST
+  controller: App\Controller\GameController::addUserToGame
 create_map: 
   path: /create_map
   methods: POST
