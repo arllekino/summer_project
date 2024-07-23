@@ -47,7 +47,7 @@
     font-size: 32px;
     margin: 20px 0;
     color: #FFEEEE;
-    padding-left: 30%;
+    padding-left: 32%;
 }
 
 .intro__settings {
@@ -58,7 +58,17 @@
     border: none;
     cursor: pointer;
     background-color: transparent; 
-    margin-right: 20px;
+}
+
+.message__text {
+    display: block;
+    margin: 15px auto 0 auto;
+    font-size: 25px;
+    color: #e63946;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .intro__content {

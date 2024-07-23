@@ -6,7 +6,6 @@ use App\Service\Input\IslandInputInterface;
 
 class IslandInput implements IslandInputInterface
 {
-    private string $islandMaxtrix;
     private int $food;
     private int $maxFood;
 
@@ -23,10 +22,8 @@ class IslandInput implements IslandInputInterface
     private int $hammers;
     private int $money;
     private int $knowledge;
-    private int $userId;
 
     public function __construct(
-        string $islandMatrix,
         int $food,
         int $maxFood,
         int $wood,
@@ -38,11 +35,9 @@ class IslandInput implements IslandInputInterface
         int $villagers,
         int $hammers,
         int $money,
-        int $knowledge,
-        int $userId
+        int $knowledge
     )
     {
-        $this->islandMaxtrix = $islandMatrix;
         $this->food = $food;
         $this->maxFood = $maxFood;
         $this->wood = $wood;
@@ -55,13 +50,8 @@ class IslandInput implements IslandInputInterface
         $this->hammers = $hammers;
         $this->money = $money;
         $this->knowledge = $knowledge;
-        $this->userId = $userId;
     }
 
-    public function getIslandMatrix(): string
-    {
-        return $this->islandMaxtrix;    
-    }
     public function getFood(): int
     {
         return $this->food;
@@ -109,9 +99,5 @@ class IslandInput implements IslandInputInterface
     public function getKnowledge(): int
     {
         return $this->knowledge;
-    }
-    public function getUserId(): int
-    {
-        return $this->userId;    
     }
 }

@@ -16,11 +16,10 @@ class IslandService
         $this->repository = $repository;
     }
 
-    public function create(IslandInputInterface $input): void
+    public function create(IslandInputInterface $input, int $userId, string $keyGame): void
     {
         $island = new Island(
             null,
-            $input->getIslandMatrix(),
             $input->getFood(),
             $input->getMaxFood(),
             $input->getWood(),
@@ -33,20 +32,20 @@ class IslandService
             $input->getHammers(),
             $input->getMoney(),
             $input->getKnowledge(),
-            $input->getUserId()
+            $userId,
+            $keyGame
         );
         
         $this->repository->store($island);
     }
-    public function update(IslandInputInterface $input): void
+    public function update(IslandInputInterface $input, int $userId): void
     {
-        $island = $this->repository->findByUserId($input->getUserId());
+        $island = $this->repository->findByUserId($userId);
         if ($island === null)
         {
             throw new \UnexpectedValueException('Остров не найден');
         }  
 
-        $island->setIslandMatrix($input->getIslandMatrix());
         $island->setFood($input->getFood());
         $island->setMaxFood($input->getMaxFood());
         $island->setWood($input->getWood());
@@ -59,11 +58,13 @@ class IslandService
         $island->setHammers($input->getHammers());
         $island->setMoney($input->getMoney());
         $island->setKnowledge($input->getKnowledge());
+
+        $this->repository->store($island);
     }
 
-    public function findAll(): array
+    public function findIslandsInGame(string $keyRoom): array
     {
-        $islands = $this->repository->listIsland();
+        $islands = $this->repository->findByKeyRoom($keyRoom);
 
         $islandsOutputArr = [];
 
@@ -79,8 +80,17 @@ class IslandService
         return $islandsOutputArr;
     }
 
-    public function deleteAll(): void
+    public function deleteIslandsInGame(string $keyRoom): void
     {
-        $this->repository->deleteAll();    
+        $islands = $this->repository->findByKeyRoom($keyRoom);
+        if ($islands === null)
+        {
+            throw new \UnexpectedValueException('Игра не найдена');
+        }
+
+        foreach ($islands as $island)
+        {
+            $this->repository->deleteIsland($island);
+        }
     }
 }

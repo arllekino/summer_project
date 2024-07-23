@@ -5,7 +5,6 @@ namespace App\Service\Input;
 
 interface IslandInputInterface
 {
-    public function getIslandMatrix(): string;
     public function getFood(): int;
     public function getMaxFood(): int;
     public function getWood(): int;
@@ -18,5 +17,4 @@ interface IslandInputInterface
     public function getHammers(): int;
     public function getMoney(): int;
     public function getKnowledge(): int;
-    public function getUserId(): int;
 }

@@ -29,7 +29,7 @@ class LobbyPlaceController extends AbstractController
         $this->lobbyService = $lobbyService;
     }
 
-    public function startLobbyPage(): Response
+    public function startLobbyPage(Request $request): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)
@@ -52,7 +52,8 @@ class LobbyPlaceController extends AbstractController
         }
         return $this->render(
             'start_lobby_page.html.twig',
-            ['userName' => $userName]
+            ['userName' => $userName,
+            'message' => $request->get('message')]
         );
     }
     public function createLobby(): Response

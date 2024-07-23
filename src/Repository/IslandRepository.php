@@ -28,9 +28,9 @@ class IslandRepository
         return $this->repository->findOneBy(['user_id' => $userId]);
     }
 
-    public function listIsland(): array
+    public function findByKeyRoom(string $keyRoom): array
     {
-        return $this->repository->findAll();    
+        return $this->repository->findBy(['keyRoom' => $keyRoom]);    
     }
 
     public function store(Island $island): void
@@ -39,13 +39,9 @@ class IslandRepository
         $this->entityManager->flush();
     }
 
-    public function deleteAll(): void
+    public function deleteIsland(Island $island): void
     {
-        $islands = $this->repository->findAll();
-        foreach ($islands as $island)
-        {
-            $this->entityManager->remove($island);
-        }
+        $this->entityManager->remove($island);
         $this->entityManager->flush();
     }
 }

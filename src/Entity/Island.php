@@ -7,7 +7,6 @@ namespace App\Entity;
 class Island
 {
     private ?int $id;
-    private string $islandMatrix;
     private int $food;
     private int $maxFood;
 
@@ -24,13 +23,13 @@ class Island
     private int $hammers;
     private int $money;
     private int $knowledge;
+    private string $keyRoom;
     
     private int $userId;
     private ?User $user = null;
 
     public function __construct(
         ?int $id,
-        string $islandMatrix,
         int $food,
         int $maxFood,
         int $wood,
@@ -43,11 +42,11 @@ class Island
         int $hammers,
         int $money,
         int $knowledge,
-        int $userId
+        int $userId,
+        string $keyRoom
     )
     {
         $this->id = $id;      
-        $this->islandMatrix = $islandMatrix;  
         $this->food = $food;
         $this->maxFood = $maxFood;
         $this->wood = $wood;
@@ -61,17 +60,13 @@ class Island
         $this->money = $money;
         $this->knowledge = $knowledge;
         $this->userId = $userId;
+        $this->keyRoom = $keyRoom;
     }
 
     public function getId(): ?int
     {
         return $this->id;
     }
-    public function getIslandMatrix(): string
-    {
-        return $this->islandMatrix;    
-    }
-
     public function getFood(): int
     {
         return $this->food;
@@ -124,17 +119,16 @@ class Island
     {
         return $this->userId;    
     }
-
     public function getUser(): ?User
     {
         return $this->user;    
     }
-
-
-    public function setIslandMatrix(string $islandMatrix): void
+    public function getKeyRoom(): string
     {
-        $this->islandMatrix = $islandMatrix;    
+        return $this->keyRoom;    
     }
+
+
     public function setFood(int $food): void
     {
         $this->food = $food;

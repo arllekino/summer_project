@@ -39,7 +39,6 @@ class IslandBuildService
 
     public function viewAllBuilds(string $keyRoom): array
     {
-        //id hp buildtype matrix illness destroyed
         $islandBuilds = $this->repository->findBuildsByKeyRoom($keyRoom);
         if (empty($islandBuilds))
         {

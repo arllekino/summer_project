@@ -14,6 +14,13 @@
 						<button type"submit" class="intro__settings"></button>
 					</form>
 				</div>
+				{% set message = message|default({}) %}
+				{% if message %}
+					<div class="intro__message">
+						<span class="message__text">{{ message }}</span>
+					</div>
+				{% endif %}
+				
 				<div class="intro__content">
 					<form action="/create_lobby" class="intro__content-user">
 						<span class="user-name">{{ userName }}</span>
