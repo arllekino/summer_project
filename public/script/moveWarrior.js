@@ -1,5 +1,6 @@
 import { mouseDistanceInContainer, mouseIntersectsInContainer } from './classes/CommonFunctions.js';
 import { Warrior } from './classes/Warrior.js';
+import { UpdateNumberOfResources } from "./drawInfoBlocks.js";
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
     return cells[numberOfCellY * 50 + numberOfCellX].getBounds().x + cells[numberOfCellY * 50 + numberOfCellX].getBounds().width / 2;
@@ -451,7 +452,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
     }
 }
 
-async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, towers) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, towers, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     if (clickedBuilding.building) {
         // Отображение HP здания
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
@@ -534,9 +535,12 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
                 warrior.sprite.visible = true;
                 warrior.attackSprite.visible = false;
             }
-            await animateBuildingDestruction(clickedBuilding.building.__sprite);
+            await animateBuildingDestruction(clickedBuilding.building.__sprite, app);
+
+            await updateResourcesOnBuildingDestroy(clickedBuilding.building, resourcesOfUser, buildingCountsOfUser, allTextResources);
+
             clickedBuilding.building.__sprite.destroy();
-            buildings.splice(buildings.indexOf(clickedBuilding.building), 1);Ш
+            buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
             for (const cellId in clickedBuilding.building.__cellsStatus) {
                 clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
             }
@@ -545,7 +549,14 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
     }
 }
 
-async function animateBuildingDestruction(buildingSprite) {
+async function updateResourcesOnBuildingDestroy(clickedBuilding, resourcesOfUser, buildingCountsOfUser, allTextResources) {
+    buildingCountsOfUser[clickedBuilding.getAlias()] -= 1;
+    resourcesOfUser['inhabitants'] -= 1;
+
+    UpdateNumberOfResources(allTextResources, resourcesOfUser, buildingCountsOfUser)
+}
+
+async function animateBuildingDestruction(buildingSprite, app) {
     const textureBackground = await PIXI.Texture.from(`debris.png`);
     const debrisSprite = new PIXI.Sprite(textureBackground);
     debrisSprite.anchor.set(0.5);
@@ -558,7 +569,8 @@ async function animateBuildingDestruction(buildingSprite) {
     // Случайное вращение обломков
     debrisSprite.rotation = Math.random() * Math.PI * 2;
 
-    buildingSprite.parent.addChild(debrisSprite);
+    //buildingSprite.parent.addChild(debrisSprite);
+    app.stage.addChild(debrisSprite);
 
     // Анимация
     for (let i = 1; i >= 0; i -= 0.1) {
@@ -602,6 +614,17 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
         groups.forEach((group, groupIndex) => {
             let offsetX = 0;
             let offsetY = 0;
+
+            if (warriors.length < 5) {
+                offsetX = (groupIndex % 2 === 0) ? 6 : -6;
+                offsetY = (groupIndex % 2 === 0) ? 3 : -3;
+            } else if (warriors.length < 10) {
+                offsetX = (groupIndex % 2 === 0) ? 4 : -4;
+                offsetY = (groupIndex % 2 === 0) ? 2 : -2;
+            } else {
+                offsetX = (groupIndex % 2 === 0) ? 2 : -2;
+                offsetY = (groupIndex % 2 === 0) ? 1 : -1;
+            }
 
             if (groupIndex > 0) {
                 const previousGroup = groups[groupIndex - 1];
@@ -674,7 +697,7 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
     }
 }
 
-async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     if (!isWarriorSailingBack) {
         let newShortWay = [];
         const hasNewPathBuilt = {
@@ -693,7 +716,7 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                         }
                         GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap);
                         const promiseForDestroy = new Promise(function (resolve) {
-                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve, towers);
+                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
                         });
                         await Promise.all([promiseForDestroy]);
                         hasAShortWayFound.state = false;
@@ -702,12 +725,15 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                         hasNewPathBuilt.state = true;
                         totalPath.way = totalPath.way.concat(newShortWay);
                         console.log(towers);
-                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers);
+                        const promiseForMove = new Promise(function (resolve) {
+                            MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers);
+                        });
+                        await Promise.all([promiseForMove]);
                     }
                 }
                 else {
                     const promiseForDestroy = new Promise(function (resolve) {
-                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, towers);
+                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
                     });
                     await Promise.all([promiseForDestroy]);
                     const promiseBack = new Promise(function (resolve) {
@@ -732,11 +758,11 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
     resolve();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, resolve, towers) {
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, resolve, towers, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
 
-    const numWarriors = 2;
+    const numWarriors = 6;
 
     for (let i = 0; i < numWarriors; i++) {
         const warrior = new Warrior(app, "war", x, y, 40, 20 + i);
@@ -754,11 +780,11 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
         tower.startAttack(warriors);
     });
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
     });
     await Promise.all([promiseForward]);
-    resolve();
     towers.forEach(tower => {
         tower.stopAttack(warriors);
     });
+    resolve();
 }

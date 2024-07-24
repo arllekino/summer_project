@@ -149,4 +149,3 @@ export class Warrior {
     return this.alive;
   }
 }
-

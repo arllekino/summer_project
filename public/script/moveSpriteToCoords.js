@@ -473,7 +473,7 @@ export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip
     }
 }
 
-export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, containerForMap, coordsStartForWarrior, buildings, clickedBuilding, warriors, towers) {
+export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, containerForMap, coordsStartForWarrior, buildings, clickedBuilding, warriors, towers, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     const dimensions = {
         x: worldMatrix[0].length,
         y: worldMatrix.length,
@@ -489,13 +489,19 @@ export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, shi
     await Promise.all([promiseForward]);
 
     const promiseForMovingWarriors = new Promise(function (resolve) {
-        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, resolve, towers);
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, resolve, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
     });
     await Promise.all([promiseForMovingWarriors]);
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const promiseBack = new Promise(function (resolve) {
         MoveSprite(rect, shortWay, cells, true, resolve, dimensions);
     });
     await Promise.all([promiseBack]);
+
+    containerForMap.removeChild(rect);
+    rect.destroy();
+
     resolve();
 }

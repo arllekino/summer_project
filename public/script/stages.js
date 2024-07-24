@@ -250,7 +250,7 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     });
 }
 
-export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors, towers) {
+export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors, towers, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     const coordsStart = {
         x: 0,
         y: 0,
@@ -326,7 +326,7 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         cells[coordsStartForWarrior.y * 50 + coordsStartForWarrior.x].okField();
 
         const promiseForMovingShip = new Promise(function (resolve) {
-            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, allContainer.containerForMap, coordsStartForWarrior, buildings, clickedBuilding, warriors, towers);
+            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, allContainer.containerForMap, coordsStartForWarrior, buildings, clickedBuilding, warriors, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
         });
         await Promise.all([promiseForMovingShip]);
     }
@@ -508,7 +508,7 @@ export async function main(allContainer, app, island, idUser) {
         await Promise.all([promiseForWaiting]);
 
         const towers = island.buildingsOfUserIsland.filter(building => building.getAlias() === 'tower')
-        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers);
+        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser);
         const promiseForBattles = new Promise(function (resolve) {
             startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
