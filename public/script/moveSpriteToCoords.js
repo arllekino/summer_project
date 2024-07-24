@@ -405,11 +405,15 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
 }
 
 let cellBefore = null;
-export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve) {
+export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve, worldMatrix) {
     if (cellForShip) {
         const position = {
             x: event.pageX,
             y: event.pageY,
+        }
+        const dimensions = {
+            x: worldMatrix[0].length,
+            y: worldMatrix.length,
         }
 
         // sprite.x = position.x - sprite.getBounds().width / 2;
@@ -441,8 +445,8 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
             let MiddleLeftCellIsland = false;
             let MiddleRightCellIsland = false;
             let DownMiddleCellIsland = false;
-            if (cells[index - 50]) {
-                TopMiddleCellIsland = (cells[index - 50].getType() === 1 || cells[index - 50].getType() === 2);
+            if (cells[index - dimensions.y]) {
+                TopMiddleCellIsland = (cells[index - dimensions.y].getType() === 1 || cells[index - dimensions.y].getType() === 2);
             }
             if (cells[index - 1]) {
                 MiddleLeftCellIsland = (cells[index - 1].getType() === 1 || cells[index - 1].getType() === 2);
@@ -450,14 +454,14 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
             if (cells[index + 1]) {
                 MiddleRightCellIsland = (cells[index + 1].getType() === 1 || cells[index + 1].getType() === 2);
             }
-            if (cells[index + 50]) {
-                DownMiddleCellIsland = (cells[index + 50].getType() === 1 || cells[index + 50].getType() === 2);
+            if (cells[index + dimensions.y]) {
+                DownMiddleCellIsland = (cells[index + dimensions.y].getType() === 1 || cells[index + dimensions.y].getType() === 2);
             }
             if ((intersectedCells[0].getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
                 // intersectedCells[0].okField();
                 cellForShipFromMap.cell = intersectedCells[0];
-                coords.x = index % 50;
-                coords.y = (index - coords.x) / 50;
+                coords.x = index % dimensions.y;
+                coords.y = (index - coords.x) / dimensions.y;
                 isThisRightCell.state = true;
             }
         }

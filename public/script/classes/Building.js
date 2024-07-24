@@ -2,6 +2,7 @@ import { Cell } from "./Cell.js";
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 import { Rect } from "./Quadtree.js";
 import { SendBuilding } from "../websocket/logicForStage.js";
+import { Sound } from "./Sound.js";
 
 export class Building
 {
@@ -257,6 +258,9 @@ export class Building
     buildBuilding(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
+            const buildSound = new Sound('buildingSound', 0.03);
+            buildSound.repeating(false);
+            buildSound.play();
             Object.values(this.__cellsStatus).forEach(element => {
                 element.setPtrTower(this.getPtrTower());
             });

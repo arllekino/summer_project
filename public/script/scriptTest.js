@@ -3,8 +3,8 @@ import { main } from "./stages.js";
 import { CreateIsland } from "./classes/Map.js";
 import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
 
-(async () => {
 
+(async () => {
     const infoForUser = await FormationOfGame();
 
     const app = new PIXI.Application();

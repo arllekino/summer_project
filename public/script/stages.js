@@ -16,6 +16,10 @@ import { CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainG
 import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
 import { Warrior } from "./classes/Warrior.js";
+import { Sound } from "./classes/Sound.js";
+import { GetCountOfUsers, CheckStatusOfUserInLobby } from "./formationOfGame.js";
+
+
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
     const containerCubes = new PIXI.Container();
@@ -188,6 +192,62 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
     })
 }
 
+
+async function updateMap(island)
+{
+    const status = await CheckStatusOfUserInLobby();
+    let matrixOfField = [];
+    if (status === "host") {
+        const countOfUser = await GetCountOfUsers();
+        const dimensions = {
+            width: 0,
+            height: 0,
+        }
+        switch (countOfUser) {
+            case 1:
+                dimensions.width = 50;
+                dimensions.height = 50;
+                break;
+            case 2:
+                dimensions.width = 50;
+                dimensions.height = 100;
+                break;
+            case 3:
+                dimensions.width = 100;
+                dimensions.height = 100;
+                break;
+            case 4:
+                dimensions.width = 100;
+                dimensions.height = 100;
+                break;
+            default:
+                dimensions.width = 50;
+                dimensions.height = 50;
+                break;
+        }
+        let tempArr = []
+        let i = 0;
+        let j = 0;
+        island.cells.forEach(cell => {
+            temp
+        })
+    }
+    const response = await fetch('/update_map', {
+        method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    })
+    if (response.ok) {
+        const data = await response.json();
+        return data.count_players;
+    }
+    else {
+        console.log(response.status);
+    }
+}
+
 async function buildFarm(app, island, allTextResources, blocks, containerForMap) {
     const dimensions = {
         x: island.matrixOfIsland[0].length,
@@ -315,7 +375,8 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         }
         while (!stopMoving.state) {
             const promise = new Promise(function(resolve) {
-                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve));
+                console.log(island, 'ebat');
+                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve, worldMatrix));
                 app.stage.on("click", () => getCoordsOfShip(resolve));
                 if (Game.stage !== 4) {
                     resolve();
@@ -333,7 +394,7 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
     }
     if (stopMoving.state && Game.stage === 4) {
         const promiseForMovingShip = new Promise(function(resolve) {
-            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix,resolve, allContainer.containerForMap, island);
+            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, allContainer.containerForMap, island);
         });
         await Promise.all([promiseForMovingShip]);
         const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
@@ -363,6 +424,10 @@ function checkDeath(island, arrPlayersId, idUser)
 }
 
 export async function main(allContainer, app, island, idUser) {
+
+    const mainMusic = new Sound('main_game', 0.005);
+    mainMusic.repeating(true);
+    mainMusic.play();
 
     allContainer.wheelBlock.interactive = true;
     allContainer.wheelBlock.buttonMode = true;
