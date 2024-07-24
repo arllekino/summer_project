@@ -2,6 +2,7 @@ import { DrawInfoBlocks, DrawBuildingsBlock } from "./drawInfoBlocks.js";
 import { main } from "./stages.js";
 import { CreateIsland } from "./classes/Map.js";
 import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
+import { createIsland, viewIsland } from "./gameRequsets.js";
 
 
 (async () => {
@@ -14,6 +15,22 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     document.body.appendChild(app.canvas);    
 
     const island = CreateIsland(infoForUser.matrixOfField, infoForUser.colorFlag);
+    const response = await createIsland();
+    if (response === 'error')
+    {
+        const userResources = await viewIsland();
+        island.resourcesOfUser.wheat = userResources.food;
+        island.resourcesOfUser.hammer = userResources.hammers;
+        island.resourcesOfUser.maxWheat = userResources.max_food;
+        island.resourcesOfUser.maxStone = userResources.max_stone;
+        island.resourcesOfUser.maxWars = userResources.max_warriors;
+        island.resourcesOfUser.maxWood = userResources.max_wood;
+        island.resourcesOfUser.money = userResources.money;
+        island.resourcesOfUser.stone = userResources.stone;
+        island.resourcesOfUser.inhabitants = userResources.villagers;
+        island.resourcesOfUser.wars = userResources.warriors;
+        island.resourcesOfUser.wood = userResources.wood;
+    }
     
     const allContainer = DrawInfoBlocks(app);
     

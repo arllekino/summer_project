@@ -620,7 +620,6 @@ export async function main(allContainer, app, island, idUser) {
                 resolve();
             }, 500);
         });
-        await updateIsland(island.resourcesOfUser, idUser);
         await Promise.all([promiseForWaiting]);
 
         stageDisasters(allTextResources, island.resourcesOfUser, island.buildingsOfUserIsland, island.buildingCountsOfUser, island.illObjects);
@@ -628,6 +627,7 @@ export async function main(allContainer, app, island, idUser) {
             startTimerForStage(Game.timeStageForDisasters, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
         await Promise.all([promiseForDisasters]);
+        await updateIsland(island.resourcesOfUser);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;
         Game.playerReady = false;
@@ -652,8 +652,8 @@ export async function main(allContainer, app, island, idUser) {
         const promiseForBuildings = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
         })
-        await updateIsland(island.resourcesOfUser, idUser);
         await Promise.all([promiseForBuildings]);
+        await updateIsland(island.resourcesOfUser);
         interruptBuilding(app, island);
         arrPlayersId.arr = [];
         Game.isAllPlayersReady = false;

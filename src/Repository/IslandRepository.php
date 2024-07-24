@@ -23,7 +23,7 @@ class IslandRepository
 
     public function findByUserId(int $userId): ?Island
     {
-        return $this->repository->findOneBy(['user_id' => $userId]);
+        return $this->repository->findOneBy(['userId' => $userId]);
     }
 
     public function findByKeyRoom(string $keyRoom): array

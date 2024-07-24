@@ -14,7 +14,7 @@ class IslandController extends AbstractController
 {
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
-    private const BEGINNIG = 0;
+    private const BEGINNING = 0;
 
     public function __construct(
         private IslandService $islandService,
@@ -24,39 +24,46 @@ class IslandController extends AbstractController
 
     public function createIsland(Request $request): JsonResponse
     {        
-        $dataAsArray = json_decode($request->getContent(), true);
-        if ($dataAsArray === null)
-        {
-            return new JsonResponse([
-                'status' => 'Invalid JSON',
-                Response::HTTP_BAD_REQUEST
-            ]);
-        }
-
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         $sessionKeyGame = $this->session->getSession(self::SESSION_KEY_GAME);
 
         $input = new IslandInput(
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG,
-            self::BEGINNIG
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING,
+            self::BEGINNING
         );
 
-        $this->islandService->create($input, $sessionUserId, $sessionKeyGame);
+        try {
+            $this->islandService->create($input, $sessionUserId, $sessionKeyGame);
+        } catch (\UnexpectedValueException $e) {
+            return new JsonResponse($e->getMessage(), Response::HTTP_CONFLICT);
+        }
 
         return new JsonResponse([
             'status' => 'success', 
-            'received' => $dataAsArray
         ]);
+    }
+
+    public function viewIsland(): Response
+    {
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+
+        try {
+            $islandAsArray = $this->islandService->findIsland($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return new JsonResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
+        }
+        
+        return new JsonResponse($islandAsArray);
     }
 
     public function updateIsland(Request $request): JsonResponse
@@ -71,7 +78,7 @@ class IslandController extends AbstractController
         }
 
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
-        
+
         $input = new IslandInput(
             $dataAsArray['food'],
             $dataAsArray['max_food'],

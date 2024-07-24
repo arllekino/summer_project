@@ -272,7 +272,7 @@ class LobbyPlaceService
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {
-            $lobbyPlace->setStatus(self::LOBBY);
+            $lobbyPlace->setLobbyStatus(self::LOBBY);
             $this->repository->update($lobbyPlace);
         }
     }

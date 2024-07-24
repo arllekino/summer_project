@@ -14,6 +14,12 @@ class IslandService
 
     public function create(IslandInputInterface $input, int $userId, string $keyGame): void
     {
+        $extantIsland = $this->repository->findByUserId($userId);
+        if ($extantIsland !== null)
+        {
+            throw new \UnexpectedValueException('Остров уже создан');
+        }
+
         $island = new Island(
             null,
             $input->getFood(),
@@ -31,9 +37,33 @@ class IslandService
             $userId,
             $keyGame
         );
-        
+
         $this->repository->store($island);
     }
+
+    public function findIsland(int $userId): array
+    {
+        $island = $this->repository->findByUserId($userId);
+        if ($island === null)
+        {
+            throw new \UnexpectedValueException('Остров не найден');
+        }
+
+        return [
+            'food' => $island->getFood(),
+            'max_food' => $island->getMaxFood(),
+            'wood' => $island->getWood(),
+            'max_wood' => $island->getMaxFood(),
+            'stone' => $island->getStones(),
+            'max_stone' => $island->getMaxStones(),
+            'warriors' => $island->getWarriors(),
+            'max_warriors' => $island->getMaxWarriors(),
+            'villagers' => $island->getVillagers(),
+            'hammers' => $island->getHammers(),
+            'money' => $island->getMoney(),
+        ];
+    }
+
     public function update(IslandInputInterface $input, int $userId): void
     {
         $island = $this->repository->findByUserId($userId);

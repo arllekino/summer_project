@@ -28,7 +28,7 @@ final class Version20240724110650 extends AbstractMigration
         $tableUser->addColumn('password', Types::STRING, ['length' => 200, 'notnull' => false]);
     
         $tableUser->setPrimaryKey(['user_id']);
-        $tableUser->addUniqueIndex(['email']); 
+        $tableUser->addUniqueIndex(['email']);
 
 
         $tableIsland = $schema->createTable('island');

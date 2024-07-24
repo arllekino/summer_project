@@ -303,7 +303,7 @@ export function DrawNumberOfResources(containerForResources, resourcesOfUser) {
 	const textForInhabitants = new PIXI.Text();
 	DrawTextOnContainer(textForInhabitants, containerForResources, resourcesOfUser.inhabitants, 0.75, 0.07);
 	const textForMoney = new PIXI.Text();
-	DrawTextOnContainer(textForMoney, containerForResources, resourcesOfUser.inhabitants, 0.75, 0.58);
+	DrawTextOnContainer(textForMoney, containerForResources, resourcesOfUser.money, 0.75, 0.58);
 
     
 	const allTextResources = {
