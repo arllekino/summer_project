@@ -454,7 +454,7 @@ export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisR
                 DownMiddleCellIsland = (cells[index + 50].getType() === 1 || cells[index + 50].getType() === 2);
             }
             if ((intersectedCells[0].getType() == 0) && (TopMiddleCellIsland || MiddleLeftCellIsland || MiddleRightCellIsland || DownMiddleCellIsland)) {
-                // intersectedCells[0].okField();
+                intersectedCells[0].okField();
                 cellForShipFromMap.cell = intersectedCells[0];
                 coords.x = index % 50;
                 coords.y = (index - coords.x) / 50;

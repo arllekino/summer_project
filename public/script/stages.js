@@ -11,7 +11,7 @@ import { Rules } from "./classes/Rules.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
-import { ChoiceEndCoords, MoveWarrior } from "./moveWarrior.js";
+import { ChoiceEndCoords, MoveWarrior, MoveWarriorsToOtherWarriors } from "./moveWarrior.js";
 import { CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
 import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
@@ -262,6 +262,29 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
 }
 
 export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors, towers) {
+    
+    const warriorsOfIsland = [];
+    const numWarriors = 5;
+    let buildingCastle = null;
+    buildings.forEach((building) => {
+        if (building.name === "Castle") {
+            buildingCastle = building;
+            return;
+        }
+    });
+
+    let xForEnemy = 0, yForEnemy = 0;
+    if (buildingCastle) {
+        const bounds = buildingCastle.getBounds();
+        xForEnemy = bounds.x;
+        yForEnemy = bounds.y;
+    }
+
+    for (let i = 0; i < numWarriors; i++) {
+        const warrior = new Warrior(app, "war", xForEnemy, yForEnemy, 40, 3 + i);
+        warriorsOfIsland.push(warrior)
+    }
+    
     const coordsStart = {
         x: 0,
         y: 0,
@@ -273,7 +296,6 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         x: 0,
         y: 0,
     }
-
     const clickedBuilding = {
         building: null,
     };
@@ -340,8 +362,11 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         });
         await Promise.all([promiseForMovingShip]);
         const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-        cells[coordsStartForWarrior.y * 50 + coordsStartForWarrior.x].okField();
-        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, allContainer.containerForMap);
+        const warriorsIsDead = {
+            state: false,
+        }
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, allContainer.containerForMap, warriorsOfIsland);
+        MoveWarriorsToOtherWarriors(warriorsOfIsland, warriors, warriorsIsDead);
     }
 }
 

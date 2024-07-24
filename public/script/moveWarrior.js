@@ -546,8 +546,7 @@ async function animateBuildingDestruction(buildingSprite) {
     debrisSprite.destroy();
 }
 
-
-function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) {
+function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors, warriorsOfIsland) {
     const speed = 0.6;
     const targetX = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 5;
     const targetY = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 7;
@@ -568,48 +567,68 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
     }
 
     let allWarriorsReached = false;
+    let allWarriorsReachedOtherWarriors = false;
 
     const ticker = new PIXI.Ticker();
     ticker.add((time) => {
-        allWarriorsReached = true;
+        if (!allWarriorsReachedOtherWarriors) {
+            allWarriorsReached = true;
 
-        groups.forEach((group, groupIndex) => {
-            let offsetX = 0; // Смещение по X для каждой группы
-            let offsetY = 0; // Смещение по Y для каждой группы
+            groups.forEach((group, groupIndex) => {
+                let offsetX = 0; // Смещение по X для каждой группы
+                let offsetY = 0; // Смещение по Y для каждой группы
 
-            // Смещение относительно предыдущей группы
-            if (groupIndex > 0) {
-                const previousGroup = groups[groupIndex - 1];
-                const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
+                // Смещение относительно предыдущей группы
+                if (groupIndex > 0) {
+                    const previousGroup = groups[groupIndex - 1];
+                    const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
 
-                // Смещение по X в разные стороны
-                offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
-                offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
-            }
-
-            group.forEach((warrior, index) => {
-                const sprite = warrior.getSprite();
-
-                // Смещение в разные стороны (внутри группы)
-                let internalOffsetX = 0;
-                if (index === 0) {
-                    internalOffsetX = -8; // Левый воин
-                } else if (index === 2) {
-                    internalOffsetX = 8; // Правый воин
+                    // Смещение по X в разные стороны
+                    offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
+                    offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
                 }
 
-                // Движение воина к целевой позиции с учетом смещения
-                const dx = targetX + offsetX + internalOffsetX - sprite.x;
-                const dy = targetY + offsetY - sprite.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 1) {
-                    sprite.x += dx / distance * speed * time.deltaTime;
-                    sprite.y += dy / distance * speed * time.deltaTime;
-                    allWarriorsReached = false;
-                }
+                group.forEach((warrior, index) => {
+                    const sprite = warrior.getSprite();
+
+                    // Смещение в разные стороны (внутри группы)
+                    let internalOffsetX = 0;
+                    if (index === 0) {
+                        internalOffsetX = -8; // Левый воин
+                    } else if (index === 2) {
+                        internalOffsetX = 8; // Правый воин
+                    }
+
+                    // Движение воина к целевой позиции с учетом смещения
+                    const dx = targetX + offsetX + internalOffsetX - sprite.x;
+                    const dy = targetY + offsetY - sprite.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance > 1) {
+                        sprite.x += dx / distance * speed * time.deltaTime;
+                        sprite.y += dy / distance * speed * time.deltaTime;
+                        allWarriorsReached = false;
+                    }
+                    if (warriorsOfIsland) {
+                        let targetXOfWarriorOfIsland = Infinity;
+                        let targetYOfWarriorOfIsland = Infinity;
+                        warriorsOfIsland.forEach((warriorOfIsland) => {
+                            if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                                targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
+                                targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+                            }
+                        });
+
+                        const dxForWarriorsOfIsland = targetXOfWarriorOfIsland + offsetX + internalOffsetX - sprite.x;
+                        const dyForWarriorsOfIsland = targetYOfWarriorOfIsland + offsetY - sprite.y;
+                        const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                        if (distanceForWarriorsOfIsland <= 25) {
+                            allWarriorsReachedOtherWarriors = true;
+                        }
+                    }
+                });
             });
-        });
-
+        }
+        
         if (allWarriorsReached) {
             ticker.destroy();
             resolve();
@@ -641,16 +660,17 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
     }
 }
 
-async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, warriorsOfIsland) {
     if (!isWarriorSailingBack) {
         let newShortWay = [];
         const hasNewPathBuilt = {
             state: false,
         }
         for (let iter = 0; iter < shortWay.length; iter++) {
-            await new Promise(resolve => {
-                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriors);
+            const promiseForMoveSprite = new Promise(function(resolve) {
+                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriors, warriorsOfIsland);
             });
+            await Promise.all([promiseForMoveSprite]);
             if (iter === shortWay.length - 1) {
                 if (!hasAShortWayFound.state) {
                     const infoAboutCell = FindBuildingNear(shortWay[iter], coordsEndWar, worldMatrix, cells);
@@ -664,12 +684,12 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                         });
                         await Promise.all([promiseForDestroy]);
                         hasAShortWayFound.state = false;
-        
+
                         newShortWay = GetShortWay({x: infoAboutCell.x, y: infoAboutCell.y}, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
                         hasNewPathBuilt.state = true;
                         totalPath.way = totalPath.way.concat(newShortWay);
         
-                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
+                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, warriorsOfIsland);
                     }
                 }
                 else {
@@ -692,18 +712,294 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
     } else {
         for (let iter = shortWay.length - 1; iter >= 0; iter--) {
             await new Promise(resolve => {
-                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriors);
+                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriors, warriorsOfIsland);
             });
         }
     }
     resolve();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap) {
+function GetIndexOfWarriors(distributionOfOtherWarriors, distributionOfWarriors, iteration) {
+    if (distributionOfOtherWarriors.length > distributionOfWarriors.length) {
+        // for (let iter = iteration; iter < distributionOfOtherWarriors.length; iter++) {
+            if (distributionOfOtherWarriors[iteration] !== -1) {
+                return {
+                    iterForWarrior: distributionOfOtherWarriors[iteration],
+                    iterForOtherWarrior: distributionOfWarriors[distributionOfOtherWarriors[iteration]],
+                }
+            }
+            else {
+                return {
+                    iterForWarrior: -1,
+                    iterForOtherWarrior: -1,
+                }
+            }
+        // }
+    }
+    else {
+        // for (let iter = iteration; iter < distributionOfWarriors.length; iter++) {
+            if (distributionOfWarriors[iteration] !== -1) {
+                return {
+                    iterForWarrior: distributionOfOtherWarriors[distributionOfWarriors[iteration]],
+                    iterForOtherWarrior: distributionOfWarriors[iteration],
+                }
+            }
+            else {
+                return {
+                    iterForWarrior: -1,
+                    iterForOtherWarrior: -1,
+                }
+            }
+        // }
+    }
+}
+
+function Sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, iterWithMinusOne, warriorKilledInWarriors) {
+    if (warriorKilledInWarriors) {
+        let indexWithoutMinusOne = 0;
+        for (let iter = 0; iter < distributionOfWarriors.length; iter++) {
+            if (distributionOfWarriors[iter] !== -1) {
+                indexWithoutMinusOne = iter;
+                if (distributionOfOtherWarriors.indexOf(iter) === -1) {
+                    for (let iter2 = 0; iter2 < distributionOfOtherWarriors.length; iter2++) {
+                        if (distributionOfOtherWarriors[iter2] === iterWithMinusOne) {
+                            distributionOfOtherWarriors[iter2] = iter;
+                        }
+                    }
+                    break;
+                }
+            }
+            if (iter === distributionOfWarriors.length - 1) {
+                for (let iter2 = 0; iter2 < distributionOfOtherWarriors.length; iter2++) {
+                    if (distributionOfOtherWarriors[iter2] === iterWithMinusOne) {
+                        distributionOfOtherWarriors[iter2] = indexWithoutMinusOne;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    else {
+        let indexWithoutMinusOne = 0;
+        for (let iter = 0; iter < distributionOfOtherWarriors.length; iter++) {
+            if (distributionOfOtherWarriors[iter] !== -1) {
+                indexWithoutMinusOne = iter;
+                if (distributionOfWarriors.indexOf(iter) === -1) {
+                    for (let iter2 = 0; iter2 < distributionOfWarriors.length; iter2++) {
+                        if (distributionOfWarriors[iter2] === iterWithMinusOne) {
+                            distributionOfWarriors[iter2] = iter;
+                        }
+                    }
+                    break;
+                }
+            }
+            if (iter === distributionOfOtherWarriors.length - 1) {
+                for (let iter2 = 0; iter2 < distributionOfWarriors.length; iter2++) {
+                    if (distributionOfWarriors[iter2] === iterWithMinusOne) {
+                        distributionOfWarriors[iter2] = indexWithoutMinusOne;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
+async function BattlesOfTheWarriors(warriors, otherWarriors, resolve) {
+    let lengthOfWarriors = warriors.length;
+    let lengthOfOtherWarriors = otherWarriors.length;
+
+    const wrapperForWarriors = {
+        warriors: [],
+        otherWarriors: [],
+    }
+
+    const distributionOfOtherWarriors = [];
+    const distributionOfWarriors = [];
+
+    let warriorsIsDead = false;
+
+    if (lengthOfWarriors > lengthOfOtherWarriors) {
+        wrapperForWarriors.warriors = warriors;
+        wrapperForWarriors.otherWarriors = otherWarriors;
+    }
+    else {
+        wrapperForWarriors.warriors = otherWarriors;
+        wrapperForWarriors.otherWarriors = warriors;
+    }
+
+    let indexOfOtherWarriors = 0;
+    wrapperForWarriors.warriors.forEach((warrior, index) => {
+        if (index < wrapperForWarriors.otherWarriors.length) {
+            distributionOfWarriors.push(index);
+            distributionOfOtherWarriors.push(index); 
+            indexOfOtherWarriors = index;
+        }
+        else {
+            distributionOfWarriors.push(indexOfOtherWarriors);
+        }
+    });
+    let iteration = 0;
+    while (lengthOfOtherWarriors > 0 && lengthOfWarriors > 0) {
+        for (let iter = 0; iter < distributionOfWarriors.length; iter++) {
+            const indexForBattle = GetIndexOfWarriors(distributionOfOtherWarriors, distributionOfWarriors, iter);
+            if (indexForBattle.iterForOtherWarrior === -1 || indexForBattle.iterForWarrior === -1) {
+                continue;
+            }
+            const damageToApplyToWarrior = Math.min(wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].damage, wrapperForWarriors.warriors[indexForBattle.iterForWarrior].__hp);
+            await wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].attack(wrapperForWarriors.warriors[indexForBattle.iterForWarrior], damageToApplyToWarrior);
+            Sleep(1000).then(() => { ; });
+            
+            if (wrapperForWarriors.warriors[indexForBattle.iterForWarrior].__hp <= 0) {
+                distributionOfWarriors[indexForBattle.iterForWarrior] = -1;
+                RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, indexForBattle.iterForWarrior, true);
+                lengthOfWarriors--;
+
+                wrapperForWarriors.warriors[indexForBattle.iterForWarrior].sprite.visible = false;
+                wrapperForWarriors.warriors[indexForBattle.iterForWarrior].sprite.alpha = 0;
+                wrapperForWarriors.warriors[indexForBattle.iterForWarrior].app.stage.removeChild(wrapperForWarriors.warriors[indexForBattle.iterForWarrior].sprite);
+            }
+            else {
+                const damageToApplyToOtherWarrior = Math.min(wrapperForWarriors.warriors[indexForBattle.iterForWarrior].damage, wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].__hp);
+                await wrapperForWarriors.warriors[indexForBattle.iterForWarrior].attack(wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior], damageToApplyToOtherWarrior);
+
+                Sleep(1000).then(() => { ; });
+
+                if (wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].__hp <= 0) {
+                    distributionOfOtherWarriors[indexForBattle.iterForOtherWarrior] = -1;
+                    RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, indexForBattle.iterForOtherWarrior, false);
+                    lengthOfOtherWarriors--;
+
+                    wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].sprite.visible = false;
+                    wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].sprite.alpha = 0;
+                    wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].app.stage.removeChild(wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].sprite);
+                }
+            }
+            if (lengthOfOtherWarriors === 0) {
+                warriorsIsDead = true;
+                break;
+            }
+            if (lengthOfWarriors === 0) {
+                warriorsIsDead = true;
+                break;
+            }
+        }
+        iteration++;
+    }
+    
+    if (warriorsIsDead) {
+
+        if (lengthOfWarriors > lengthOfOtherWarriors) {
+            warriors = wrapperForWarriors.warriors;
+            otherWarriors = wrapperForWarriors.otherWarriors;
+        }
+        else {
+            warriors = wrapperForWarriors.otherWarriors;
+            otherWarriors = wrapperForWarriors.warriors;
+        }
+
+        warriors = warriors.filter((warrior) => warrior.__hp > 0);
+        otherWarriors = otherWarriors.filter((otherWarrior) => otherWarrior.__hp > 0);
+        resolve();
+    }
+}
+
+export function MoveWarriorsToOtherWarriors(warriors, otherWarriors, warriorsIsDead) {
+    const speed = 0.8;
+
+    const groupSize = 3;
+    const groups = [];
+    let currentGroup = [];
+    for (let i = 0; i < warriors.length; i++) {
+        currentGroup.push(warriors[i]);
+
+        if (currentGroup.length === groupSize) {
+            groups.push(currentGroup);
+            currentGroup = [];
+        }
+    }
+    if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+    }
+
+    let allWarriorsReached = false;
+
+    const ticker = new PIXI.Ticker();
+    ticker.add(async (time) => {
+        allWarriorsReached = false;
+
+        let targetXOfWarriorOfIsland = Infinity;
+        let targetYOfWarriorOfIsland = Infinity;
+        otherWarriors.forEach((otherWarrior) => {
+            if (otherWarrior.sprite.getBounds().x <= targetXOfWarriorOfIsland && otherWarrior.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                targetXOfWarriorOfIsland = otherWarrior.sprite.getBounds().x;
+                targetYOfWarriorOfIsland = otherWarrior.sprite.getBounds().y;
+            }
+        });
+
+        groups.forEach((group, groupIndex) => {
+
+            let offsetX = 0; // Смещение по X для каждой группы
+            let offsetY = 0; // Смещение по Y для каждой группы
+
+            // Смещение относительно предыдущей группы
+            if (groupIndex > 0) {
+                const previousGroup = groups[groupIndex - 1];
+                const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
+
+                // Смещение по X в разные стороны
+                offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
+                offsetY = previousLeaderSprite.y - targetYOfWarriorOfIsland + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
+            }
+
+            group.forEach(async (warrior, index) => {
+                const sprite = warrior.getSprite();
+
+                // Смещение в разные стороны (внутри группы)
+                let internalOffsetX = 0;
+                if (index === 0) {
+                    internalOffsetX = -8; // Левый воин
+                } else if (index === 2) {
+                    internalOffsetX = 8; // Правый воин
+                }
+
+                const dxForWarriorsOfIsland = targetXOfWarriorOfIsland + offsetX + internalOffsetX - sprite.x;
+                const dyForWarriorsOfIsland = targetYOfWarriorOfIsland + offsetY - sprite.y;
+                const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                if (distanceForWarriorsOfIsland <= 1) {
+                    console.log("плаки плаки");
+                    allWarriorsReached = true;
+                    const promise = new Promise(function(resolve) {
+                        BattlesOfTheWarriors(otherWarriors, warriors, resolve);
+                    });
+                    await Promise.all([promise]);
+                    console.log(otherWarriors.length, warriors.length);
+                }
+                else {
+                    sprite.x += dxForWarriorsOfIsland / distanceForWarriorsOfIsland * speed * time.deltaTime;
+                    sprite.y += dyForWarriorsOfIsland / distanceForWarriorsOfIsland * speed * time.deltaTime;
+                }
+
+            });
+        });
+
+        if (allWarriorsReached || warriorsIsDead.state) {
+            ticker.destroy();
+        }
+    });
+
+    ticker.start();
+}
+
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, warriorsOfIsland) {
     const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
 
-    const numWarriors = 5;
+    const numWarriors = 7;
     const warriorGroup = [];
 
     for (let i = 0; i < numWarriors; i++) {
@@ -711,6 +1007,7 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
         warriorGroup.push(warrior)
         warriors.push(warrior);
     }
+
     const hasAShortWayFound = {
         state: false,
     }
@@ -720,7 +1017,7 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
     totalPath.way = shortWay;
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, warriorsOfIsland);
     });
     await Promise.all([promiseForward]);
 }
