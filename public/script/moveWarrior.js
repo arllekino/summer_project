@@ -453,9 +453,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
 
 async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, towers) {
     if (clickedBuilding.building) {
-        towers.forEach(tower => {
-            tower.stopAttack(warriors);
-        });
+        // Отображение HP здания
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
             fontSize: 16,
             fill: 0xffff00,
@@ -468,60 +466,83 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
 
         await new Promise(resolve => setTimeout(resolve, 200)); // Ждем 300 мс, чтобы текст с HP был виден
 
-        while (clickedBuilding.building.__hp > 0 && clickedBuilding.building.__sprite) {
-            for (const warrior of warriors) {
-                // Проверяем, не больше ли урон воина, чем HP здания
-                const damageToApply = Math.min(warrior.damage, clickedBuilding.building.__hp);
-                await warrior.attack(clickedBuilding.building, damageToApply);
-                hpText.text = `${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`;
+        // Количество воинов, атакующих здание
+        let activeWarriorsCount = 0;
 
-                // Анимация урона
-                const damageText = new PIXI.Text(`-${damageToApply}`, {
-                    fontSize: 16,
-                    fill: 0xff0000,
-                    align: 'center',
-                    alpha: 0,
-                    fontWeight: 'bold'
-                });
-                damageText.zIndex = 501;
-                damageText.x = clickedBuilding.building.__sprite.x + clickedBuilding.building.__sprite.width / 2 - damageText.width / 2;
-                damageText.y = clickedBuilding.building.__sprite.y - 5 - 20;
-                app.stage.addChild(damageText);
+        // Рекурсивная функция для атаки воинов
+        async function attackBuilding(currentHp) {
+            if (currentHp <= 0) {
+                return;
+            }
 
-                for (let i = 0; i <= 10; i++) {
-                    damageText.alpha = i / 10;
-                    await new Promise(resolve => setTimeout(resolve, 20));
-                }
-                await new Promise(resolve => setTimeout(resolve, 200));
+            // Живые воины
+            const aliveWarriors = warriors.filter(warrior => warrior.alive);
 
-                for (let i = 10; i >= 0; i--) {
-                    damageText.alpha = i / 10;
-                    await new Promise(resolve => setTimeout(resolve, 20));
+            // Если есть живые воины, продолжаем атаку
+            if (aliveWarriors.length > 0) {
+                for (const warrior of aliveWarriors) {
+                    if (warrior.alive) { // Проверяем, жив ли воин
+                        activeWarriorsCount++;
+                        const damageToApply = Math.min(warrior.damage, currentHp);
+                        await warrior.startAttack(clickedBuilding.building, damageToApply);
+                        hpText.text = `${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`;
+
+                        // Анимация урона
+                        const damageText = new PIXI.Text(-damageToApply, {
+                            fontSize: 16,
+                            fill: 0xff0000,
+                            align: 'center',
+                            alpha: 0,
+                            fontWeight: 'bold'
+                        });
+                        damageText.zIndex = 501;
+                        damageText.x = clickedBuilding.building.__sprite.x + clickedBuilding.building.__sprite.width / 2 - damageText.width / 2;
+                        damageText.y = clickedBuilding.building.__sprite.y - 5 - 20;
+                        app.stage.addChild(damageText);
+
+                        for (let i = 0; i <= 10; i++) {
+                            damageText.alpha = i / 10;
+                            await new Promise(resolve => setTimeout(resolve, 20));
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 200));
+
+                        for (let i = 10; i >= 0; i--) {
+                            damageText.alpha = i / 10;
+                            await new Promise(resolve => setTimeout(resolve, 20));
+                        }
+                        app.stage.removeChild(damageText);
+
+                        if (!warrior.alive) {
+                            activeWarriorsCount--;
+                        }
+                        // Рекурсивно вызываем функцию с оставшимся HP
+                        await attackBuilding(clickedBuilding.building.__hp);
+                        break;
+                    }
                 }
-                app.stage.removeChild(damageText);
-                if (clickedBuilding.building.__hp <= 0) {
-                    break; // Выход из цикла, если HP здания <= 0
-                }
+            } else {
+                // Если нет живых воинов, выходим из функции
+                return;
             }
         }
+
+        await attackBuilding(clickedBuilding.building.__hp);
         app.stage.removeChild(hpText);
 
-        for (const warrior of warriors) {
-            warrior.sprite.visible = true;
-            warrior.attackSprite.visible = false;
+        if (clickedBuilding.building.__hp <= 0) {
+            for (const warrior of warriors) {
+                warrior.sprite.visible = true;
+                warrior.attackSprite.visible = false;
+            }
+            await animateBuildingDestruction(clickedBuilding.building.__sprite);
+            clickedBuilding.building.__sprite.destroy();
+            buildings.splice(buildings.indexOf(clickedBuilding.building), 1);Ш
+            for (const cellId in clickedBuilding.building.__cellsStatus) {
+                clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
+            }
         }
-
-        await animateBuildingDestruction(clickedBuilding.building.__sprite);
-        clickedBuilding.building.__sprite.destroy();
-        buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
-        towers.forEach(tower => {
-            tower.startAttack(warriors);
-        });
-        for (const cellId in clickedBuilding.building.__cellsStatus) {
-            clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
-        }
+        resolve();
     }
-    resolve();
 }
 
 async function animateBuildingDestruction(buildingSprite) {
@@ -586,7 +607,7 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
                 const previousGroup = groups[groupIndex - 1];
                 const previousLeaderSprite = previousGroup[0].getSprite();
                 offsetX = (groupIndex % 2 === 0) ? 5 : -5;
-                offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex;
+                offsetY = previousLeaderSprite.y - targetY + 3 * groupIndex;
             }
 
             group.forEach((warrior, index) => {
@@ -718,7 +739,7 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const numWarriors = 2;
 
     for (let i = 0; i < numWarriors; i++) {
-        const warrior = new Warrior(app, "war", x, y, 40, 3 + i);
+        const warrior = new Warrior(app, "war", x, y, 40, 20 + i);
         warriors.push(warrior);
     }
     const hasAShortWayFound = {
