@@ -37,6 +37,6 @@ class PasswordHasher
 
     private function isPasswordTooLong(string $password): bool
     {
-        return self::PASSWORD_LENGTH < strlen($password);
+        return self::PASSWORD_LENGTH < strlen($password);   
     }
 }

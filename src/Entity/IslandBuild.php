@@ -7,35 +7,19 @@ use App\Entity\Types\BuildType;
 
 class IslandBuild
 {
-    private ?int $id;
-    private int $hp;
-    private BuildType $buildType;
-    private string $buildMatrix;
-    private int $buildPtr;
-    private bool $illness;
-    private bool $destroyed;
-    private string $keyRoom;
-
     public function __construct(
-        ?int $id,
-        int $hp,
-        BuildType $buildType,
-        string $buildMatrix,
-        int $buildPtr,
-        bool $illness,
-        bool $destroyed,
-        string $keyRoom
+        private ?int $id,
+        private int $hp,
+        private BuildType $buildType,
+        private string $buildMatrix,
+        private int $buildPtr,
+        private string $cellStatusJSON,
+        private bool $illness,
+        private bool $destroyed,
+        private int $userId,
+        private string $keyRoom
     )
-    {
-        $this->id = $id;
-        $this->hp = $hp;
-        $this->buildType = $buildType;
-        $this->buildMatrix = $buildMatrix;
-        $this->buildPtr = $buildPtr;
-        $this->illness = $illness;
-        $this->destroyed = $destroyed;
-        $this->keyRoom = $keyRoom;
-    }
+    {}
 
     public function getId(): ?int
     {
@@ -57,6 +41,10 @@ class IslandBuild
     {
         return $this->buildPtr;
     }
+    public function getCellStatusJSON(): string
+    {
+        return $this->cellStatusJSON;    
+    }
     public function getIllness(): bool
     {
         return $this->illness;    
@@ -68,6 +56,10 @@ class IslandBuild
     public function getKeyRoom(): string
     {
         return $this->keyRoom;
+    }
+    public function getUserId(): int
+    {
+        return $this->userId;
     }
 
     public function setHp(int $hp): void

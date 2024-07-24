@@ -138,6 +138,9 @@ delete_build:
   path: /delete_build
   methods: POST
   controller: App\Controller\IslandBuildController::deleteBuild
+delete_builds_in_game:
+  path: /delete_builds_in_game
+  controller: App\Controller\IslandBuildController::deleteBuildsInGame
 
 create_island:
   path: /create_island  

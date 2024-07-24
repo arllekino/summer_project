@@ -9,14 +9,12 @@ use Doctrine\ORM\EntityRepository;
 
 class GameMapRepository
 {
-    private EntityManagerInterface $entityManager;
     private EntityRepository $repository;
 
     public function __construct(
-        EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager
     )
     {
-        $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(GameMap::class);
     }
 

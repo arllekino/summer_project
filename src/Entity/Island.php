@@ -6,62 +6,26 @@ namespace App\Entity;
 
 class Island
 {
-    private ?int $id;
-    private int $food;
-    private int $maxFood;
-
-    private int $wood;
-    private int $maxWood;
-    
-    private int $stones;
-    private int $maxStones;
-
-    private int $warriors;
-    private int $maxWarriors;
-
-    private int $villagers;
-    private int $hammers;
-    private int $money;
-    private int $knowledge;
-    private string $keyRoom;
-    
-    private int $userId;
     private ?User $user = null;
 
     public function __construct(
-        ?int $id,
-        int $food,
-        int $maxFood,
-        int $wood,
-        int $maxWood,
-        int $stones,
-        int $maxStones,
-        int $warriors,
-        int $maxWarriors,
-        int $villagers,
-        int $hammers,
-        int $money,
-        int $knowledge,
-        int $userId,
-        string $keyRoom
+        private ?int $id,
+        private int $foodCount,
+        private int $maxFoodCount,
+        private int $woodCount,
+        private int $maxWoodCount,
+        private int $stonesCount,
+        private int $maxStonesCount,
+        private int $warriorsCount,
+        private int $maxWarriorsCount,
+        private int $villagersCount,
+        private int $hammersCount,
+        private int $moneyCount,
+        private int $knowledgeCount,
+        private int $userId,
+        private string $keyRoom
     )
-    {
-        $this->id = $id;      
-        $this->food = $food;
-        $this->maxFood = $maxFood;
-        $this->wood = $wood;
-        $this->maxWood = $maxWood;
-        $this->stones = $stones;
-        $this->maxStones = $maxStones;
-        $this->warriors = $warriors;
-        $this->maxWarriors = $maxWarriors;
-        $this->villagers = $villagers;
-        $this->hammers = $hammers;
-        $this->money = $money;
-        $this->knowledge = $knowledge;
-        $this->userId = $userId;
-        $this->keyRoom = $keyRoom;
-    }
+    {}
 
     public function getId(): ?int
     {
@@ -69,51 +33,51 @@ class Island
     }
     public function getFood(): int
     {
-        return $this->food;
+        return $this->foodCount;
     }
     public function getMaxFood(): int
     {
-        return $this->maxFood;
+        return $this->maxFoodCount;
     }
     public function getWood(): int
     {
-        return $this->wood;
+        return $this->woodCount;
     }
     public function getMaxWood(): int
     {
-        return $this->maxWood;
+        return $this->maxWoodCount;
     }
     public function getStones(): int
     {
-        return $this->stones;
+        return $this->stonesCount;
     }
     public function getMaxStones(): int
     {
-        return $this->maxStones;
+        return $this->maxStonesCount;
     }
     public function getWarriors(): int
     {
-        return $this->warriors;
+        return $this->warriorsCount;
     }
     public function getMaxWarriors(): int
     {
-        return $this->maxWarriors;
+        return $this->maxWarriorsCount;
     }
     public function getVillagers(): int
     {
-        return $this->villagers;
+        return $this->villagersCount;
     }
     public function getHammers(): int
     {
-        return $this->hammers;
+        return $this->hammersCount;
     }
     public function getMoney(): int
     {
-        return $this->money;
+        return $this->moneyCount;
     }
     public function getKnowledge(): int
     {
-        return $this->knowledge;
+        return $this->knowledgeCount;
     }
     public function getUserId(): int
     {
@@ -129,56 +93,52 @@ class Island
     }
 
 
-    public function setFood(int $food): void
+    public function setFood(int $foodCount): void
     {
-        $this->food = $food;
+        $this->foodCount = $foodCount;
     }
-    public function setMaxFood(int $maxFood): void
+    public function setMaxFood(int $maxFoodCount): void
     {
-        $this->maxFood = $maxFood;
+        $this->maxFoodCount = $maxFoodCount;
     }
-    public function setWood(int $wood): void
+    public function setWood(int $woodCount): void
     {
-        $this->wood =  $wood;
+        $this->woodCount = $woodCount;
     }
-    public function setMaxWood(int $maxWood): void
+    public function setMaxWood(int $maxWoodCount): void
     {
-        $this->maxWood = $maxWood;
+        $this->maxWoodCount = $maxWoodCount;
     }
-    public function setStones(int $stones): void
+    public function setStones(int $stonesCount): void
     {
-        $this->stones = $stones;
+        $this->stonesCount = $stonesCount;
     }
-    public function setMaxStones(int $maxStones): void
+    public function setMaxStones(int $maxStonesCount): void
     {
-        $this->maxStones = $maxStones;
+        $this->maxStonesCount = $maxStonesCount;
     }
-    public function setWarriors(int $warriors): void
+    public function setWarriors(int $warriorsCount): void
     {
-        $this->warriors = $warriors;
+        $this->warriorsCount = $warriorsCount;
     }
-    public function setMaxWarriors(int $maxWarriors): void
+    public function setMaxWarriors(int $maxWarriorsCount): void
     {
-        $this->maxWarriors = $maxWarriors;
+        $this->maxWarriorsCount = $maxWarriorsCount;
     }
-    public function setVillagers(int $villagers): void
+    public function setVillagers(int $villagersCount): void
     {
-        $this->villagers = $villagers;
+        $this->villagersCount = $villagersCount;
     }
-    public function setHammers(int $hammers): void
+    public function setHammers(int $hammersCount): void
     {
-        $this->hammers = $hammers;
+        $this->hammersCount = $hammersCount;
     }
-    public function setMoney(int $money): void
+    public function setMoney(int $moneyCount): void
     {
-        $this->money = $money;
+        $this->moneyCount = $moneyCount;
     }
-    public function setKnowledge(int $knowledge): void
+    public function setKnowledge(int $knowledgeCount): void
     {
-        $this->knowledge = $knowledge;
-    }
-    public function setUser(User $user): void
-    {
-        $this->user = $user;
+        $this->knowledgeCount = $knowledgeCount;
     }
 }

@@ -11,22 +11,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IslandBuildController extends AbstractController
 {
+    private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
-    private SessionController $session;
-    private IslandBuildService $islandBuildService;
 
     public function __construct(
-        SessionController $session,
-        IslandBuildService $islandBuildService
+        private SessionController $session,
+        private IslandBuildService $islandBuildService
     )
-    {
-        $this->session = $session;
-        $this->islandBuildService = $islandBuildService;
-    }
+    {}
 
     public function createIslandBuild(Request $request): Response
     {
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
 
         $data = json_decode($request->getContent(), true);
 
@@ -35,11 +32,11 @@ class IslandBuildController extends AbstractController
             $data['build_type'],
             $data['build_matrix'],
             $data['build_ptr'],
-            $sessionKeyRoom
+            $data['cell_status']
         );
 
         try {
-            $buildId = $this->islandBuildService->createIslandBuild($input);
+            $buildId = $this->islandBuildService->createIslandBuild($input, $sessionKeyRoom, $sessionUserId);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }
@@ -120,6 +117,19 @@ class IslandBuildController extends AbstractController
 
         try {
             $this->islandBuildService->deleteBuild($data['build_id']);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response('OK');
+    }
+
+    public function deleteBuildsInGame(): Response
+    {
+        $sessionKeyGame = $this->session->getSession(self::SESSION_KEY_GAME);
+        
+        try {
+            $this->islandBuildService->deleteBuildsInGame($sessionKeyGame);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }

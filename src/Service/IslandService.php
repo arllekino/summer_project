@@ -9,12 +9,8 @@ use App\Service\Input\IslandInputInterface;
 
 class IslandService
 {
-    private IslandRepository $repository;
-
-    public function __construct(IslandRepository $repository)
-    {
-        $this->repository = $repository;
-    }
+    public function __construct(private IslandRepository $repository)
+    {}
 
     public function create(IslandInputInterface $input, int $userId, string $keyGame): void
     {

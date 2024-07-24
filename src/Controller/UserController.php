@@ -16,13 +16,10 @@ class UserController extends AbstractController
     private const MIN_LENGTH_PASSWORD = 8; 
     private const SESSION_USER_ID = 'userId';
 
-    private UserService $userService;
-    private SessionController $session;
-    public function __construct(UserService $userService, SessionController $session)
-    {
-        $this->userService = $userService;
-        $this->session = $session;
-    }
+    public function __construct(
+        private UserService $userService,
+        private SessionController $session)
+    {}
 
     public function registerForm(Request $request): Response
     {

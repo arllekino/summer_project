@@ -15,17 +15,12 @@ class IslandController extends AbstractController
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
     private const BEGINNIG = 0;
-    private IslandService $islandService;
-    private SessionController $session;
 
     public function __construct(
-        IslandService $islandService,
-        SessionController $session
+        private IslandService $islandService,
+        private SessionController $session
     )
-    {
-        $this->islandService = $islandService;
-        $this->session = $session;
-    }
+    {}
 
     public function createIsland(Request $request): JsonResponse
     {        

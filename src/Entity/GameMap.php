@@ -5,14 +5,10 @@ namespace App\Entity;
 
 class GameMap
 {
-    private ?int $id;
-    private string $keyRoom;
-    private string $matrixGameMap;
-
     public function __construct(
-        ?int $id,
-        string $keyRoom,
-        string $matrixGameMap
+        private ?int $id,
+        private string $keyRoom,
+        private string $matrixGameMap
     )
     {
         $this->id = $id;

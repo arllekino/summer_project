@@ -6,98 +6,68 @@ use App\Service\Input\IslandInputInterface;
 
 class IslandInput implements IslandInputInterface
 {
-    private int $food;
-    private int $maxFood;
-
-    private int $wood;
-    private int $maxWood;
-    
-    private int $stones;
-    private int $maxStones;
-
-    private int $warriors;
-    private int $maxWarriors;
-
-    private int $villagers;
-    private int $hammers;
-    private int $money;
-    private int $knowledge;
-
     public function __construct(
-        int $food,
-        int $maxFood,
-        int $wood,
-        int $maxWood,
-        int $stones,
-        int $maxStones,
-        int $warriors,
-        int $maxWarriors,
-        int $villagers,
-        int $hammers,
-        int $money,
-        int $knowledge
+        private int $foodCount,
+        private int $maxFoodCount,
+        private int $woodCount,
+        private int $maxWoodCount,
+        private int $stonesCount,
+        private int $maxStonesCount,
+        private int $warriorsCount,
+        private int $maxWarriorsCount,
+        private int $villagersCount,
+        private int $hammersCount,
+        private int $moneyCount,
+        private int $knowledgeCount
     )
-    {
-        $this->food = $food;
-        $this->maxFood = $maxFood;
-        $this->wood = $wood;
-        $this->maxWood = $maxWood;
-        $this->stones = $stones;
-        $this->maxStones = $maxStones;
-        $this->warriors = $warriors;
-        $this->maxWarriors = $maxWarriors;
-        $this->villagers = $villagers;
-        $this->hammers = $hammers;
-        $this->money = $money;
-        $this->knowledge = $knowledge;
-    }
+    {}
 
     public function getFood(): int
     {
-        return $this->food;
+        return $this->foodCount;
     }
     public function getMaxFood(): int
     {
-        return $this->maxFood;
+        return $this->maxFoodCount;
     }
     public function getWood(): int
     {
-        return $this->wood;
+        return $this->woodCount;
     }
     public function getMaxWood(): int
     {
-        return $this->maxWood;
+        return $this->maxWoodCount;
     }
     public function getStones(): int
     {
-        return $this->stones;
+        return $this->stonesCount;
     }
     public function getMaxStones(): int
     {
-        return $this->maxStones;
+        return $this->maxStonesCount;
     }
     public function getWarriors(): int
     {
-        return $this->warriors;
+        return $this->warriorsCount;
     }
     public function getMaxWarriors(): int
     {
-        return $this->maxWarriors;
+        return $this->maxWarriorsCount;
     }
     public function getVillagers(): int
     {
-        return $this->villagers;
+        return $this->villagersCount;
     }
     public function getHammers(): int
     {
-        return $this->hammers;
+        return $this->hammersCount;
     }
     public function getMoney(): int
     {
-        return $this->money;
+        return $this->moneyCount;
     }
     public function getKnowledge(): int
     {
-        return $this->knowledge;
+        return $this->knowledgeCount;
     }
 }

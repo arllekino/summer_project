@@ -9,12 +9,10 @@ use Doctrine\ORM\EntityRepository;
 
 class IslandRepository
 {
-    private EntityManagerInterface $entityManager;
     private EntityRepository $repository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(Island::class);
     }
 

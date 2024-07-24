@@ -9,5 +9,5 @@ interface IslandBuildInputInterface
     public function getStrBuildType(): string;
     public function getBuildMatrix(): array;
     public function getBuildPtr(): int;
-    public function getKeyRoom(): string;
+    public function getCellStatus(): array;
 }
