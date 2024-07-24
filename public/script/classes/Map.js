@@ -84,10 +84,11 @@ function mapReader(container, worldMatrix, cells, app, worldResources, resources
     })
 }
 
-export function CreateIsland(worldMatrix) {
+export function CreateIsland(worldMatrix, colorFlag) {
     return {
         resourcesOfUser: TResources,
         matrixOfIsland: worldMatrix,
+        colorFlag: colorFlag,
         cells: [],
         cellsOfUserIsland: [],
         mapReader: mapReader,

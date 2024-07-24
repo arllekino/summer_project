@@ -20,6 +20,13 @@
             "trimmed": true,
             "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 66 },
             "sourceSize": { "w": 66, "h": 66 }
+        },
+        "barrackDice.png": {
+            "frame": { "x": 0, "y": 198, "w": 66, "h": 66 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 66 },
+            "sourceSize": { "w": 66, "h": 66 }
         }
     },
     "meta": {

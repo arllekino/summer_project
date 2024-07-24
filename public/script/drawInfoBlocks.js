@@ -111,7 +111,6 @@ export async function DrawBlockForDiceRoll(container, app, containerCubes, block
 	blockButtonReRoll.x = container.width * percentageScreenWidthButtonReRoll;
 	blockButtonReRoll.y = container.height * percentageScreenHeightButtonReRoll;
 
-	console.log(container.width, "45678765456789");
 	resolve();
 }
 
@@ -193,7 +192,7 @@ export async function DrawBlockBuildings(container, app, island, allTextResource
 				}
 			}
 			if ((textureName === 'tower.png') && !island.buildingMoment) {
-				const requiredResources = {}; //{stone: 2, wood: 2, money: 1, hammer: 1}
+				const requiredResources = {stone: 2, wood: 2, money: 1, hammer: 1}; //{stone: 2, wood: 2, money: 1, hammer: 1}
 				if (Object.keys(requiredResources).every((key) => requiredResources[key] <= island.resourcesOfUser[key]))
 				{
 					island.buildingMoment = true

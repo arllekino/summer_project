@@ -1,5 +1,5 @@
 export class Warrior {
-  constructor(app, name, x, y, hp, damage) {
+  constructor(app, name, x, y, hp, damage, warriorFlag) {
     this.name = name;
     this.x = x;
     this.y = y;
@@ -9,19 +9,34 @@ export class Warrior {
     this.attacking = false;
     this.attackDuration = 300;
     this.app = app;
+    switch (warriorFlag)
+    {
+        case 'green':
+            this.warriorPtr = 2;
+            break;
+        case 'red':
+            this.warriorPtr = 1;
+            break;
+        case 'blue':
+            this.warriorPtr = 3;
+            break;
+        case 'yellow':
+            this.warriorPtr = 4;
+            break;
+    }
 
     this.initSprite(app, x, y);
   }
 
   initSprite(app, x, y) {
-    this.sprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_1.png`));
+    this.sprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_${this.warriorPtr}.png`));
     this.sprite.x = x;
     this.sprite.y = y;
     this.sprite.zIndex = 400;
     this.sprite.anchor.set(0.5);
     app.stage.addChild(this.sprite);
 
-    this.attackSprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_1_2.png`));
+    this.attackSprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_${this.warriorPtr}_2.png`));
     this.attackSprite.x = x;
     this.attackSprite.y = y;
     this.attackSprite.zIndex = 10;

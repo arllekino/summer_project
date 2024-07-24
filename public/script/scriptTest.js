@@ -13,7 +13,7 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     app.stage.interactive = true;
     document.body.appendChild(app.canvas);    
 
-    const island = CreateIsland(infoForUser.matrixOfField);
+    const island = CreateIsland(infoForUser.matrixOfField, infoForUser.colorFlag);
     
     const allContainer = DrawInfoBlocks(app);
     
@@ -23,7 +23,7 @@ import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
     textures = await PIXI.Assets.load('/../imageParser/playingHouse.json');
     textures = await PIXI.Assets.load('/../imageParser/wareHouse.json');
     textures = await PIXI.Assets.load('/../imageParser/farmerHouse.json');
-    textures = await PIXI.Assets.load('/../imageParser/greenCastle.json');
+    textures = await PIXI.Assets.load('/../imageParser/Castle.json');
     textures = await PIXI.Assets.load('/../imageParser/Icons.json');
     textures = await PIXI.Assets.load('/../imageParser/resources.json');
     textures = await PIXI.Assets.load("/../imageParser/backgroundInfobox.json");

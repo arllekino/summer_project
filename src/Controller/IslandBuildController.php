@@ -126,4 +126,17 @@ class IslandBuildController extends AbstractController
 
         return new Response('OK');
     }
+
+    public function deleteBuildsInGame(): Response
+    {
+        $sessionKeyGame = $this->session->getSession(self::SESSION_KEY_GAME);
+        
+        try {
+            $this->islandBuildService->deleteBuildsInGame($sessionKeyGame);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response('OK');
+    }
 }

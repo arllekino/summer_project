@@ -39,7 +39,6 @@ class IslandBuildService
 
     public function viewAllBuilds(string $keyRoom): array
     {
-        //id hp buildtype matrix illness destroyed
         $islandBuilds = $this->repository->findBuildsByKeyRoom($keyRoom);
         if (empty($islandBuilds))
         {
@@ -52,11 +51,10 @@ class IslandBuildService
             $arrayIslandBuild = [
                 'build_id' => $islandBuild->getId(),
                 'hp' => $islandBuild->getHp(),
-                'build_type' => $islandBuild->getBuildType(),
+                'build_type' => self::getStrBuildType($islandBuild->getBuildType()),
                 'build_matrix' => $islandBuild->getBuildMatrix(),
                 'build_ptr' => $islandBuild->getBuildPtr(),
                 'illness' => $islandBuild->getIllness(),
-                'destroyed' => $islandBuild->getDestroyed()
             ];
             
             $arrayIslandBuilds[] = $arrayIslandBuild;
@@ -123,6 +121,20 @@ class IslandBuildService
         $this->repository->delete($islandBuild);
     }
 
+    public function deleteBuildsInGame(string $keyRoom): void
+    {
+        $islandBuilds = $this->repository->findBuildsByKeyRoom($keyRoom);
+        if (empty($islandBuilds))
+        {
+            throw new \UnexpectedValueException('Здания не найдены');
+        }
+
+        foreach ($islandBuilds as $islandBuild)
+        {
+            $this->repository->delete($islandBuild);
+        }
+    }
+
     private function getBuildType(string $strBuildType): ?BuildType
     {
         switch ($strBuildType)
@@ -136,25 +148,60 @@ class IslandBuildService
             case 'barrack':
                 $buildType = BuildType::Barrack;
                 break;
-            case 'defence':
+            case 'tower':
                 $buildType = BuildType::Defence;
                 break;
             case 'wall':
                 $buildType = BuildType::Wall;
                 break;
-            case 'house_peasant':
+            case 'houseVillage':
                 $buildType = BuildType::HousePeasant;
                 break;
-            case 'house_nobles':
+            case 'houseGrendee':
                 $buildType = BuildType::HouseNobles;
                 break;
             case 'warehouse':
                 $buildType = BuildType::Warehouse;
                 break;    
             default:
-                $buildType = null;
+                $buildType = BuildType::HousePeasant;
                 break;
         }    
         return $buildType;
+    }
+
+    private function getStrBuildType(BuildType $buildType): string
+    {
+        switch ($buildType)
+        {
+            case BuildType::Castle:
+                $strBuildType = 'castle';
+                break;
+            case BuildType::Farm:
+                $strBuildType = 'farm';
+                break;
+            case BuildType::Barrack:
+                $strBuildType = 'barrack';
+                break;
+            case BuildType::Defence:
+                $strBuildType = 'tower';
+                break;
+            case BuildType::Wall:
+                $strBuildType = 'wall';
+                break;
+            case BuildType::HousePeasant:
+                $strBuildType = 'houseVillage';
+                break;
+            case BuildType::HouseNobles:
+                $strBuildType = 'houseGrendee';
+                break;
+            case BuildType::Warehouse:
+                $strBuildType = 'warehouse';
+                break;
+            default:
+                $strBuildType = 'houseVillage';
+                break;
+        }    
+        return $strBuildType;
     }
 }

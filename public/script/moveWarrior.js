@@ -712,7 +712,7 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const warriorGroup = [];
 
     for (let i = 0; i < numWarriors; i++) {
-        const warrior = new Warrior(app, "war", x, y, 40, 3 + i);
+        const warrior = new Warrior(app, "war", x, y, 40, 3 + i, island.colorFlag);
         warriorGroup.push(warrior)
         warriors.push(warrior);
     }
