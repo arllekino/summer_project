@@ -77,7 +77,6 @@ class WebSocketHandler implements MessageComponentInterface
                     if ($this->games[$data['key_room']] !== null && in_array($client, $this->games[$data['key_room']]))
                     {
                         $client->send($msg);
-                        var_dump('fuck you bitch');
                     }
                 } 
                 else 
