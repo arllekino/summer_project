@@ -13,20 +13,13 @@ class GameController extends AbstractController
 {
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
-    private SessionController $session;
-    private LobbyPlaceService $lobbyService;
-    private GameMapService $gameMapService;
 
     public function __construct(
-        SessionController $session,
-        LobbyPlaceService $lobbyService,
-        GameMapService $gameMapService
+        private SessionController $session,
+        private LobbyPlaceService $lobbyService,
+        private GameMapService $gameMapService
     )
-    {
-        $this->session = $session;
-        $this->lobbyService = $lobbyService;
-        $this->gameMapService = $gameMapService;
-    }
+    {}
 
     public function startGame(Request $request): Response
     {

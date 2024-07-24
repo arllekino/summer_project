@@ -16,7 +16,7 @@ class IslandBuildService
         $this->repository = $repository;
     }
 
-    public function createIslandBuild(IslandBuildInputInterface $input): int
+    public function createIslandBuild(IslandBuildInputInterface $input, int $userId, string $keyRoom): int
     {
         $buildType = $this->getBuildType($input->getStrBuildType()); 
         if ($buildType === null)
@@ -29,9 +29,11 @@ class IslandBuildService
             $buildType,
             json_encode($input->getBuildMatrix()),
             $input->getBuildPtr(),
+            json_encode($input->getCellStatus()),
             false,
             false,
-            $input->getKeyRoom()
+            $userId,
+            $keyRoom
         );
 
         return $this->repository->store($islandBuild);
@@ -55,6 +57,7 @@ class IslandBuildService
                 'build_matrix' => $islandBuild->getBuildMatrix(),
                 'build_ptr' => $islandBuild->getBuildPtr(),
                 'illness' => $islandBuild->getIllness(),
+                'user_id' => $islandBuild->getUserId()
             ];
             
             $arrayIslandBuilds[] = $arrayIslandBuild;

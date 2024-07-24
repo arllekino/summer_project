@@ -5,35 +5,17 @@ namespace App\Entity;
 
 class LobbyPlace
 {
-    private ?int $id;
-    private int $lobbyId;
-    private int $playerId;
-    private string $colorFlag;
-    private ?string $keyRoom;
-    private string $status;
-    private string $lobbyStatus;
-    private string $readiness;
-
     public function __construct(
-        ?int $id,
-        int $lobbyId,
-        int $playerId,
-        string $colorFlag,
-        ?string $keyRoom,
-        string $status,
-        string $lobbyStatus,
-        string $readiness
+        private ?int $id,
+        private int $lobbyId,
+        private int $playerId,
+        private string $colorFlag,
+        private ?string $keyRoom,
+        private string $status,
+        private string $lobbyStatus,
+        private string $readiness
     )
-    {
-        $this->id = $id;
-        $this->lobbyId = $lobbyId;
-        $this->playerId = $playerId;
-        $this->colorFlag = $colorFlag;
-        $this->keyRoom = $keyRoom;
-        $this->status = $status;
-        $this->lobbyStatus = $lobbyStatus;
-        $this->readiness = $readiness;
-    }
+    {}
 
     public function getId(): ?int
     {

@@ -8,12 +8,8 @@ use App\Repository\GameMapRepository;
 
 class GameMapService
 {
-    private GameMapRepository $repository;
-
-    public function __construct(GameMapRepository $repository)
-    {
-        $this->repository = $repository;
-    }
+    public function __construct(private GameMapRepository $repository)
+    {}
 
     public function createGameMap(string $keyRoom, string $matrixGameMap): void
     {

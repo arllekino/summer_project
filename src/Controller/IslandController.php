@@ -12,22 +12,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IslandController extends AbstractController
 {
+    private const SESSION_USER_ID = 'userId';
+    private const SESSION_KEY_GAME = 'keyGame';
     private const BEGINNIG = 0;
-    private IslandService $islandService;
-    private SessionController $session;
 
     public function __construct(
-        IslandService $islandService,
-        SessionController $session
+        private IslandService $islandService,
+        private SessionController $session
     )
-    {
-        $this->islandService = $islandService;
-        $this->session = $session;
-    }
+    {}
 
     public function createIsland(Request $request): JsonResponse
     {        
-        $dataAsArray = json_decode($request->getContent());
+        $dataAsArray = json_decode($request->getContent(), true);
         if ($dataAsArray === null)
         {
             return new JsonResponse([
@@ -36,8 +33,10 @@ class IslandController extends AbstractController
             ]);
         }
 
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        $sessionKeyGame = $this->session->getSession(self::SESSION_KEY_GAME);
+
         $input = new IslandInput(
-            $dataAsArray['island_matrix'],
             self::BEGINNIG,
             self::BEGINNIG,
             self::BEGINNIG,
@@ -49,10 +48,10 @@ class IslandController extends AbstractController
             self::BEGINNIG,
             self::BEGINNIG,
             self::BEGINNIG,
-            self::BEGINNIG,
-            $this->session->getSession('userId')      
+            self::BEGINNIG
         );
 
+        $this->islandService->create($input, $sessionUserId, $sessionKeyGame);
 
         return new JsonResponse([
             'status' => 'success', 
@@ -62,7 +61,7 @@ class IslandController extends AbstractController
 
     public function updateIsland(Request $request): JsonResponse
     {
-        $dataAsArray = json_decode($request->getContent());
+        $dataAsArray = json_decode($request->getContent(), true);
         if ($dataAsArray === null)
         {
             return new JsonResponse([
@@ -70,9 +69,10 @@ class IslandController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             ]);
         }
+
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         
         $input = new IslandInput(
-            $dataAsArray['island_matrix'],
             $dataAsArray['food'],
             $dataAsArray['max_food'],
             $dataAsArray['wood'],
@@ -84,16 +84,15 @@ class IslandController extends AbstractController
             $dataAsArray['villagers'],
             $dataAsArray['hammers'],
             $dataAsArray['money'],
-            $dataAsArray['knowledge'],
-            $this->session->getSession('userId')
+            $dataAsArray['knowledge']
         );
 
         try {
-            $this->islandService->update($input);
+            $this->islandService->update($input, $sessionUserId);
         } catch (\UnexpectedValueException $e) {
             return new JsonResponse([
                 'status' => $e->getMessage(),
-                Response::HTTP_UNAUTHORIZED
+                Response::HTTP_NOT_FOUND
             ]);
         }
         
@@ -103,9 +102,10 @@ class IslandController extends AbstractController
         ]);
     }
     
-    public function viewAllIsland(Request $request): JsonResponse
+    public function viewIslandsInGame(): JsonResponse
     {
-        $islands = $this->islandService->findAll();
+        $sessionKeyGame = $this->session->getSession(self::SESSION_KEY_GAME);
+        $islands = $this->islandService->findIslandsInGame($sessionKeyGame);
 
         return new JsonResponse([
             'status' => 'success',
@@ -113,9 +113,18 @@ class IslandController extends AbstractController
         ]);
     }
 
-    public function deleteAllIsland(): JsonResponse
+    public function deleteIslandsInGame(): JsonResponse
     {
-        $this->islandService->deleteAll();
+        $sessionKeyGame = $this->session->getSession(self::SESSION_KEY_GAME);
+        try {
+            $this->islandService->deleteIslandsInGame($sessionKeyGame);
+        } catch (\UnexpectedValueException $e) {
+            return new JsonResponse([
+                'status' => $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            ]);
+        }
+        
         return new JsonResponse([
             'status' => 'success'
         ]);

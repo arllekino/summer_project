@@ -14,22 +14,15 @@ class LobbyPlaceController extends AbstractController
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
     private const KEY_LENGTH = 4;
-    private SessionController $session;
-    private LobbyPlaceService $lobbyService;
-    private UserService $userService;
     
     public function __construct(
-        SessionController $session,
-        UserService $userService,
-        LobbyPlaceService $lobbyService
+        private SessionController $session,
+        private UserService $userService,
+        private LobbyPlaceService $lobbyService
     )
-    {
-        $this->session = $session;
-        $this->userService = $userService;
-        $this->lobbyService = $lobbyService;
-    }
+    {}
 
-    public function startLobbyPage(): Response
+    public function startLobbyPage(Request $request): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)
@@ -52,7 +45,8 @@ class LobbyPlaceController extends AbstractController
         }
         return $this->render(
             'start_lobby_page.html.twig',
-            ['userName' => $userName]
+            ['userName' => $userName,
+            'message' => $request->get('message')]
         );
     }
     public function createLobby(): Response

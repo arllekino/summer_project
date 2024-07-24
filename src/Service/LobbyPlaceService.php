@@ -16,14 +16,12 @@ class LobbyPlaceService
     private const READY = 'Готов';
     private const NOT_READY = 'Не готов';
     private const FLAGS_ARRAY = ['blue', 'red', 'yellow', 'green'];
-    private LobbyPlaceRepository $repository;
-    private UserService $userService;
     
-    public function __construct(LobbyPlaceRepository $repository, UserService $userService)
-    {
-        $this->repository = $repository;
-        $this->userService = $userService;
-    }
+    public function __construct(
+        private LobbyPlaceRepository $repository,
+        private UserService $userService
+    )
+    {}
 
     public function create(int $userId): string
     {
@@ -122,7 +120,7 @@ class LobbyPlaceService
         if (empty($lobbyPlaces))
         {
             throw new \UnexpectedValueException('Лобби не найдено');
-        }
+        }    
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {

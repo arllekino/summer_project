@@ -13,8 +13,10 @@
         <field name="buildType" column="build_type" type="string" nullable="false" />   
         <field name="buildMatrix" column="build_matrix" type="string" nullable="false"/>  
         <field name="buildPtr" column="build_ptr" type="int" nullable="false"/>
+        <field name="cellStatusJSON" column="cell_status_json" type="string" nullable="false" /> 
         <field name="illness" column="illness" type="bool" nullable="false"/>
         <field name="destroyed" column="destroyed" type="bool" nullable="false"/>
+        <field name="userId" column="user_id" type="int" nullable="false" /> 
         <field name="keyRoom" column="key_room" type="string" nullable="false" /> 
 
     </entity>

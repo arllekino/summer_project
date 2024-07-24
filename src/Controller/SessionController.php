@@ -7,12 +7,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionController 
 {
-    private SessionInterface $session;
-    
-    public function __construct(SessionInterface $session)
-    {
-        $this->session = $session;     
-    }
+    public function __construct(private SessionInterface $session)
+    {}
     public function setSession(string $name, mixed $value): void
     {
         $this->session->set($name, $value);
