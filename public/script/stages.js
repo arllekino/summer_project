@@ -323,7 +323,7 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
     }
     if (stopMoving.state && Game.stage === 4) {
         const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-        cells[coordsStartForWarrior.y * 50 + coordsStartForWarrior.x].okField();
+        //cells[coordsStartForWarrior.y * 50 + coordsStartForWarrior.x].okField();
 
         const promiseForMovingShip = new Promise(function (resolve) {
             MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, allContainer.containerForMap, coordsStartForWarrior, buildings, clickedBuilding, warriors, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
