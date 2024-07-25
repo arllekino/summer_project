@@ -957,7 +957,7 @@ async function BattlesOfTheWarriors(warriorsOfAllUser, resolve, idUser, resource
                 RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, indexForBattle.iterForWarrior, true);
                 lengthOfWarriors--;
 
-                await wrapperForWarriors.warriors[indexForBattle.iterForWarrior].sprite.destroy();
+                wrapperForWarriors.warriors[indexForBattle.iterForWarrior].destroy();
             }
             else {
                 const damageToApplyToOtherWarrior = Math.min(wrapperForWarriors.warriors[indexForBattle.iterForWarrior].damage, wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].__hp);
@@ -970,7 +970,7 @@ async function BattlesOfTheWarriors(warriorsOfAllUser, resolve, idUser, resource
                     RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, indexForBattle.iterForOtherWarrior, false);
                     lengthOfOtherWarriors--;
 
-                    await wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].sprite.destroy();
+                    wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].destroy();
                 }
             }
             if (lengthOfOtherWarriors === 0) {
