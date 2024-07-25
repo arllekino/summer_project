@@ -305,7 +305,7 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions) {
 
 function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, sprite, resolve, dimensions) {
     const ticker = new PIXI.Ticker;
-    const speed = 10;
+    const speed = 2.5;
 
     const xCoord = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells, dimensions) - 5;
     const yCoord = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells, dimensions) - 7;
