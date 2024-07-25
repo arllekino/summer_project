@@ -119,8 +119,8 @@ export function CreateIsland(worldMatrix, colorFlag) {
         buldingObject: null,
         buildingSprite: null,
         ships: [],
-        quadTree: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 10000),
-        quadTreeOfUserIsland: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 20,  window.innerHeight * 1000), 961),
-        warriors: []
+        quadTree: new QuadTree(new Rect(-5000, -5000, window.innerWidth * 1000,  window.innerHeight * 1000), 10000),
+        quadTreeOfUserIsland: new QuadTree(new Rect(-1000, -1000, window.innerWidth * 10000,  window.innerHeight * 10000), 10000),
+        warriors: [],
     }
 }

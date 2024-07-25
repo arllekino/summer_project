@@ -128,7 +128,6 @@ async function buildTower(app, island, allTextResources, blocks, containerForMap
 
 export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap, resolve)
 {
-    console.log(userId);
     const handleKeyDown = (event) => {
         const key = event.key;
         if (island.buldingObject) {

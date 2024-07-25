@@ -14,7 +14,7 @@ async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, nu
     const x = GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) - 5;
     const y = GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) - 7;
 
-    const textureIcon = await PIXI.Assets.load(pathToFile);
+    const textureIcon = await PIXI.Texture.from(pathToFile);
     sprite.texture = textureIcon;
 
     sprite.x = x;
@@ -488,7 +488,7 @@ export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, shi
     }
 
     const rect = new PIXI.Sprite();
-    DrawShip(rect, app, ships, cells, "blue_ship2.png", coordsStart.x, coordsStart.y, containerForMap, dimensions);
+    DrawShip(rect, app, ships, cells, "yellow_ship1.png", coordsStart.x, coordsStart.y, containerForMap, dimensions);
     const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions);
     const promiseForward = new Promise(function (resolve) {
         MoveSprite(rect, shortWay, cells, false, resolve, dimensions);

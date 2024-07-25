@@ -10,7 +10,7 @@ const webSocketObject = {
     webSocket: null,
 }
 
-export const ws = new WebSocket('ws://10.250.104.158:8080');
+export const ws = new WebSocket('ws://10.10.29.45:8080');
 
 let lobbyKey;
 
