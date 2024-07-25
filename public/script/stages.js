@@ -331,7 +331,7 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     });
 }
 
-export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors, towers, isThereBattleGoingNow, countOfWarriors, idUser, island) {
+export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, towers, isThereBattleGoingNow, countOfWarriors, idUser, island, allTextResources) {
     const dimensions = {
         x: worldMatrix[0].length,
         y: worldMatrix.length,
@@ -414,39 +414,12 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
 
             isThereBattleGoingNow.state = true;
             SendInfoAboutAttack(clickedBuilding, coordsStart, coordsEnd, coordsOfBuilding, countOfWarriors, cells, isThereBattleGoingNow, island.colorFlag);
-            const warriorsOfAllUser = {
-                warriorsOfIsland: [],
-                warriorsOfShip: [],
-            }
-            console.log(clickedBuilding);
-            const resourcesOfAttackedPlayer = await viewIsland(clickedBuilding.building.__userId);
+            const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
+
             const promiseForMovingShip = new Promise(function(resolve) {
-                MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix,resolve, allContainer.containerForMap);
+                MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, allContainer.containerForMap, coordsStartForWarrior, buildings, clickedBuilding, towers, allTextResources, island, countOfWarriors, idUser);
             });
             await Promise.all([promiseForMovingShip]);
-            const idAttackedUser = clickedBuilding.building.__userId;
-            let castleAttackedUser;
-            buildings.forEach(building => {
-                if (building.__userId === idAttackedUser) {
-                    if (building.name === "Castle") {
-                        castleAttackedUser = building;
-                        return;
-                    }
-                }
-            });
-            if (resourcesOfAttackedPlayer.warriors !== 0) {
-                if (resourcesOfAttackedPlayer.warriors > countOfWarriors) {
-                    MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag, idAttackedUser);
-                }
-                else {
-                    MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag, idAttackedUser);
-                }
-            }
-            const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-            MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, allContainer.containerForMap, warriorsOfAllUser, countOfWarriors, island, island.colorFlag, idUser);
-            if (resourcesOfAttackedPlayer.warriors !== 0) {
-                MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resourcesOfAttackedPlayer);
-            }
         }
     }
 }
@@ -692,7 +665,7 @@ export async function main(allContainer, app, island, idUser, arrPlayersId, allT
         {
             await setGameStatus(Game.stage);
             const towers = island.buildingsOfUserIsland.filter(building => building.getAlias() === 'tower' )
-            stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers, isThereBattleGoingNow, island.resourcesOfUser.wars, idUser, island);
+            stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers, isThereBattleGoingNow, island.resourcesOfUser.wars, idUser, island, allTextResources);
             const promiseForBattles = new Promise(function(resolve) {
                 startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
             })

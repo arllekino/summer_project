@@ -1,14 +1,15 @@
 import { mouseDistanceInContainer, mouseIntersects, mouseIntersectsInContainer, mouseDistance } from "./classes/CommonFunctions.js";
 import { Game } from "./classes/game.js";
 import { Rect } from "./classes/Quadtree.js";
-import { MoveWarrior } from "./moveWarrior.js";
+import { viewIsland } from "./gameRequsets.js";
+import { MakeIslandWarriorsOfPlayer, MoveWarrior, MoveWarriorsToOtherWarriors } from "./moveWarrior.js";
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) {
-    return cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().x + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().width / 2;
+    return cells[numberOfCellY * dimensions.x + numberOfCellX].x + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().width / 2;
 }
 
 function GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) {
-    return cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().y + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().height / 2;
+    return cells[numberOfCellY * dimensions.x + numberOfCellX].y + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().height / 2;
 }
 
 async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, numberOfCellY, containerForMap, dimensions) {
@@ -299,16 +300,12 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions) {
 
     const reversedShortWay = shortWay.reverse();
 
-    reversedShortWay.forEach((cellShortWay) => {
-        cells[cellShortWay.y * dimensions.x + cellShortWay.x].okField();
-    });
-
     return reversedShortWay;
 }
 
 function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, sprite, resolve, dimensions) {
     const ticker = new PIXI.Ticker;
-    const speed = 10;
+    const speed = 5;
 
     const xCoord = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells, dimensions) - 5;
     const yCoord = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells, dimensions) - 7;
@@ -480,7 +477,7 @@ export function ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip
     }
 }
 
-export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, containerForMap, coordsStartForWarrior, buildings, clickedBuilding, warriors, towers, resourcesOfUser, allTextResources, buildingCountsOfUser) {
+export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, containerForMap, coordsStartForWarrior, buildings, clickedBuilding, towers, allTextResources, island, countOfWarriors, idUser) {
     const dimensions = {
         x: worldMatrix[0].length,
         y: worldMatrix.length,
@@ -489,15 +486,44 @@ export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, shi
     const rect = new PIXI.Sprite();
     DrawShip(rect, app, ships, cells, `blue_ship2.png`, coordsStart.x, coordsStart.y, containerForMap, dimensions);
 
+    console.log(coordsStart, coordsEnd);
     const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions);
+    console.log(shortWay);
     const promiseForward = new Promise(function (resolve) {
         MoveSprite(rect, shortWay, cells, false, resolve, dimensions);
     });
     await Promise.all([promiseForward]);
 
-    const promiseForMovingWarriors = new Promise(function (resolve) {
-        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, resolve, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
+    const promiseForMovingWarriors = new Promise(async function (resolve) {
+        const warriorsOfAllUser = {
+            warriorsOfIsland: [],
+            warriorsOfShip: [],
+        }
+        const resourcesOfAttackedPlayer = await viewIsland(clickedBuilding.building.__userId);
+        const idAttackedUser = clickedBuilding.building.__userId;
+        let castleAttackedUser;
+        buildings.forEach(building => {
+            if (building.__userId === idAttackedUser) {
+                if (building.name === "Castle") {
+                    castleAttackedUser = building;
+                    return;
+                }
+            }
+        });
+        if (resourcesOfAttackedPlayer.warriors !== 0) {
+            if (resourcesOfAttackedPlayer.warriors > countOfWarriors) {
+                MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag, idAttackedUser);
+            }
+            else {
+                MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag, idAttackedUser);
+            }
+        }
+        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors, island, island.colorFlag, idUser, towers, allTextResources, resolve);
+        if (resourcesOfAttackedPlayer.warriors !== 0) {
+            MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resourcesOfAttackedPlayer, resolve);
+        }
     });
+
     await Promise.all([promiseForMovingWarriors]);
 
     await new Promise(resolve => setTimeout(resolve, 1000));
