@@ -1,5 +1,6 @@
 import { mouseDistanceInContainer, mouseIntersectsInContainer } from './classes/CommonFunctions.js';
 import { Warrior } from './classes/Warrior.js';
+import { updateIsland } from './gameRequsets.js';
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) {
     return cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().x + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().width / 2;
@@ -21,7 +22,7 @@ async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numbe
     app.stage.addChild(warrior);
 }
 
-export function MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, buildingCastle, colorFlag) {
+export function MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, buildingCastle, colorFlag, idUser) {
     let xForEnemy = 0, yForEnemy = 0;
     if (buildingCastle) {
         xForEnemy = buildingCastle.__cellsStatus[4].x;
@@ -29,7 +30,7 @@ export function MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUs
     }
 
     for (let i = 0; i < countOfWarriors; i++) {
-        const warrior = new Warrior(app, "war", xForEnemy, yForEnemy, 40, 3 + i, colorFlag);
+        const warrior = new Warrior(app, "war", xForEnemy, yForEnemy, 40, 3 + i, colorFlag, idUser);
         warriorsOfAllUser.warriorsOfIsland.push(warrior)
     }
 }
@@ -487,8 +488,57 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUse
 
         await new Promise(resolve => setTimeout(resolve, 200)); // Ждем 300 мс, чтобы текст с HP был виден
 
+        const areWarriorsAttacking = {
+            state: false,
+        }
         while (clickedBuilding.building.__hp > 0 && clickedBuilding.building.__sprite) {
+            if (areWarriorsAttacking.state) {
+                warriorsOfAllUser.warriorsOfShip.forEach((warriorOfShip) => {
+                    if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
+                        let targetXOfWarriorOfIsland = Infinity;
+                        let targetYOfWarriorOfIsland = Infinity;
+                        warriorsOfAllUser.warriorsOfIsland.forEach((warriorOfIsland) => {
+                            if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                                targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
+                                targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+                            }
+                        });
+    
+                        const dxForWarriorsOfIsland = targetXOfWarriorOfIsland - warriorOfShip.x;
+                        const dyForWarriorsOfIsland = targetYOfWarriorOfIsland - warriorOfShip.y;
+                        const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                        if (distanceForWarriorsOfIsland <= 40) {
+                            areWarriorsAttacking.state = true;
+                            return;
+                        }
+                        else {
+                            areWarriorsAttacking.state = false;
+                        }
+                    }
+                });
+                continue;
+            }
             for (const warrior of warriorsOfAllUser.warriorsOfShip) {
+
+                if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
+                    let targetXOfWarriorOfIsland = Infinity;
+                    let targetYOfWarriorOfIsland = Infinity;
+                    warriorsOfAllUser.warriorsOfIsland.forEach((warriorOfIsland) => {
+                        if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                            targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
+                            targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+                        }
+                    });
+
+                    const dxForWarriorsOfIsland = targetXOfWarriorOfIsland - warrior.x;
+                    const dyForWarriorsOfIsland = targetYOfWarriorOfIsland - warrior.y;
+                    const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                    if (distanceForWarriorsOfIsland <= 40) {
+                        areWarriorsAttacking.state = true;
+                        break;
+                    }
+                }
+
                 // Проверяем, не больше ли урон воина, чем HP здания
                 const damageToApply = Math.min(warrior.damage, clickedBuilding.building.__hp);
 
@@ -649,7 +699,6 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriorsOf
                         const dxForWarriorsOfIsland = targetXOfWarriorOfIsland + offsetX + internalOffsetX - sprite.x;
                         const dyForWarriorsOfIsland = targetYOfWarriorOfIsland + offsetY - sprite.y;
                         const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
-                        console.log(distanceForWarriorsOfIsland);
                         if (distanceForWarriorsOfIsland <= 40) {
                             allWarriorsReachedOtherWarriors = true;
                             allWarriorsReached = false;
@@ -855,7 +904,7 @@ function RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors
     }
 }
 
-async function BattlesOfTheWarriors(warriorsOfAllUser, resolve) {
+async function BattlesOfTheWarriors(warriorsOfAllUser, resolve, idUser, resourcesOfAttackedPlayer) {
     let lengthOfWarriors = warriorsOfAllUser.warriorsOfShip.length;
     let lengthOfOtherWarriors = warriorsOfAllUser.warriorsOfIsland.length;
 
@@ -925,15 +974,12 @@ async function BattlesOfTheWarriors(warriorsOfAllUser, resolve) {
                 }
             }
             if (lengthOfOtherWarriors === 0) {
-                // debugger;
                 warriorsIsDead = true;
             }
             if (lengthOfWarriors === 0) {
-                // debugger;
                 warriorsIsDead = true;
             }
         }
-        console.log(lengthOfOtherWarriors, lengthOfWarriors);
         iteration++;
     }
     
@@ -949,12 +995,35 @@ async function BattlesOfTheWarriors(warriorsOfAllUser, resolve) {
 
         warriorsOfAllUser.warriorsOfShip = warriorsOfAllUser.warriorsOfShip.filter((warrior) => warrior.__hp > 0);
         warriorsOfAllUser.warriorsOfIsland = warriorsOfAllUser.warriorsOfIsland.filter((otherWarrior) => otherWarrior.__hp > 0);
-        
+        if (warriorsOfAllUser.warriorsOfShip.length !== 0) {
+            if (idUser === warriorsOfAllUser.warriorsOfShip[0].idUser) {
+                if (resourcesOfAttackedPlayer.warriors === 0) {
+                    resourcesOfAttackedPlayer.warriors = warriorsOfAllUser.warriorsOfShip.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+                else {
+                    resourcesOfAttackedPlayer.warriors += warriorsOfAllUser.warriorsOfShip.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+            }
+        }
+        if (warriorsOfAllUser.warriorsOfIsland.length !== 0) {
+            if (idUser === warriorsOfAllUser.warriorsOfIsland[0].idUser) {
+                if (resourcesOfAttackedPlayer.warriors === 0) {
+                    resourcesOfAttackedPlayer.warriors = warriorsOfAllUser.warriorsOfIsland.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+                else {
+                    resourcesOfAttackedPlayer.warriors += warriorsOfAllUser.warriorsOfIsland.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+            }
+        }
         resolve();
     }
 }
 
-export function MoveWarriorsToOtherWarriors(warriorsOfAllUser) {
+export function MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resourcesOfAttackedPlayer) {
     const speed = 0.8;
 
     const groupSize = 3;
@@ -976,7 +1045,6 @@ export function MoveWarriorsToOtherWarriors(warriorsOfAllUser) {
 
     const ticker = new PIXI.Ticker();
     ticker.add(async (time) => {
-        console.log(789);
         allWarriorsReached = false;
 
         let targetXOfWarriorOfIsland = Infinity;
@@ -1020,7 +1088,7 @@ export function MoveWarriorsToOtherWarriors(warriorsOfAllUser) {
                 if (distanceForWarriorsOfIsland <= 1) {
                     allWarriorsReached = true;
                     const promise = new Promise(function(resolve) {
-                        BattlesOfTheWarriors(warriorsOfAllUser, resolve);
+                        BattlesOfTheWarriors(warriorsOfAllUser, resolve, idUser, resourcesOfAttackedPlayer);
                     });
                     await Promise.all([promise]);
                 }
@@ -1047,7 +1115,7 @@ export function MoveWarriorsToOtherWarriors(warriorsOfAllUser) {
     ticker.start();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors, island, colorFlag) {
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors, island, colorFlag, idUser) {
     const dimensions = {
         x: worldMatrix[0].length,
         y: worldMatrix.length,
@@ -1057,7 +1125,7 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells, dimensions) - 7;
 
     for (let i = 0; i < countOfWarriors; i++) {
-        const warrior = new Warrior(app, "war", x, y, 40, 3 + i, colorFlag);
+        const warrior = new Warrior(app, "war", x, y, 40, 3 + i, colorFlag, idUser);
         warriorsOfAllUser.warriorsOfShip.push(warrior);
     }
     const areWarriorsOfShipDead = {

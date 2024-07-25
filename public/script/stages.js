@@ -446,16 +446,16 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
             });
             if (resourcesOfAttackedPlayer.warriors !== 0) {
                 if (resourcesOfAttackedPlayer.warriors > countOfWarriors) {
-                    MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag);
+                    MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag, idAttackedUser);
                 }
                 else {
-                    MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag);
+                    MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag, idAttackedUser);
                 }
             }
             const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-            MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, allContainer.containerForMap, warriorsOfAllUser, countOfWarriors, island, island.colorFlag);
+            MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, allContainer.containerForMap, warriorsOfAllUser, countOfWarriors, island, island.colorFlag, idUser);
             if (resourcesOfAttackedPlayer.warriors !== 0) {
-                MoveWarriorsToOtherWarriors(warriorsOfAllUser);
+                MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resourcesOfAttackedPlayer);
             }
         }
     }

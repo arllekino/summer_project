@@ -47,7 +47,7 @@ import { RotateBlockWheelEvents } from "./timerForStage.js";
     const arrPlayersId = {
         arr: [],
     }
-    await WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap);
+    await WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap, undefined, infoForUser.numberOfUser);
 
     if (response === 'error')
     {
