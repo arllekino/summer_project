@@ -21,7 +21,7 @@ async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numbe
     app.stage.addChild(warrior);
 }
 
-export function MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, buildingCastle) {
+export function MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, buildingCastle, colorFlag) {
     let xForEnemy = 0, yForEnemy = 0;
     if (buildingCastle) {
         xForEnemy = buildingCastle.__cellsStatus[4].x;
@@ -29,7 +29,7 @@ export function MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUs
     }
 
     for (let i = 0; i < countOfWarriors; i++) {
-        const warrior = new Warrior(app, "war", xForEnemy, yForEnemy, 40, 3 + i);
+        const warrior = new Warrior(app, "war", xForEnemy, yForEnemy, 40, 3 + i, colorFlag);
         warriorsOfAllUser.warriorsOfIsland.push(warrior)
     }
 }
@@ -534,10 +534,12 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUse
         await animateBuildingDestruction(clickedBuilding.building.__sprite);
         clickedBuilding.building.__sprite.destroy();
         buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
-        if (island.buildingsOfUserIsland.indexOf(clickedBuilding.building) !== -1)
-        {
-            island.buildingsOfUserIsland.splice(island.buildingsOfUserIsland.indexOf(clickedBuilding.building), 1);
-            island.buildingCountsOfUser[clickedBuilding.building.getAlias()] -= 1;
+        if (island) {
+            if (island.buildingsOfUserIsland.indexOf(clickedBuilding.building) !== -1)
+                {
+                    island.buildingsOfUserIsland.splice(island.buildingsOfUserIsland.indexOf(clickedBuilding.building), 1);
+                    island.buildingCountsOfUser[clickedBuilding.building.getAlias()] -= 1;
+                }
         }
 
         for (const cellId in clickedBuilding.building.__cellsStatus) {
@@ -736,12 +738,13 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                     }
                 }
                 else {
+                    debugger;
                     const promiseForDestroy = new Promise(function(resolve){
                         DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, shortWay, cells, resolve, island);
                     });
                     await Promise.all([promiseForDestroy]);
                     const promiseBack = new Promise(function (resolve) {
-                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
+                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
                     });
                     await Promise.all([promiseBack]);
                     
@@ -922,11 +925,11 @@ async function BattlesOfTheWarriors(warriorsOfAllUser, resolve) {
                 }
             }
             if (lengthOfOtherWarriors === 0) {
-                debugger;
+                // debugger;
                 warriorsIsDead = true;
             }
             if (lengthOfWarriors === 0) {
-                debugger;
+                // debugger;
                 warriorsIsDead = true;
             }
         }
@@ -1044,7 +1047,7 @@ export function MoveWarriorsToOtherWarriors(warriorsOfAllUser) {
     ticker.start();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors) {
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors, island, colorFlag) {
     const dimensions = {
         x: worldMatrix[0].length,
         y: worldMatrix.length,
@@ -1054,7 +1057,7 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells, dimensions) - 7;
 
     for (let i = 0; i < countOfWarriors; i++) {
-        const warrior = new Warrior(app, "war", x, y, 40, 3 + i);
+        const warrior = new Warrior(app, "war", x, y, 40, 3 + i, colorFlag);
         warriorsOfAllUser.warriorsOfShip.push(warrior);
     }
     const areWarriorsOfShipDead = {

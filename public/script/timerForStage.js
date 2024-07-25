@@ -2,7 +2,7 @@ import { Game } from "./classes/game.js";
 import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
 
-function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
+export function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     const ticker = new PIXI.Ticker;
     let rotation = 0;
     switch (stage) {

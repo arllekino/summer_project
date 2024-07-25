@@ -1,5 +1,6 @@
 import { Building } from "../classes/Building.js";
 import { Cell } from "../classes/Cell.js";
+import { viewIsland } from "../gameRequsets.js";
 import { MoveSpriteToCoords } from "../moveSpriteToCoords.js";
 import { ChoiceEndCoords, MakeIslandWarriorsOfPlayer, MoveWarrior, MoveWarriorsToOtherWarriors } from "../moveWarrior.js";
 import { MakePlayerReady } from "../requestsForMainGame.js";
@@ -163,42 +164,6 @@ export function GetParamForBuilding(data, infoAboutBulding) {
     }
 }
 
-export async function GetCountOfWar(userId) {
-    const response = await fetch("", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-    }
-    else {
-        console.log(response.status);
-    }
-}
-
-export async function SetCountOfWar(userId, resources) {
-    const response = await fetch("", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-    }
-    else {
-        console.log(response.status);
-    }
-}
-
 export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap, isThereBattleGoingNow) {
     if (ws) {
         ws.onmessage = async (event) => {
@@ -224,7 +189,7 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     x: island.matrixOfIsland[0].length,
                     y: island.matrixOfIsland.length,
                 }
-                const building = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTree, infoAboutBulding.name, infoAboutBulding.alias, infoAboutBulding.givingResource, infoAboutBulding.peopleCount, infoAboutBulding.hp, infoAboutBulding.defense, infoAboutBulding.buildType, infoAboutBulding.buildPtr, infoAboutBulding.requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, true, infoAboutBulding.damage);
+                const building = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTree, infoAboutBulding.name, infoAboutBulding.alias, infoAboutBulding.givingResource, infoAboutBulding.peopleCount, infoAboutBulding.hp, infoAboutBulding.defense, infoAboutBulding.buildType, infoAboutBulding.buildPtr, infoAboutBulding.requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, true, infoAboutBulding.damage, data.id);
                 data.build_matrix.forEach((coord) => {
                     building.__cellsStatus[coord.index] = island.cells[coord.y * dimensions.y + coord.x];
                     building.__cellsStatus[coord.index].setCellId = coord.index;
@@ -266,7 +231,9 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                 });
             }
             if (data.type === "departureOfShip") {
-                let attackedBuilding;
+                const attackedBuilding = {
+                    building: null,
+                };
                 let idAttackedUser;
                 let castleAttackedUser;
                 [...island.buildings].forEach(building => {
@@ -283,7 +250,7 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                         arrCoords.push(coords);
                     }
                     if (JSON.stringify(arrCoords) === JSON.stringify(data.arrCoords)) {
-                        attackedBuilding = building;
+                        attackedBuilding.building = building;
                         idAttackedUser = building.__userId;
                         return;
                     }
@@ -296,27 +263,32 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                         }
                     }
                 });
-                isThereBattleGoingNow.state = data.isThereBattleGoingNow;
+                console.log(castleAttackedUser, idAttackedUser, attackedBuilding);
+                // isThereBattleGoingNow.state = data.isThereBattleGoingNow;
                 const warriorsOfAllUser = {
                     warriorsOfIsland: [],
                     warriorsOfShip: [],
                 }
-                const resourcesOfAttackedPlayer = await GetCountOfWar(idAttackedUser);
+                const resourcesOfAttackedPlayer = await viewIsland(idAttackedUser);
+                console.log(resourcesOfAttackedPlayer);
+                console.log(data);
                 const promiseForMovingShip = new Promise(function(resolve) {
                     MoveSpriteToCoords(data.coordsEndOfShip, data.coordsStartOfShip, island.cells, app, island.ships, island.matrixOfIsland, resolve, containerForMap);
                 });
                 await Promise.all([promiseForMovingShip]);
-                if (countOfWarrriorsOfAttackedUser !== 0) {
-                    if (countOfWarrriorsOfAttackedUser > data.countOfWarriors) {
-                        MakeIslandWarriorsOfPlayer(app, data.countOfWarriors, warriorsOfAllUser, castleAttackedUser);
+                if (resourcesOfAttackedPlayer.warriors !== 0) {
+                    if (resourcesOfAttackedPlayer.warriors > data.countOfWarriors) {
+                        MakeIslandWarriorsOfPlayer(app, data.countOfWarriors, warriorsOfAllUser, castleAttackedUser, data.colorFlag);
                     }
                     else {
-                        MakeIslandWarriorsOfPlayer(app, countOfWarrriorsOfAttackedUser, warriorsOfAllUser, castleAttackedUser);
+                        MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, data.colorFlag);
                     }
                 }
                 const coordsStartForWarrior = ChoiceEndCoords(data.coordsOfBuilding, data.coordsEndOfShip, island.matrixOfIsland, island.cells);
-                MoveWarrior(coordsStartForWarrior, data.coordsEndOfShip, island.cells, app, island.matrixOfIsland, island.buildings, attackedBuilding, containerForMap, warriorsOfAllUser, data.countOfWarriors);
-                MoveWarriorsToOtherWarriors(warriorsOfAllUser);
+                MoveWarrior(coordsStartForWarrior, data.coordsEndOfShip, island.cells, app, island.matrixOfIsland, island.buildings, attackedBuilding, containerForMap, warriorsOfAllUser, data.countOfWarriors, undefined, data.colorFlag);
+                if (resourcesOfAttackedPlayer.warriors !== 0) {
+                    MoveWarriorsToOtherWarriors(warriorsOfAllUser);
+                }
             }
         };
     }
@@ -433,7 +405,7 @@ export async function SendDestroyBuilding(object, cells) {
     }
 }
 
-export function SendInfoAboutAttack(attackedBuilding, coordsStartOfShip, coordsEndOfShip, coordsOfBuilding, countOfWarriors, cells, isThereBattleGoingNow) {
+export function SendInfoAboutAttack(attackedBuilding, coordsStartOfShip, coordsEndOfShip, coordsOfBuilding, countOfWarriors, cells, isThereBattleGoingNow, colorFlag) {
     if (ws) {
         const arrCoords = [];
         for (let key in attackedBuilding.building.__cellsStatus) {
@@ -456,6 +428,7 @@ export function SendInfoAboutAttack(attackedBuilding, coordsStartOfShip, coordsE
             coordsEndOfShip: coordsEndOfShip,
             coordsOfBuilding: coordsOfBuilding,
             countOfWarriors: countOfWarriors,
+            colorFlag: colorFlag,
             isThereBattleGoingNow: isThereBattleGoingNow.state,
         }
         ws.send(JSON.stringify(data));

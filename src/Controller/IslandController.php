@@ -53,12 +53,14 @@ class IslandController extends AbstractController
         ]);
     }
 
-    public function viewIsland(): Response
+    public function viewIsland(Request $request): JsonResponse
     {
-        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        $data = json_decode($request->getContent(), true);
+
+        $userId = $data['user_id'] ?? $this->session->getSession(self::SESSION_USER_ID);
 
         try {
-            $islandAsArray = $this->islandService->findIsland($sessionUserId);
+            $islandAsArray = $this->islandService->findIsland($userId);
         } catch (\UnexpectedValueException $e) {
             return new JsonResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
         }

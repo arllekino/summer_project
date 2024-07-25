@@ -388,6 +388,7 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
                 }
             })
             if (minDistObject) {
+                console.log(minDistObject);
                 isBuildingPressed.state = true;
                 const index = cells.indexOf(minDistObject.__cellsStatus[4]);
                 coords.x = index % dimensions.x;

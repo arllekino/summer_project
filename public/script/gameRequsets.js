@@ -45,10 +45,15 @@ export async function createIsland()
     }
 }
 
-export async function viewIsland()
+export async function viewIsland(idAttackedUser)
 {
+    const data = {};
+    if (idAttackedUser) {
+        data.user_id = idAttackedUser;
+    }
     const response = await fetch(urlRequests.viewIsland, {
-        method: "GET",
+        method: "POST",
+        body: JSON.stringify(data),
         headers: {
             "Content-Type": "application/json",
         },

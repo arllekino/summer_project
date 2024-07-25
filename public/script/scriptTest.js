@@ -2,11 +2,10 @@ import { DrawInfoBlocks, DrawBuildingsBlock, DrawNumberOfResources, UpdateNumber
 import { Game } from "./classes/game.js";
 import { main } from "./stages.js";
 import { CreateIsland } from "./classes/Map.js";
-import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
+import { FormationOfGame, islandTemplate, getUsersIds } from "./formationOfGame.js";
 import { createIsland, viewIsland, updateIsland, loadLostBuildings, getGameStatus } from "./gameRequsets.js";
-import { WaitingForPlayers } from "./websocket/logicForStage.js";
-
-
+import { WaitingForPlayers, SendPlayerId } from "./websocket/logicForStage.js";
+import { RotateBlockWheelEvents } from "./timerForStage.js";
 
 (async () => {
     const infoForUser = await FormationOfGame();
@@ -43,7 +42,7 @@ import { WaitingForPlayers } from "./websocket/logicForStage.js";
     island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.worldResources, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree, island.quadTreeOfUserIsland, infoForUser.arrOfUserIdsInLobby);
 
     const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
-    DrawBuildingsBlock(app, island, allTextResources, allContainer.containerForMap);
+    DrawBuildingsBlock(app, island, allTextResources, allContainer.containerForMap, infoForUser.numberOfUser);
 
     const arrPlayersId = {
         arr: [],
@@ -63,7 +62,7 @@ import { WaitingForPlayers } from "./websocket/logicForStage.js";
         island.resourcesOfUser.stone = userResources.stone;
         island.resourcesOfUser.inhabitants = userResources.villagers;
         island.resourcesOfUser.wars = userResources.warriors;
-        island.resourcesOfUser.wood = userResources.wood; //allContainer.containerForMap
+        island.resourcesOfUser.wood = userResources.wood;
 
         await loadLostBuildings(app, island, infoForUser.numberOfUser, allContainer.containerForMap, []);
         UpdateNumberOfResources(allTextResources, island.resourcesOfUser, island.buildingCountsOfUser);
@@ -71,24 +70,37 @@ import { WaitingForPlayers } from "./websocket/logicForStage.js";
         const BDStage = await getGameStatus();
         if (Game.stage === 0 && BDStage !== 0)
         {
-
+            const userIDInLobby = await getUsersIds();
             let tmpStage = BDStage;
-            console.log(tmpStage, 'Before');
             const promiseForWaiting = new Promise(function(resolve) {
                 const waitingForNextStage = setInterval(async () => {
-                    tmpStage = await getGameStatus();
-                    console.log(tmpStage, 'AFTER');
-                    console.log('ЖДЁМ');
-                    if (tmpStage !== BDStage)
+                    if (arrPlayersId.arr.indexOf(infoForUser.numberOfUser) === -1)
                     {
+                        SendPlayerId(arrPlayersId, infoForUser.numberOfUser);
+                    }
+                    tmpStage = await getGameStatus();
+                    if (userIDInLobby.length === arrPlayersId.arr.length)
+                    {
+                        console.log(tmpStage);
+                        tmpStage = (tmpStage === 5) ? 1 : (tmpStage + 1);
+                        console.log(tmpStage);
+                        RotateBlockWheelEvents(allContainer.wheelBlock, tmpStage - 1, () => {}, {text: ''})
                         clearInterval(waitingForNextStage);
                         resolve();
                     }
-                }, 500);
+                    else if (tmpStage !== BDStage)
+                    {
+                        clearInterval(waitingForNextStage);
+                        RotateBlockWheelEvents(allContainer.wheelBlock, tmpStage - 1, () => {}, {text: ''})
+                        resolve();
+                    }
+                    console.log(arrPlayersId);
+                }, 600);
             });
             await Promise.all([promiseForWaiting]);
             Game.playing = true;
             Game.stage = tmpStage;
+            arrPlayersId.arr = [];
         }
     }
     else
@@ -96,7 +108,11 @@ import { WaitingForPlayers } from "./websocket/logicForStage.js";
         await updateIsland(island.resourcesOfUser);
     }
 
-    main(allContainer, app, island, infoForUser.numberOfUser, arrPlayersId, allTextResources);
+    const isThereBattleGoingNow = {
+        state: false,
+    }
+
+    main(allContainer, app, island, infoForUser.numberOfUser, arrPlayersId, allTextResources, isThereBattleGoingNow);
 
     return {
         stage: app.stage,

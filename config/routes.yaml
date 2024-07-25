@@ -155,7 +155,7 @@ create_island:
   controller: App\Controller\IslandController::createIsland
 view_island:
   path: /view_island
-  methods: GET
+  methods: POST
   controller: App\Controller\IslandController::viewIsland
 update_island:
   path: /update_island
