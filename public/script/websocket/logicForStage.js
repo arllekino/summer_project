@@ -1,6 +1,6 @@
 import { Building } from "../classes/Building.js";
 import { Cell } from "../classes/Cell.js";
-import { updateIsland, viewIsland } from "../gameRequsets.js";
+import { viewIsland } from "../gameRequsets.js";
 import { MoveSpriteToCoords } from "../moveSpriteToCoords.js";
 import { ChoiceEndCoords, MakeIslandWarriorsOfPlayer, MoveWarrior, MoveWarriorsToOtherWarriors } from "../moveWarrior.js";
 import { MakePlayerReady } from "../requestsForMainGame.js";
@@ -164,7 +164,7 @@ export function GetParamForBuilding(data, infoAboutBulding) {
     }
 }
 
-export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap, isThereBattleGoingNow, idUser) {
+export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap, isThereBattleGoingNow) {
     if (ws) {
         ws.onmessage = async (event) => {
             const data = JSON.parse(event.data);
@@ -270,26 +270,24 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     warriorsOfShip: [],
                 }
                 const resourcesOfAttackedPlayer = await viewIsland(idAttackedUser);
+                console.log(resourcesOfAttackedPlayer);
+                console.log(data);
                 const promiseForMovingShip = new Promise(function(resolve) {
                     MoveSpriteToCoords(data.coordsEndOfShip, data.coordsStartOfShip, island.cells, app, island.ships, island.matrixOfIsland, resolve, containerForMap);
                 });
                 await Promise.all([promiseForMovingShip]);
                 if (resourcesOfAttackedPlayer.warriors !== 0) {
                     if (resourcesOfAttackedPlayer.warriors > data.countOfWarriors) {
-                        MakeIslandWarriorsOfPlayer(app, data.countOfWarriors, warriorsOfAllUser, castleAttackedUser, data.colorFlag, idAttackedUser);
-                        resourcesOfAttackedPlayer.warriors -= data.countOfWarriors;
-                        updateIsland(resourcesOfAttackedPlayer);
+                        MakeIslandWarriorsOfPlayer(app, data.countOfWarriors, warriorsOfAllUser, castleAttackedUser, data.colorFlag);
                     }
                     else {
-                        MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, data.colorFlag, idAttackedUser);
-                        resourcesOfAttackedPlayer.warriors = 0;
-                        updateIsland(resourcesOfAttackedPlayer);
+                        MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, data.colorFlag);
                     }
                 }
                 const coordsStartForWarrior = ChoiceEndCoords(data.coordsOfBuilding, data.coordsEndOfShip, island.matrixOfIsland, island.cells);
-                MoveWarrior(coordsStartForWarrior, data.coordsEndOfShip, island.cells, app, island.matrixOfIsland, island.buildings, attackedBuilding, containerForMap, warriorsOfAllUser, data.countOfWarriors, undefined, data.colorFlag, idUser);
+                MoveWarrior(coordsStartForWarrior, data.coordsEndOfShip, island.cells, app, island.matrixOfIsland, island.buildings, attackedBuilding, containerForMap, warriorsOfAllUser, data.countOfWarriors, undefined, data.colorFlag);
                 if (resourcesOfAttackedPlayer.warriors !== 0) {
-                    MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resourcesOfAttackedPlayer);
+                    MoveWarriorsToOtherWarriors(warriorsOfAllUser);
                 }
             }
         };

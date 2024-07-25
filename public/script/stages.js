@@ -420,6 +420,32 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
                 MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix, resolve, allContainer.containerForMap, coordsStartForWarrior, buildings, clickedBuilding, towers, allTextResources, island, countOfWarriors, idUser);
             });
             await Promise.all([promiseForMovingShip]);
+<<<<<<< HEAD
+=======
+            const idAttackedUser = clickedBuilding.building.__userId;
+            let castleAttackedUser;
+            buildings.forEach(building => {
+                if (building.__userId === idAttackedUser) {
+                    if (building.name === "Castle") {
+                        castleAttackedUser = building;
+                        return;
+                    }
+                }
+            });
+            if (resourcesOfAttackedPlayer.warriors !== 0) {
+                if (resourcesOfAttackedPlayer.warriors > countOfWarriors) {
+                    MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag);
+                }
+                else {
+                    MakeIslandWarriorsOfPlayer(app, resourcesOfAttackedPlayer.warriors, warriorsOfAllUser, castleAttackedUser, island.colorFlag);
+                }
+            }
+            const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
+            MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, allContainer.containerForMap, warriorsOfAllUser, countOfWarriors, island, island.colorFlag);
+            if (resourcesOfAttackedPlayer.warriors !== 0) {
+                MoveWarriorsToOtherWarriors(warriorsOfAllUser);
+            }
+>>>>>>> parent of 97d43ca (fixed)
         }
     }
 }

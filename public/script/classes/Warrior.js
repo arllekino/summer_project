@@ -1,5 +1,5 @@
 export class Warrior {
-  constructor(app, name, x, y, hp, damage, warriorFlag, idUser) {
+  constructor(app, name, x, y, hp, damage, warriorFlag) {
     this.name = name;
     this.x = x;
     this.y = y;
@@ -8,7 +8,6 @@ export class Warrior {
     this.app = app;
     this.attacking = false;
     this.attackDuration = 300;
-    this.idUser = idUser;
     this.app = app;
     switch (warriorFlag)
     {
