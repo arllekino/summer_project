@@ -787,7 +787,6 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                     }
                 }
                 else {
-                    debugger;
                     const promiseForDestroy = new Promise(function(resolve){
                         DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, shortWay, cells, resolve, island);
                     });
@@ -952,7 +951,6 @@ async function BattlesOfTheWarriors(warriorsOfAllUser, resolve, idUser, resource
             Sleep(1000).then(() => { ; });
             
             if (wrapperForWarriors.warriors[indexForBattle.iterForWarrior].__hp <= 0) {
-                // debugger;
                 distributionOfWarriors[indexForBattle.iterForWarrior] = -1;
                 RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, indexForBattle.iterForWarrior, true);
                 lengthOfWarriors--;

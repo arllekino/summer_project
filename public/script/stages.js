@@ -399,10 +399,6 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         building: null,
     };
 
-    towers.forEach(tower => {
-        tower.startAttack(warriors);
-    })
-
     if (countOfWarriors !== 0) {
         while (!isBuildingPressed.state) {
             const promise = new Promise(function(resolve) {
@@ -494,6 +490,9 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
             }
             const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
             MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, allContainer.containerForMap, warriorsOfAllUser, countOfWarriors, island, island.colorFlag, idUser);
+            towers.forEach(tower => {
+                tower.startAttack(warriorsOfAllUser.warriorsOfIsland);
+            })
             if (resourcesOfAttackedPlayer.warriors !== 0) {
                 MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resourcesOfAttackedPlayer);
             }

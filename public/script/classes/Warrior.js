@@ -91,7 +91,7 @@ export class Warrior {
 
     const fire = new PIXI.AnimatedSprite(fireTextures);
     fire.animationSpeed = 0.7;
-    fire.zIndex = this.sprite.zIndex + 1;
+    fire.zIndex = this.sprite.zIndex + 10000;
     fire.position.set(this.sprite.getBounds().x, this.sprite.getBounds().y)
     this.app.stage.addChild(fire)
     fire.play();
