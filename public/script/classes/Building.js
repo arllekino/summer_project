@@ -9,6 +9,7 @@ export class Building
 {
     constructor(app, cells, userBuildings, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, buildingCountsOfUser, containerForMap, dimensions, anotherBuilding, damage)
     {
+        this.id = -1;
         this.__hp = hp;
         this.__defense = defense;
         this.name = name;
@@ -242,7 +243,7 @@ export class Building
         }
     }
 
-    displayBuildingOtherPlayer(buildings, resources, allTextResources, containerForMap) {
+    displayBuildingOtherPlayer(buildings, resources, allTextResources, containerForMap, id) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
@@ -258,10 +259,11 @@ export class Building
             buildings.push(this);
             containerForMap.addChild(this.__sprite);
             // selectedBuilding.tint = 0xffffff;
+            this.id = id;
         }
     }
 
-    displayMyBuilding(userBuildings, buildings, buildingCountsOfUser, containerForMap)
+    displayMyBuilding(userBuildings, buildings, buildingCountsOfUser, containerForMap, id)
     {
         Object.values(this.__cellsStatus).forEach(element => {
             element.setPtrTower(this.getTypeTower());
@@ -276,17 +278,16 @@ export class Building
         buildings.push(this);
         userBuildings.push(this);
         buildingCountsOfUser[this.getAlias()] += 1;
-        console.log(this.getAlias())
         containerForMap.addChild(this.__sprite);
+        this.id = id;
     }
 
     async buildBuilding(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
-            const buildSound = new Sound('buildingSound', 0.03);
+            const buildSound = new Sound('buildingSound', 0.03, false);
             buildSound.repeating(false);
-            await buildSound.load();
-            buildSound.play();
+            await buildSound.play();
             Object.values(this.__cellsStatus).forEach(element => {
                 element.setPtrTower(this.getTypeTower());
             });
@@ -309,7 +310,7 @@ export class Building
             buildingCountsOfUser[this.getAlias()] += 1;
             UpdateNumberOfResources(allTextResources, resources, buildingCountsOfUser);
             SendBuilding(this, cells, dimensions);
-            await createIslandBuilding(this, cells);
+            this.id = await createIslandBuilding(this, cells);
             // selectedBuilding.tint = 0xffffff;
         }
     }

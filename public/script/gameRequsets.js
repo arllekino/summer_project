@@ -7,6 +7,7 @@ const urlRequests = {
     updateIsland: '/update_island',
     viewIsland: '/view_island',
     createIslandBuilding: '/create_build',
+    deleteIslandBuilding: '/delete_build',
     getAllBuildings: '/view_all_builds',
     getGameStatus: '/get_game_status',
     setGameStatus: '/set_game_status'
@@ -112,8 +113,6 @@ export async function createIslandBuilding(building, cells)
         cell_status: listOfCoords,
     }
 
-    console.log(data);
-
     const response = await fetch(urlRequests.createIslandBuilding, {
         method: "POST",
         body: JSON.stringify(data),
@@ -122,6 +121,12 @@ export async function createIslandBuilding(building, cells)
         },
         credentials: "include",
     });
+
+    if (response.ok)
+    {
+        const responseData = await response.json();
+        return responseData.build_id;
+    }
 
     if (!response.ok) {
         console.log(response.statusText);
@@ -166,11 +171,11 @@ export async function loadLostBuildings(app, island, userId, containerForMap, al
 
         if (building.user_id === userId)
         {  
-            tmpBuilding.displayMyBuilding(island.buildingsOfUserIsland, island.buildings, island.buildingCountsOfUser, containerForMap)
+            tmpBuilding.displayMyBuilding(island.buildingsOfUserIsland, island.buildings, island.buildingCountsOfUser, containerForMap, building.build_id)
         }
         else
         {
-            tmpBuilding.displayBuildingOtherPlayer(island.buildings, [], allTextResources, containerForMap)
+            tmpBuilding.displayBuildingOtherPlayer(island.buildings, [], allTextResources, containerForMap, building.build_id)
         }
         
     })
@@ -203,6 +208,27 @@ export async function setGameStatus(stage)
         game_status: stage,
     }
     const response = await fetch(urlRequests.setGameStatus, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
+
+    if (!response.ok) {
+        console.log(response.statusText);
+        return;
+    }
+}
+
+export async function deleteIslandBuilding(buildingId)
+{
+    const data = {
+        build_id: buildingId,
+    }
+
+    const response = await fetch(urlRequests.deleteIslandBuilding, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {

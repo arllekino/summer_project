@@ -3,6 +3,7 @@ import { Game } from "./game.js";
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 import { SendDestroyBuilding } from "../websocket/logicForStage.js";
 import { Sound } from "./Sound.js";
+import { deleteIslandBuilding } from "../gameRequsets.js";
 
 export class Destroyer
     {
@@ -60,15 +61,16 @@ export class Destroyer
             if (minDistObject)
             {
                 SendDestroyBuilding(minDistObject, cells);
+                deleteIslandBuilding(minDistObject.id);
                 this.__sprite.destroy();
                 this.deactivate();
                 resourcesOfUser['hammer'] -= 1;
-                let destroySound = new Sound('woodSound', 0.03);
+                let destroySound = new Sound('woodSound', 0.03, false);
                 if (minDistObject.constructor.name !== 'Resource')
                 {
                     buildingCountsOfUser[minDistObject.getAlias()] -= 1;
                     resourcesOfUser['inhabitants'] -= 1;
-                    destroySound = new Sound('stoneBuildingDestroy', 0.03);
+                    destroySound = new Sound('stoneBuildingDestroy', 0.03, false);
                 }
                 for (const resource in minDistObject.getDroppingResources())
                 {

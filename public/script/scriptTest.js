@@ -1,10 +1,11 @@
-import { DrawInfoBlocks, DrawBuildingsBlock, DrawNumberOfResources, UpdateNumberOfResources } from "./drawInfoBlocks.js";
+import { DrawInfoBlocks, DrawBuildingsBlock, DrawNumberOfResources, UpdateNumberOfResources, drawWaitingScreen, removeWaitingScreen } from "./drawInfoBlocks.js";
 import { Game } from "./classes/game.js";
 import { main } from "./stages.js";
 import { CreateIsland } from "./classes/Map.js";
-import { FormationOfGame, islandTemplate } from "./formationOfGame.js";
+import { FormationOfGame, islandTemplate, getUsersIds } from "./formationOfGame.js";
 import { createIsland, viewIsland, updateIsland, loadLostBuildings, getGameStatus } from "./gameRequsets.js";
-import { WaitingForPlayers } from "./websocket/logicForStage.js";
+import { WaitingForPlayers, SendPlayerId } from "./websocket/logicForStage.js";
+import { RotateBlockWheelEvents } from "./timerForStage.js";
 
 
 
@@ -71,24 +72,41 @@ import { WaitingForPlayers } from "./websocket/logicForStage.js";
         const BDStage = await getGameStatus();
         if (Game.stage === 0 && BDStage !== 0)
         {
-
+            drawWaitingScreen();
+            const userIDInLobby = await getUsersIds();
             let tmpStage = BDStage;
-            console.log(tmpStage, 'Before');
             const promiseForWaiting = new Promise(function(resolve) {
                 const waitingForNextStage = setInterval(async () => {
-                    tmpStage = await getGameStatus();
-                    console.log(tmpStage, 'AFTER');
-                    console.log('ЖДЁМ');
-                    if (tmpStage !== BDStage)
+                    if (arrPlayersId.arr.indexOf(infoForUser.numberOfUser) === -1)
                     {
+                        SendPlayerId(arrPlayersId, infoForUser.numberOfUser);
+                    }
+                    tmpStage = await getGameStatus();
+                    if (userIDInLobby.length === arrPlayersId.arr.length)
+                    {
+                        console.log(arrPlayersId.arr);
+                        tmpStage = (tmpStage === 5) ? 1 : (tmpStage + 1);
+                        removeWaitingScreen();
+                        RotateBlockWheelEvents(allContainer.wheelBlock, tmpStage - 1, () => {}, {text: ''})
                         clearInterval(waitingForNextStage);
                         resolve();
+                        return;
                     }
-                }, 500);
+                    else if (tmpStage !== BDStage)
+                    {
+                        removeWaitingScreen();
+                        clearInterval(waitingForNextStage);
+                        RotateBlockWheelEvents(allContainer.wheelBlock, tmpStage - 1, () => {}, {text: ''})
+                        resolve();
+                        return;
+                    }
+                    console.log(arrPlayersId.arr);
+                }, 600);
             });
             await Promise.all([promiseForWaiting]);
             Game.playing = true;
             Game.stage = tmpStage;
+            arrPlayersId.arr = [];
         }
     }
     else

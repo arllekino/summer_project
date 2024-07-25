@@ -1,11 +1,16 @@
 export class Sound
 {
-    constructor(name, volume)
+    constructor(name, volume, flag)
     {
+        this.flag = flag
         this.name = name;
+        this.source;
         this.audio;
         this.volume = volume;
-        this.initAudio()
+        if (flag)
+        {
+            this.initAudio();
+        }
     }
 
     async initAudio()
@@ -32,6 +37,25 @@ export class Sound
         this.audio.volume = this.volume;
     }
 
+    async initSound()
+    {
+        const audioContext = new window.AudioContext;
+        const response = await fetch(`/../../music/${this.name}.mp3`);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        this.source = audioContext.createBufferSource();
+        this.source.buffer = audioBuffer;
+        this.source.connect(audioContext.destination)
+        // var sound = new Howl({
+        //     src: ['/../../music/test.mp3'],
+        //     volume: 0.5,
+        //     loop: true,
+        // });
+        // sound.play();
+    }
+
+
     async load()
     {
         await this.audio.load();
@@ -45,16 +69,38 @@ export class Sound
         }
     }
 
-    play()
+    async play()
     {
-        this.audio.muted = false;
-        this.audio.play();
+        if (this.flag)
+        {
+            this.audio.muted = false;
+            this.audio.play();
+        }
+        else
+        {
+            const audioContext = new window.AudioContext;
+            const response = await fetch(`/../../music/${this.name}.mp3`);
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination)
+            source.start();
+        }
     }
 
     stop() {
-        this.audio.muted = true;
-        this.audio.pause();
-        this.audio.currentTime = 0.0;
+        if (this.flag)
+        {
+            this.audio.muted = true;
+            this.audio.pause();
+            this.audio.currentTime = 0.0;
+        }
+        else
+        {
+            this.source.stop();
+        }
     }
       
 }

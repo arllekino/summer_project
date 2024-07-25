@@ -38,8 +38,6 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     let illList = []
 
     // вычитание из пищи людей на данный момент не голодных
-    console.log(resourcesOfUser.wheat);
-    console.log(resourcesOfUser.inhabitants);
     resourcesOfUser.wheat -= resourcesOfUser.inhabitants;
     
     // Откат всех больных зданий и людей
@@ -98,6 +96,36 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     console.log('Здания: ',CountsBuildings);
 }
 
+async function buildTower(app, island, allTextResources, blocks, containerForMap)
+{
+    const dimensions = {
+        x: island.matrixOfIsland[0].length,
+        y: island.matrixOfIsland.length,
+    }
+    return new Promise((resolve) => {
+        const requiredResources = {};
+        island.buildingMoment = true
+        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Tower', 'tower', {}, 1, 100, 0, 2, 29, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 20);
+        island.buldingObject.setMatrixPattern([
+            [0, 0, 0],
+            [0, 1, 0],
+            [0, 0, 0],
+        ])
+        island.buldingObject.renderMatrixPattern(app);
+        island.buldingObject.interactivity = false;
+        Game.playing = true;
+        const checkCondition = () => {
+            if (!island.buldingObject.getStopMovingFlag()) {
+                setTimeout(checkCondition, 100);
+            }
+            else {
+                resolve();
+            }
+        }
+        checkCondition();
+    })
+}
+
 export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap, resolve)
 {
     const handleKeyDown = (event) => {
@@ -126,11 +154,24 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
         flags['rotations'] = true;
     }
 
-    await buildCastle(app, island, allTextResources, blocks, containerForMap);
-    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
-    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
-    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
-    await buildFarm(app, island, allTextResources, blocks, containerForMap);
+    if (island.buildingCountsOfUser.Castle === 0)
+    {
+        await buildCastle(app, island, allTextResources, blocks, containerForMap);
+    }
+    if (island.buildingCountsOfUser.houseVillage < 3)
+    {
+        await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
+        await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
+        await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
+    }
+    if (island.buildingCountsOfUser.farm === 0 )
+    {
+        await buildFarm(app, island, allTextResources, blocks, containerForMap);
+    }
+    if (island.buildingCountsOfUser.tower === 0 )
+    {
+        await buildTower(app, island, allTextResources, blocks, containerForMap);
+    }
     Game.stage += 1;
     resolve();
 }
@@ -423,7 +464,7 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
 
 async function checkEnd(island, arrPlayersId, idUser)
 {
-    if (island.buildingCountsOfUser.Castle === 0)
+    if (island.buildingCountsOfUser.Castle === 0 && island.illObjects.Castle === 0)
     {
         Game.playing = false;
         let endGameBlock = document.createElement('div');
@@ -496,7 +537,7 @@ async function leaveGame()
 
 export async function main(allContainer, app, island, idUser, arrPlayersId, allTextResources) {
 
-    const mainMusic = new Sound('main_game', 0.2);
+    const mainMusic = new Sound('main_game', 0.2, true);
     mainMusic.repeating(true);
     await mainMusic.load();
     mainMusic.play();
@@ -588,7 +629,8 @@ export async function main(allContainer, app, island, idUser, arrPlayersId, allT
     
     let promiseForWaiting = null;
 
-    while (Game.playing) {
+    while (Game.playing) 
+    {
         if (Game.stage === 1)
         {
             await setGameStatus(Game.stage);
