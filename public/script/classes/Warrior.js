@@ -60,7 +60,6 @@ export class Warrior {
 
       if (target) {
         target.__hp -= damage;
-        console.log(this.name, 'атаковал', target.name, 'и нанес', damage, 'урона!');
       }
 
       this.attackSprite.x = this.sprite.x;

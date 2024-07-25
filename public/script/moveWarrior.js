@@ -452,7 +452,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
     }
 }
 
-async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, resourcesOfUser, allTextResources, buildingCountsOfUser) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warriors, resolve, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     if (clickedBuilding.building) {
         // Отображение HP здания
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
@@ -719,7 +719,7 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                         }
                         GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap);
                         const promiseForDestroy = new Promise(function (resolve) {
-                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve, resourcesOfUser, allTextResources, buildingCountsOfUser);
+                            DestroyBuilding(app, buildings, buildingAround, warriors, resolve, resourcesOfUser, allTextResources, buildingCountsOfUser);
                         });
                         await Promise.all([promiseForDestroy]);
                         hasAShortWayFound.state = false;
@@ -735,7 +735,7 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                 }
                 else {
                     const promiseForDestroy = new Promise(function (resolve) {
-                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, resourcesOfUser, allTextResources, buildingCountsOfUser);
+                        DestroyBuilding(app, buildings, clickedBuilding, warriors, resolve, resourcesOfUser, allTextResources, buildingCountsOfUser);
                     });
                     await Promise.all([promiseForDestroy]);
                     const promiseBack = new Promise(function (resolve) {
