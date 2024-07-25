@@ -311,17 +311,19 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
 
 export async function SendPlayerId(arrPlayersId, idPlayer) {
     if (ws) {
-        arrPlayersId.arr.push(idPlayer);
-        arrPlayersId.arr.sort();
-
-        const data = {
-            from: 'game',
-            type: 'waiting',
-            arrPlayersId: arrPlayersId.arr,
-            key_room: lobbyKey,
+        if (arrPlayersId.indexOf(idPlayer) === -1) {
+            arrPlayersId.arr.push(idPlayer);
+            arrPlayersId.arr.sort();
+    
+            const data = {
+                from: 'game',
+                type: 'waiting',
+                arrPlayersId: arrPlayersId.arr,
+                key_room: lobbyKey,
+            }
+            ws.send(JSON.stringify(data));
+            MakePlayerReady();
         }
-        ws.send(JSON.stringify(data));
-        MakePlayerReady();
     }
     else {
         console.log("соединение разорвалось");
