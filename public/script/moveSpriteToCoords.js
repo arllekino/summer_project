@@ -296,9 +296,9 @@ function GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions) {
 
     const reversedShortWay = shortWay.reverse();
 
-    reversedShortWay.forEach((cellShortWay) => {
-        cells[cellShortWay.y * dimensions.x + cellShortWay.x].okField();
-    });
+    // reversedShortWay.forEach((cellShortWay) => {
+    //     cells[cellShortWay.y * dimensions.x + cellShortWay.x].okField();
+    // });
 
     return reversedShortWay;
 }
