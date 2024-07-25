@@ -21,10 +21,11 @@ async function DrawShip(sprite, app, ships, cells, pathToFile, numberOfCellX, nu
 
     sprite.x = x;
     sprite.y = y;
+    sprite.zIndex = sprite.getBounds().y - 15;
 
     ships.push(sprite);
-    containerForMap.addChild(sprite);
     app.stage.addChild(sprite);
+    containerForMap.addChild(sprite);
 }
 
 export function SetPositionShip(x, y, ship) {

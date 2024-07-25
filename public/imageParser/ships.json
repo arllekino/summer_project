@@ -117,6 +117,6 @@
         "image": "/images/boatSprites.png",
         "format": "RGBA8888",
         "size": { "w": 120, "h": 120 },
-        "scale": "1"
+        "scale": "0.8"
     }
 }

@@ -18,14 +18,12 @@ export class Warrior {
     this.sprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_3.png`));
     this.sprite.x = x;
     this.sprite.y = y;
-    this.sprite.zIndex = 400;
     this.sprite.anchor.set(0.5);
     app.stage.addChild(this.sprite);
 
     this.attackSprite = new PIXI.Sprite(PIXI.Texture.from(`warrior_3_2.png`));
     this.attackSprite.x = x;
     this.attackSprite.y = y;
-    this.attackSprite.zIndex = 10;
     this.attackSprite.anchor.set(0.5);
     this.attackSprite.visible = false;
     app.stage.addChild(this.attackSprite);
