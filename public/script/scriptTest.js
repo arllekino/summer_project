@@ -38,6 +38,7 @@ import { RotateBlockWheelEvents } from "./timerForStage.js";
     textures = await PIXI.Assets.load("/../imageParser/warrior.json");
     textures = await PIXI.Assets.load("/../imageParser/tower.json");
     textures = await PIXI.Assets.load("/../imageParser/fire.json");
+    textures = await PIXI.Assets.load("/../imageParser/ships.json");
 
     island.mapReader(allContainer.containerForMap, island.matrixOfIsland, island.cells, app, island.worldResources, island.resourcesOnIsland, island.cellsOfUserIsland, infoForUser.numberOfUser, island.quadTree, island.quadTreeOfUserIsland, infoForUser.arrOfUserIdsInLobby);
 

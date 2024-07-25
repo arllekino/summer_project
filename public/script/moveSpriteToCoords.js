@@ -488,12 +488,14 @@ export async function MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, shi
     }
 
     const rect = new PIXI.Sprite();
-    DrawShip(rect, app, ships, cells, "/../assets/textures/ship(yellowRectangle).svg", coordsStart.x, coordsStart.y, containerForMap, dimensions);
+    DrawShip(rect, app, ships, cells, "blue_ship2.png", coordsStart.x, coordsStart.y, containerForMap, dimensions);
     const shortWay = GetShortWay(coordsStart, coordsEnd, worldMatrix, cells, dimensions);
     const promiseForward = new Promise(function (resolve) {
         MoveSprite(rect, shortWay, cells, false, resolve, dimensions);
     });
     await Promise.all([promiseForward]);
+    rect.visible = false;
+    rect.destroy();
     resolve();
     // const promiseBack = new Promise(function(resolve) {
     //     MoveSprite(rect, shortWay, cells, true, resolve);
