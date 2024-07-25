@@ -30,13 +30,12 @@ class IslandBuildController extends AbstractController
         $input = new IslandBuildInput(
             $data['hp'],
             $data['build_type'],
-            $data['build_matrix'],
             $data['build_ptr'],
             $data['cell_status']
         );
 
         try {
-            $buildId = $this->islandBuildService->createIslandBuild($input, $sessionKeyRoom, $sessionUserId);
+            $buildId = $this->islandBuildService->createIslandBuild($input, $sessionUserId, $sessionKeyRoom);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }

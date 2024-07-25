@@ -296,7 +296,6 @@ class LobbyPlaceController extends AbstractController
             $data = json_decode($request->getContent(), true);
             $keyRoom = $data['key_room'];
         }   
-
         try {
             $lobbyReadiness = $this->lobbyService->isAllPlayersReady($keyRoom);
         } catch (\UnexpectedValueException $e) {

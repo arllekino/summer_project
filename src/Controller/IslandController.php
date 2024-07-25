@@ -119,21 +119,4 @@ class IslandController extends AbstractController
             'dispatched' => $islands
         ]);
     }
-
-    public function deleteIslandsInGame(): JsonResponse
-    {
-        $sessionKeyGame = $this->session->getSession(self::SESSION_KEY_GAME);
-        try {
-            $this->islandService->deleteIslandsInGame($sessionKeyGame);
-        } catch (\UnexpectedValueException $e) {
-            return new JsonResponse([
-                'status' => $e->getMessage(),
-                Response::HTTP_BAD_REQUEST
-            ]);
-        }
-        
-        return new JsonResponse([
-            'status' => 'success'
-        ]);
-    }
 }

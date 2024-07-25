@@ -113,6 +113,14 @@ update_map:
 end_game: 
   path: /end_game
   controller: App\Controller\GameController::endGame
+set_game_status:
+  path: /set_game_status
+  methods: POST
+  controller: App\Controller\GameController::setGameStatus
+get_game_status:
+  path: /get_game_status
+  methods: GET
+  controller: App\Controller\GameController::getGameStatus
 
 create_build:
   path: /create_build
@@ -157,10 +165,6 @@ view_islands_in_game:
   path: /view_islands_in_game
   methods: POST
   controller: App\Controller\IslandController::viewIslandsInGame
-delete_islands_in_game:
-  path: /delete_islands_in_game
-  methods: POST
-  controller: App\Controller\IslandController::deleteIslandsInGame
 
 error_page:
   path: /error_page/{messageCode}

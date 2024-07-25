@@ -9,7 +9,6 @@ class IslandBuildInput implements IslandBuildInputInterface
     public function __construct(
         private int $hp,
         private string $buildType,
-        private array $buildMatrix,
         private int $buildPtr,
         private array $cellStatus
     )
@@ -21,11 +20,7 @@ class IslandBuildInput implements IslandBuildInputInterface
     }
     public function getStrBuildType(): string
     {
-        return $this->buildType;    
-    }
-    public function getBuildMatrix(): array
-    {
-        return $this->buildMatrix;    
+        return $this->buildType;
     }
     public function getBuildPtr(): int
     {
@@ -33,6 +28,6 @@ class IslandBuildInput implements IslandBuildInputInterface
     }
     public function getCellStatus(): array
     {
-        return $this->cellStatus;    
+        return $this->cellStatus;
     }
 }

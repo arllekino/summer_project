@@ -3,15 +3,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Entity\Types\BuildType;
-
 class IslandBuild
 {
     public function __construct(
         private ?int $id,
         private int $hp,
-        private BuildType $buildType,
-        private string $buildMatrix,
+        private string $buildType,
         private int $buildPtr,
         private string $cellStatusJSON,
         private bool $illness,
@@ -29,13 +26,9 @@ class IslandBuild
     {
         return $this->hp;    
     }
-    public function getBuildType(): BuildType
+    public function getBuildType(): string
     {
         return $this->buildType;    
-    }
-    public function getBuildMatrix(): string
-    {
-        return $this->buildMatrix;    
     }
     public function getBuildPtr(): int
     {

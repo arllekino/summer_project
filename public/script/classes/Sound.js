@@ -26,9 +26,15 @@ export class Sound
         // });
         // sound.play();
         this.audio = new Audio();
+        this.audio.muted = true;
         this.audio.preload = 'auto';
         this.audio.src = `/../../music/${this.name}.mp3`;
         this.audio.volume = this.volume;
+    }
+
+    async load()
+    {
+        await this.audio.load();
     }
 
     repeating(flag)
@@ -41,10 +47,12 @@ export class Sound
 
     play()
     {
+        this.audio.muted = false;
         this.audio.play();
     }
 
     stop() {
+        this.audio.muted = true;
         this.audio.pause();
         this.audio.currentTime = 0.0;
     }

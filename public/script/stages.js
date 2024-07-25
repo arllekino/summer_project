@@ -18,7 +18,7 @@ import { getUsersIds } from "./formationOfGame.js";
 import { Warrior } from "./classes/Warrior.js";
 import { Sound } from "./classes/Sound.js";
 import { GetCountOfUsers, CheckStatusOfUserInLobby } from "./formationOfGame.js";
-import { endGame, updateIsland } from "./gameRequsets.js";
+import { endGame, updateIsland, setGameStatus } from "./gameRequsets.js";
 
 
 export async function stageResources(containerForDiceRoll, app, resources, buildings) {
@@ -295,7 +295,7 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
 
 function interruptBuilding(app, island)
 {
-    if (!island.buldingObject.getStopMovingFlag()) {
+    if (island.buldingObject && !island.buldingObject.getStopMovingFlag()) {
         island.buildingSprite.tint = 0xffffff;
         island.buldingObject.clearPatterns();
         island.buldingObject.clearCellsStatus();
@@ -320,7 +320,7 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
             event.preventDefault();
             interruptBuilding(app, island);
         }
-        if (event.button === 0 && island.buldingObject.getStopMovingFlag() && Game.stage === 3)
+        if ( island.buldingObject && event.button === 0 && island.buldingObject.getStopMovingFlag() && Game.stage === 3)
         {
             let minDist = 99999;
             let minDistObject = null;
@@ -494,10 +494,11 @@ async function leaveGame()
     });
 }
 
-export async function main(allContainer, app, island, idUser) {
+export async function main(allContainer, app, island, idUser, arrPlayersId, allTextResources) {
 
-    const mainMusic = new Sound('main_game', 0.005);
+    const mainMusic = new Sound('main_game', 0.2);
     mainMusic.repeating(true);
+    await mainMusic.load();
     mainMusic.play();
 
     allContainer.wheelBlock.interactive = true;
@@ -550,9 +551,6 @@ export async function main(allContainer, app, island, idUser) {
         infoBox: new Infobox(app),
     }
 
-    const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
-    DrawBuildingsBlock(app, island, allTextResources, allContainer.containerForMap);
-
     const flags = {
         wheelFlag: false,
         hummer: false,
@@ -562,147 +560,125 @@ export async function main(allContainer, app, island, idUser) {
 
     const rules = new Rules(app);
 
-    MakePlayersNotReady();
-
-    const arrPlayersId = {
-        arr: [],
-    }
-    await WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap);
-
-    const promiseForStartStage = new Promise(function(resolve) {
-        StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
-    })
-    await Promise.all([promiseForStartStage]);
-    
-    await SendPlayerId(arrPlayersId, idUser);
-    while (!Game.isAllPlayersReady) {
-        const userIDInLobby = await getUsersIds();
-        if (userIDInLobby.length === arrPlayersId.arr.length) {
-            Game.isAllPlayersReady = true;
+    if (Game.stage === 0)
+    {
+        MakePlayersNotReady();
+        const promiseForStartStage = new Promise(function(resolve) {
+            StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
+        })
+        await Promise.all([promiseForStartStage]);
+        
+        await SendPlayerId(arrPlayersId, idUser);
+        while (!Game.isAllPlayersReady) {
+            const userIDInLobby = await getUsersIds();
+            if (userIDInLobby.length === arrPlayersId.arr.length) {
+                Game.isAllPlayersReady = true;
+            }
         }
+        const promiseForWaitingForPlayers = new Promise(function(resolve) {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+        await updateIsland(island.resourcesOfUser);
+        await Promise.all([promiseForWaitingForPlayers]);
+        Game.isAllPlayersReady = false;
+        arrPlayersId.arr = [];
     }
-    const promiseForWaitingForPlayers = new Promise(function(resolve) {
-        setTimeout(() => {
-            resolve();
-        }, 500);
-    });
-    await Promise.all([promiseForWaitingForPlayers]);
-    Game.isAllPlayersReady = false;
-    arrPlayersId.arr = [];
     
     let promiseForWaiting = null;
 
     while (Game.playing) {
-
-        stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, island.buildingCountsOfUser);
-        const promiseForResources = new Promise(function(resolve) {
-            startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
-        });
-        await Promise.all([promiseForResources]);
-        arrPlayersId.arr = [];
-        Game.isAllPlayersReady = false;
-        Game.playerReady = false;
-
-        // if (Game.playerReady) {
-        //     const promiseForReady = new Promise(function(resolve) {
-        //         startTimerForStage(5, allContainer.wheelBlock, Game.stage, resolve, app, flags);
-        //     });
-        //     await Promise.all([promiseForReady]);
-        //     Game.playerReady = false;
-        // }
-        UpdateNumberOfResources(allTextResources, island.resourcesOfUser, island.buildingCountsOfUser);
-        ///setTimeout(() => {
+        if (Game.stage === 1)
+        {
+            await setGameStatus(Game.stage);
+            stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, island.buildingCountsOfUser);
+            const promiseForResources = new Promise(function(resolve) {
+                startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
+            });
+            await Promise.all([promiseForResources]);
+            arrPlayersId.arr = [];
+            Game.isAllPlayersReady = false;
+            Game.playerReady = false;
+            UpdateNumberOfResources(allTextResources, island.resourcesOfUser, island.buildingCountsOfUser);
             allContainer.containerForDiceRoll.visible = false;
-        //}, 100);
-        Game.stage++;
-        promiseForWaiting = new Promise(function(resolve) {
-            setTimeout(() => {
-                resolve();
-            }, 500);
-        });
-        await Promise.all([promiseForWaiting]);
+            Game.stage++;
+            
+            promiseForWaiting = new Promise(function(resolve) {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+            await Promise.all([promiseForWaiting]);
+        }
 
-        stageDisasters(allTextResources, island.resourcesOfUser, island.buildingsOfUserIsland, island.buildingCountsOfUser, island.illObjects);
-        const promiseForDisasters = new Promise(function(resolve) {
-            startTimerForStage(Game.timeStageForDisasters, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
-        })
-        await Promise.all([promiseForDisasters]);
-        await updateIsland(island.resourcesOfUser);
-        arrPlayersId.arr = [];
-        Game.isAllPlayersReady = false;
-        Game.playerReady = false;
+        if (Game.stage === 2)
+        {
+            await setGameStatus(Game.stage);
+            stageDisasters(allTextResources, island.resourcesOfUser, island.buildingsOfUserIsland, island.buildingCountsOfUser, island.illObjects);
+            const promiseForDisasters = new Promise(function(resolve) {
+                startTimerForStage(Game.timeStageForDisasters, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
+            })
+            await Promise.all([promiseForDisasters]);
+            await updateIsland(island.resourcesOfUser);
+            arrPlayersId.arr = [];
+            Game.isAllPlayersReady = false;
+            Game.playerReady = false;
+            Game.stage++;
+            promiseForWaiting = new Promise(function(resolve) {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+            await Promise.all([promiseForWaiting]);
+        }
 
-        // if (Game.playerReady) {
-        //     const promiseForReady = new Promise(function(resolve) {
-        //         startTimerForStage(5, allContainer.wheelBlock, Game.stage, resolve, app, flags);
-        //     });
-        //     await Promise.all([promiseForReady]);
-        //     Game.playerReady = false;
-        // }
+        if (Game.stage === 3)
+        {
+            await setGameStatus(Game.stage);
+            stageBuilding(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
+            const promiseForBuildings = new Promise(function(resolve) {
+                startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
+            })
+            await Promise.all([promiseForBuildings]);
+            await updateIsland(island.resourcesOfUser);
+            interruptBuilding(app, island);
+            arrPlayersId.arr = [];
+            Game.isAllPlayersReady = false;
+            Game.playerReady = false;
+            Game.stage++;
+            promiseForWaiting = new Promise(function(resolve) {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+            await Promise.all([promiseForWaiting]);
+        }
 
-        Game.stage++;
-        promiseForWaiting = new Promise(function(resolve) {
-            setTimeout(() => {
-                resolve();
-            }, 500);
-        });
-        await Promise.all([promiseForWaiting]);
-
-        stageBuilding(app, island, allTextResources, flags, blocks, allContainer.containerForMap);
-        const promiseForBuildings = new Promise(function(resolve) {
-            startTimerForStage(Game.timeStageForBuildings, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
-        })
-        await Promise.all([promiseForBuildings]);
-        await updateIsland(island.resourcesOfUser);
-        interruptBuilding(app, island);
-        arrPlayersId.arr = [];
-        Game.isAllPlayersReady = false;
-        Game.playerReady = false;
-
-        // if (Game.playerReady) {
-        //     const promiseForReady = new Promise(function(resolve) {
-        //         startTimerForStage(5, allContainer.wheelBlock, Game.stage, resolve, app, flags);
-        //     });
-        //     await Promise.all([promiseForReady]);
-        //     Game.playerReady = false;
-        // }
-
-        Game.stage++;
-        promiseForWaiting = new Promise(function(resolve) {
-            setTimeout(() => {
-                resolve();
-            }, 500);
-        });
-        await Promise.all([promiseForWaiting]);
-
-        const towers = island.buildingsOfUserIsland.filter(building => building.getAlias() === 'tower' )
-        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers, island);
-        const promiseForBattles = new Promise(function(resolve) {
-            startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
-        })
-        await Promise.all([promiseForBattles]);
-        towers.forEach(tower => {
-            tower.stopAttack();
-        })
-        arrPlayersId.arr = [];
-        Game.isAllPlayersReady = false;
-        Game.playerReady = false;
+        if (Game.stage === 4)
+        {
+            await setGameStatus(Game.stage);
+            const towers = island.buildingsOfUserIsland.filter(building => building.getAlias() === 'tower' )
+            stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers, island);
+            const promiseForBattles = new Promise(function(resolve) {
+                startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
+            })
+            await Promise.all([promiseForBattles]);
+            towers.forEach(tower => {
+                tower.stopAttack();
+            })
+            arrPlayersId.arr = [];
+            Game.isAllPlayersReady = false;
+            Game.playerReady = false;
+            Game.stage = 1;
+            promiseForWaiting = new Promise(function(resolve) {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+            await Promise.all([promiseForWaiting]);
+        }
+        
         await checkEnd(island, arrPlayersId, idUser);
-
-        // if (Game.playerReady) {
-        //     const promiseForReady = new Promise(function(resolve) {
-        //         startTimerForStage(5, allContainer.wheelBlock, Game.stage, resolve, app, flags);
-        //     });
-        //     await Promise.all([promiseForReady]);
-        //     Game.playerReady = false;
-        // }
-
-        Game.stage = 1;
-        promiseForWaiting = new Promise(function(resolve) {
-            setTimeout(() => {
-                resolve();
-            }, 500);
-        });
-        await Promise.all([promiseForWaiting]);
     }
 }

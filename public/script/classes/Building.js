@@ -3,6 +3,7 @@ import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 import { Rect } from "./Quadtree.js";
 import { SendBuilding } from "../websocket/logicForStage.js";
 import { Sound } from "./Sound.js";
+import { createIslandBuilding } from "../gameRequsets.js";
 
 export class Building
 {
@@ -76,7 +77,7 @@ export class Building
     setDefense(defense) {
         this.__defense = defense;
     }
-    getPtrTower() {
+    getTypeTower() {
         return this.__buildType;
     }
     setTowerType(buildType) {
@@ -93,6 +94,7 @@ export class Building
     }
 
     changeTexture(ptr) {
+        this.__buildPtr = ptr;
         this.__sprite.texture = PIXI.Texture.from(`building_${ptr}.png`);
     }
 
@@ -121,6 +123,10 @@ export class Building
     }
     setMatrixPattern(matrix) {
         this.__matrixPattern = matrix;
+    }
+    getBuildingPtr()
+    {
+        return this.__buildPtr;
     }
     renderMatrixPattern(app) {
         let i = 0;
@@ -164,7 +170,7 @@ export class Building
         //         if ((eCell !== null) && (cell.intersectWithCell(eCell))) {
         //             cell.errorField();
         //             this.__cellsStatus[eCell.getCellId()] = null
-        //             if ((cell.getType() == 1) && (cell.getPtrTower() == -1)) {
+        //             if ((cell.getType() == 1) && (cell.getTypeTower() == -1)) {
         //                 cell.okField();
         //             }
         //             this.__cellsStatus[eCell.getCellId()] = cell;
@@ -240,7 +246,7 @@ export class Building
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             Object.values(this.__cellsStatus).forEach(element => {
-                element.setPtrTower(this.getPtrTower());
+                element.setPtrTower(this.getTypeTower());
             });
             this.__stopMovingFlag = true;
             // this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
@@ -255,14 +261,34 @@ export class Building
         }
     }
 
-    buildBuilding(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions) {
+    displayMyBuilding(userBuildings, buildings, buildingCountsOfUser, containerForMap)
+    {
+        Object.values(this.__cellsStatus).forEach(element => {
+            element.setPtrTower(this.getTypeTower());
+        });
+        this.__stopMovingFlag = true;
+        // this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
+        this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x  + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
+        this.clearPatterns();
+        this.__sprite.zIndex = this.__sprite.y;
+        this.__sprite.alpha = 1;
+        this.id = buildings.length + 1;
+        buildings.push(this);
+        userBuildings.push(this);
+        buildingCountsOfUser[this.getAlias()] += 1;
+        console.log(this.getAlias())
+        containerForMap.addChild(this.__sprite);
+    }
+
+    async buildBuilding(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions) {
         const sum = Object.values(this.__cellsStatus).filter(value => (value !== null && value.getType() !== 0 && value.getType() !== 2 && value.getPtrTower() === -1)).length;
         if (sum === Object.keys(this.__cellsStatus).length && sum !== 0) {
             const buildSound = new Sound('buildingSound', 0.03);
             buildSound.repeating(false);
+            await buildSound.load();
             buildSound.play();
             Object.values(this.__cellsStatus).forEach(element => {
-                element.setPtrTower(this.getPtrTower());
+                element.setPtrTower(this.getTypeTower());
             });
             this.__stopMovingFlag = true;
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event)).off('pointermove');
@@ -283,6 +309,7 @@ export class Building
             buildingCountsOfUser[this.getAlias()] += 1;
             UpdateNumberOfResources(allTextResources, resources, buildingCountsOfUser);
             SendBuilding(this, cells, dimensions);
+            await createIslandBuilding(this, cells);
             // selectedBuilding.tint = 0xffffff;
         }
     }

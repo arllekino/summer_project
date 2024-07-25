@@ -71,6 +71,7 @@ async function CheckReadinessOfField() {
     })
     if (response.ok) {
         const data = await response.json();
+        console.log(data.matrix_game_map);
         return data.matrix_game_map;
     }
     else {

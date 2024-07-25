@@ -73,6 +73,7 @@ final class Version20240724110650 extends AbstractMigration
         $tableGameMap->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $tableGameMap->addColumn('key_room', Types::STRING, ['length' => 4, 'notnull' => true]);
         $tableGameMap->addColumn('matrix_game_map', Types::TEXT, ['notnull' => true]);
+        $tableGameMap->addColumn('game_status', Types::INTEGER, ['notnull' => true]);
 
         $tableGameMap->setPrimaryKey(['id']);
         $tableGameMap->addUniqueIndex(['key_room']);
@@ -84,7 +85,6 @@ final class Version20240724110650 extends AbstractMigration
         $tableIslandBuild->addColumn('hp', Types::INTEGER, ['notnull' => true]);
         $tableIslandBuild->addColumn('build_type', Types::STRING, ['length' => 50, 'notnull' => true]);
         $tableIslandBuild->addColumn('build_ptr', Types::INTEGER, ['notnull' => true]);
-        $tableIslandBuild->addColumn('build_matrix' , Types::TEXT, ['notnull' => true]);
         $tableIslandBuild->addColumn('cell_status_json', Types::STRING, ['length' => 200, 'notnull' => true]);
         $tableIslandBuild->addColumn('illness', Types::BOOLEAN, ['notnull' => true]);
         $tableIslandBuild->addColumn('destroyed', Types::BOOLEAN, ['notnull' => true]);
