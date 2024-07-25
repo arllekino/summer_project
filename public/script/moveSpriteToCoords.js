@@ -405,11 +405,15 @@ export function GetCoordsOfBuildings(cells, coords, buildings, resolve, isBuildi
 }
 
 let cellBefore = null;
-export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve, dimensions) {
+export function MouseFollowingForShip(event, cells, coords, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve, worldMatrix) {
     if (cellForShip) {
         const position = {
             x: event.pageX,
             y: event.pageY,
+        }
+        const dimensions = {
+            x: worldMatrix[0].length,
+            y: worldMatrix.length,
         }
 
         // sprite.x = position.x - sprite.getBounds().width / 2;

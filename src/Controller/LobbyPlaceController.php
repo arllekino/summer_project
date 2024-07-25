@@ -14,22 +14,15 @@ class LobbyPlaceController extends AbstractController
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
     private const KEY_LENGTH = 4;
-    private SessionController $session;
-    private LobbyPlaceService $lobbyService;
-    private UserService $userService;
     
     public function __construct(
-        SessionController $session,
-        UserService $userService,
-        LobbyPlaceService $lobbyService
+        private SessionController $session,
+        private UserService $userService,
+        private LobbyPlaceService $lobbyService
     )
-    {
-        $this->session = $session;
-        $this->userService = $userService;
-        $this->lobbyService = $lobbyService;
-    }
+    {}
 
-    public function startLobbyPage(): Response
+    public function startLobbyPage(Request $request): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)
@@ -52,7 +45,8 @@ class LobbyPlaceController extends AbstractController
         }
         return $this->render(
             'start_lobby_page.html.twig',
-            ['userName' => $userName]
+            ['userName' => $userName,
+            'message' => $request->get('message')]
         );
     }
     public function createLobby(): Response
@@ -126,6 +120,8 @@ class LobbyPlaceController extends AbstractController
         $keyRoom = $request->get('keyRoom');
         try {
             $users = $this->lobbyService->showUsersInLobby($keyRoom);
+            $userStatus = $this->lobbyService->getPlayerStatus($sessionUserId);
+            $userReadiness = $this->lobbyService->getPlayerReadiness($sessionUserId);
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'start_lobby_page',
@@ -134,7 +130,9 @@ class LobbyPlaceController extends AbstractController
         }
         return $this->render('lobby_page.html.twig', [
             'users' => $users,
-            'keyRoom' => $keyRoom
+            'keyRoom' => $keyRoom,
+            'user_status' => $userStatus,
+            'user_readiness' => $userReadiness
         ]);
     }
 
@@ -160,19 +158,27 @@ class LobbyPlaceController extends AbstractController
         ]));
     }
 
-    public function makeGuestHost(): Response
+    public function makeGuestHost(Request $request): Response
     {
+        $data = json_decode($request->getContent(), true);
+
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)
         {
-            return $this->redirectToRoute(
-                'login_form', 
-                ['message' => 'В первую очередь надо войти в аккаунт']
-            );
+            return new Response(json_encode([
+                'success' => false
+            ]));
         }
-
-        $this->lobbyService->MakeGuestHost($sessionUserId);
-        return new Response('OK');
+        try {
+            $this->lobbyService->MakeGuestHost($sessionUserId, $data['key_room']);
+        } catch (\UnexpectedValueException $e) {
+            return new Response(json_encode([
+                'success' => false
+            ]));
+        }
+        return new Response(json_encode([
+            'success' => true
+        ]));
     }
 
     public function makePlayerReady(): Response
@@ -263,11 +269,35 @@ class LobbyPlaceController extends AbstractController
         ]));
     }
 
-    public function isAllPlayersReady(): Response
+    public function getPlayerColorFlag(): Response
     {
-        $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
+        if ($sessionUserId === null)
+        {
+            return new Response('Пользователь не найден');
+        }
+
         try {
-            $lobbyReadiness = $this->lobbyService->isAllPlayersReady($sessionKeyRoom);
+            $colorFlag = $this->lobbyService->findPlayerColorFlag($sessionUserId);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response(json_encode([
+            'color_flag' => $colorFlag
+        ]));
+    }
+
+    public function isAllPlayersReady(Request $request): Response
+    {
+        $keyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        if ($keyRoom === null)
+        {
+            $data = json_decode($request->getContent(), true);
+            $keyRoom = $data['key_room'];
+        }   
+        try {
+            $lobbyReadiness = $this->lobbyService->isAllPlayersReady($keyRoom);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }
@@ -277,7 +307,22 @@ class LobbyPlaceController extends AbstractController
         ]));
     }
 
-    public function quitFromLooby(): Response
+    public function isHostExist(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        try {
+            $hostExisting = $this->lobbyService->isHostExist($data['key_room']);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response(json_encode([
+            'host_existing' => $hostExisting
+        ]));
+    }
+
+    public function quitFromLobby(): Response
     {
         $sessionUserId = $this->session->getSession(self::SESSION_USER_ID);
         if ($sessionUserId === null)

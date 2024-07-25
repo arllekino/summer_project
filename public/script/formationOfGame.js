@@ -6,10 +6,11 @@ const urlRequests = {
     sendField: "/create_map",
     getField: "/find_map",
     getUserNumber: "/find_username",
-    getPlayerIds: "/get_player_ids"
+    getPlayerIds: "/get_player_ids",
+    getFlagColor: "/get_color_flag",
 }
 
-async function GetCountOfUsers() {
+export async function GetCountOfUsers() {
     const response = await fetch(urlRequests.countOfUser, {
         method: "POST",
     headers: {
@@ -43,7 +44,7 @@ async function GetUserNumber() {
     }
 }
 
-async function CheckStatusOfUserInLobby() {
+export async function CheckStatusOfUserInLobby() {
     const response = await fetch(urlRequests.checkStatusOfUserInLobby, {
         method: "POST",
     headers: {
@@ -70,6 +71,7 @@ async function CheckReadinessOfField() {
     })
     if (response.ok) {
         const data = await response.json();
+        console.log(data.matrix_game_map);
         return data.matrix_game_map;
     }
     else {
@@ -244,6 +246,29 @@ function InsertIslandsIntoField(obj, matrixOfField, resolve) {
     resolve();
 }
 
+async function GetUserFlagColor()
+{
+    const response = await fetch(urlRequests.getFlagColor, {
+        method: "GET",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        credentials: "include",
+    })
+    if (response.ok) {
+        const data = await response.json();
+        return data.color_flag;
+    }
+    else {
+        console.log(response.status);
+    }
+
+    if (!response.ok) {
+
+        return;
+    }
+}
+
 export async function FormationOfGame() {
     const status = await CheckStatusOfUserInLobby();
     let matrixOfField = [];
@@ -274,10 +299,13 @@ export async function FormationOfGame() {
     }
     const numberOfUser = await GetUserNumber();
     const userIDInLobby = await getUsersIds();
+    const userColorFlag = await GetUserFlagColor();
     MakePlayersNotReady();
+    
     return {
         arrOfUserIdsInLobby: userIDInLobby,
         numberOfUser: numberOfUser.id,
         matrixOfField: matrixOfField,
+        colorFlag: userColorFlag,
     };
 }

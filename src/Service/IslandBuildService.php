@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\IslandBuild;
-use App\Entity\Types\BuildType;
 use App\Repository\IslandBuildRepository;
 use App\Service\Input\IslandBuildInputInterface;
 
@@ -16,34 +15,29 @@ class IslandBuildService
         $this->repository = $repository;
     }
 
-    public function createIslandBuild(IslandBuildInputInterface $input): int
+    public function createIslandBuild(IslandBuildInputInterface $input, int $userId, string $keyRoom): int
     {
-        $buildType = $this->getBuildType($input->getStrBuildType()); 
-        if ($buildType === null)
-        {
-            throw new \UnexpectedValueException('Некорректный тип здания');
-        }
         $islandBuild = new IslandBuild(
             null,
             $input->getHp(),
-            $buildType,
-            json_encode($input->getBuildMatrix()),
+            $input->getStrBuildType(),
             $input->getBuildPtr(),
+            json_encode($input->getCellStatus()),
             false,
             false,
-            $input->getKeyRoom()
+            $userId,
+            $keyRoom
         );
 
         return $this->repository->store($islandBuild);
     }
 
-    public function viewAllBuilds(string $keyRoom): array
+    public function viewAllBuilds(string $keyRoom): ?array
     {
-        //id hp buildtype matrix illness destroyed
         $islandBuilds = $this->repository->findBuildsByKeyRoom($keyRoom);
         if (empty($islandBuilds))
         {
-            throw new \UnexpectedValueException('Здания не найдены');
+            return null;
         }
 
         $arrayIslandBuilds = [];
@@ -53,10 +47,10 @@ class IslandBuildService
                 'build_id' => $islandBuild->getId(),
                 'hp' => $islandBuild->getHp(),
                 'build_type' => $islandBuild->getBuildType(),
-                'build_matrix' => $islandBuild->getBuildMatrix(),
                 'build_ptr' => $islandBuild->getBuildPtr(),
                 'illness' => $islandBuild->getIllness(),
-                'destroyed' => $islandBuild->getDestroyed()
+                'user_id' => $islandBuild->getUserId(),
+                'cell_status' => $islandBuild->getCellStatusJSON(),
             ];
             
             $arrayIslandBuilds[] = $arrayIslandBuild;
@@ -123,38 +117,17 @@ class IslandBuildService
         $this->repository->delete($islandBuild);
     }
 
-    private function getBuildType(string $strBuildType): ?BuildType
+    public function deleteBuildsInGame(string $keyRoom): void
     {
-        switch ($strBuildType)
+        $islandBuilds = $this->repository->findBuildsByKeyRoom($keyRoom);
+        if (empty($islandBuilds))
         {
-            case 'castle':
-                $buildType = BuildType::Castle;
-                break;
-            case 'farm':
-                $buildType = BuildType::Farm;
-                break;
-            case 'barrack':
-                $buildType = BuildType::Barrack;
-                break;
-            case 'defence':
-                $buildType = BuildType::Defence;
-                break;
-            case 'wall':
-                $buildType = BuildType::Wall;
-                break;
-            case 'house_peasant':
-                $buildType = BuildType::HousePeasant;
-                break;
-            case 'house_nobles':
-                $buildType = BuildType::HouseNobles;
-                break;
-            case 'warehouse':
-                $buildType = BuildType::Warehouse;
-                break;    
-            default:
-                $buildType = null;
-                break;
-        }    
-        return $buildType;
+            throw new \UnexpectedValueException('Здания не найдены');
+        }
+
+        foreach ($islandBuilds as $islandBuild)
+        {
+            $this->repository->delete($islandBuild);
+        }
     }
 }

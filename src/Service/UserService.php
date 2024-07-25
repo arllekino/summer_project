@@ -15,8 +15,7 @@ class UserService
         private UserRepository $repository,
         private PasswordHasher $passwordHasher
     )
-    {    
-    }
+    {}
 
     public function register(RegisterUserInputInterface $input): int
     {
@@ -39,13 +38,12 @@ class UserService
 
     public function logIn(LoginUserInputInterface $input): int
     {
-
         $extantEmailUser = $this->repository->findByEmail($input->getEmail());
         
         if ($extantEmailUser !== null)
         {
             $hashPassword = $this->passwordHasher->hash($input->getPassword());
-            if ($hashPassword === $extantEmailUser->getHashPassword())
+            if ($this->passwordHasher->verify($extantEmailUser->getHashPassword(), $input->getPassword()))
             {
                 return $extantEmailUser->getId();
             }

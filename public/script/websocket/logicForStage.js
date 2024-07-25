@@ -47,8 +47,19 @@ async function joinGame() {
     }));
 }
 
-function GetParamForBuilding(data, infoAboutBulding) {
+export function GetParamForBuilding(data, infoAboutBulding) {
     switch (data.typeOfBuilding) {
+        case "Castle":
+            infoAboutBulding.name = "Castle";
+            infoAboutBulding.alias = "Castle";
+            infoAboutBulding.givingResource = {};
+            infoAboutBulding.peopleCount = 1;
+            infoAboutBulding.hp = 100;
+            infoAboutBulding.defense = 0;
+            infoAboutBulding.buildType = 1;
+            infoAboutBulding.buildPtr = data.build_ptr;
+            infoAboutBulding.requiredResources = {};
+            break;
         case "castle":
             infoAboutBulding.name = "Castle";
             infoAboutBulding.alias = "Castle";

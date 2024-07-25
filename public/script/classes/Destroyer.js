@@ -2,6 +2,7 @@ import { mouseDistanceInContainer, mouseIntersectsInContainer, mouseIntersects, 
 import { Game } from "./game.js";
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 import { SendDestroyBuilding } from "../websocket/logicForStage.js";
+import { Sound } from "./Sound.js";
 
 export class Destroyer
     {
@@ -62,15 +63,19 @@ export class Destroyer
                 this.__sprite.destroy();
                 this.deactivate();
                 resourcesOfUser['hammer'] -= 1;
+                let destroySound = new Sound('woodSound', 0.03);
                 if (minDistObject.constructor.name !== 'Resource')
                 {
                     buildingCountsOfUser[minDistObject.getAlias()] -= 1;
                     resourcesOfUser['inhabitants'] -= 1;
+                    destroySound = new Sound('stoneBuildingDestroy', 0.03);
                 }
                 for (const resource in minDistObject.getDroppingResources())
                 {
                     resourcesOfUser[resource] += minDistObject.getDroppingResources()[resource];
                 }
+                destroySound.repeating(false);
+                destroySound.play();
                 UpdateNumberOfResources(allTextResources, resourcesOfUser, buildingCountsOfUser)
                 if (minDistObject.__cellsStatus['-1'])
                 {

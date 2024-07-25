@@ -9,4 +9,5 @@ export const Game = {
     playerReady: false,
     timeStage: 0,
     isAllPlayersReady: false,
+    playing: false,
 }

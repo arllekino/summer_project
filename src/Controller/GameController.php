@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\GameMapService;
+use App\Service\IslandService;
 use App\Service\LobbyPlaceService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,20 +14,14 @@ class GameController extends AbstractController
 {
     private const SESSION_USER_ID = 'userId';
     private const SESSION_KEY_GAME = 'keyGame';
-    private SessionController $session;
-    private LobbyPlaceService $lobbyService;
-    private GameMapService $gameMapService;
-
+    private const STATUS_START = 0;
     public function __construct(
-        SessionController $session,
-        LobbyPlaceService $lobbyService,
-        GameMapService $gameMapService
+        private SessionController $session,
+        private LobbyPlaceService $lobbyService,
+        private GameMapService $gameMapService,
+        private IslandService $islandService,
     )
-    {
-        $this->session = $session;
-        $this->lobbyService = $lobbyService;
-        $this->gameMapService = $gameMapService;
-    }
+    {}
 
     public function startGame(Request $request): Response
     {
@@ -39,13 +34,32 @@ class GameController extends AbstractController
             );
         }
 
-        $keyRoom = $request->get('keyRoom');
-        $this->session->setSession(self::SESSION_KEY_GAME, $keyRoom);     
-        $this->lobbyService->setGameStatus($keyRoom); 
-        return $this->redirectToRoute(
-            'main_game',
-            ['keyRoom' => $keyRoom]
-        );
+        $data = json_decode($request->getContent(), true);
+        $keyRoom = $data['key_room'];
+
+        try {
+            $readiness = $this->lobbyService->isAllPlayersReady($keyRoom);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage());
+        }
+
+        if ($readiness)
+        {
+            $this->session->setSession(self::SESSION_KEY_GAME, $keyRoom);     
+            $this->lobbyService->setGameStatus($keyRoom); 
+        }
+        
+        return new Response(json_encode([
+            'readiness' => $readiness
+        ]));
+    }
+
+    public function addUserToGame(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $this->session->setSession(self::SESSION_KEY_GAME, $data['key_room']);
+
+        return new Response('OK');
     }
 
     public function mainGame(): Response
@@ -55,7 +69,7 @@ class GameController extends AbstractController
         {
             return $this->redirectToRoute(
                 'login_form', 
-                ['message' => 'Сначала вы должны войти в аккаунт']
+                ['message' => 'В первую очередь надо войти в аккаунт']
             );
         }
 
@@ -80,7 +94,7 @@ class GameController extends AbstractController
         }
         $data = json_decode($request->getContent(), true);
         try {
-            $this->gameMapService->createGameMap($sessionKeyRoom, json_encode($data['matrix_game_map']));
+            $this->gameMapService->createGameMap($sessionKeyRoom, json_encode($data['matrix_game_map']), self::STATUS_START);
         } catch (\UnexpectedValueException $e) {
             return new Response($e->getMessage());
         }
@@ -93,8 +107,9 @@ class GameController extends AbstractController
         $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
         if ($sessionKeyRoom === null)
         {
-            return new Response('Игры с таким ключом нет');
+            return new Response('Игры с таким ключом нет', Response::HTTP_NOT_FOUND);
         }
+
         try {
             $matrixGameMap = $this->gameMapService->viewGameMap($sessionKeyRoom);
         } catch (\UnexpectedValueException $e) {
@@ -104,6 +119,44 @@ class GameController extends AbstractController
         return new Response(json_encode([
             'matrix_game_map' => json_decode($matrixGameMap)
         ]));
+    }
+
+    public function getGameStatus(): Response
+    {
+       $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        if ($sessionKeyRoom === null)
+        {
+            return new Response('Игры с таким ключом нет', Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $gameStatus = $this->gameMapService->getGameStatus($sessionKeyRoom);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage(), Response::HTTP_NOT_FOUND);
+        }
+
+        return new Response(json_encode([
+            'game_status' => $gameStatus
+        ]));
+    }
+
+    public function setGameStatus(Request $request): Response
+    {
+       $sessionKeyRoom = $this->session->getSession(self::SESSION_KEY_GAME);
+        if ($sessionKeyRoom === null)
+        {
+            return new Response('Игры с таким ключом нет', Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        try {
+            $this->gameMapService->setGameStatus($sessionKeyRoom, $data['game_status']);
+        } catch (\UnexpectedValueException $e) {
+            return new Response($e->getMessage(), Response::HTTP_NOT_FOUND);
+        }
+
+        return new Response('OK');
     }
 
     public function updateGameMap(Request $request): Response
@@ -134,8 +187,9 @@ class GameController extends AbstractController
         try {
             $this->gameMapService->deleteGameMap($sessionKeyRoom);
             $this->lobbyService->setLobbyStatus($sessionKeyRoom);
+            $this->islandService->deleteIslandsInGame($sessionKeyRoom);
         } catch (\UnexpectedValueException $e) {
-            return new Response($e->getMessage());
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
         $this->session->removeSession(self::SESSION_KEY_GAME);
 

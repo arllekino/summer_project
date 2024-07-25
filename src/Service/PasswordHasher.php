@@ -9,14 +9,13 @@ use Symfony\Component\PasswordHasher\Hasher\CheckPasswordLengthTrait;
 class PasswordHasher
 {
     private const SALT = 'NotSugar';
-
-    use CheckPasswordLengthTrait;
+    private const PASSWORD_LENGTH = 20;
 
     public function hash(string $password): string
     {
         if ($this->isPasswordTooLong($password))
         {
-            throw new InvalidPasswordException('Password is too long!!!');
+            throw new \UnexpectedValueException('Password is too long!!!');
         } 
         return $this->encodePassword($password);
     }
@@ -34,5 +33,10 @@ class PasswordHasher
     private function encodePassword(string $password): string
     {
         return md5($password . self::SALT);    
+    }
+
+    private function isPasswordTooLong(string $password): bool
+    {
+        return self::PASSWORD_LENGTH < strlen($password);   
     }
 }
