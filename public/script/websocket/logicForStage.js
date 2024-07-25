@@ -39,7 +39,6 @@ async function joinGame() {
     const dataUser = await responseUser.json();
     userId = dataUser.id;
 
-    console.log('отправка');
     ws.send(JSON.stringify({
         from: 'game',
         type: 'new_player',
@@ -69,6 +68,17 @@ export function GetParamForBuilding(data, infoAboutBulding) {
             infoAboutBulding.hp = 100;
             infoAboutBulding.defense = 0;
             infoAboutBulding.buildType = 1;
+            infoAboutBulding.buildPtr = data.build_ptr;
+            infoAboutBulding.requiredResources = {};
+            break;
+        case "wall":
+            infoAboutBulding.name = "Wall";
+            infoAboutBulding.alias = "wall";
+            infoAboutBulding.givingResource = {};
+            infoAboutBulding.peopleCount = 0;
+            infoAboutBulding.hp = 100;
+            infoAboutBulding.defense = 0;
+            infoAboutBulding.buildType = 2;
             infoAboutBulding.buildPtr = data.build_ptr;
             infoAboutBulding.requiredResources = {};
             break;
@@ -194,7 +204,7 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     building.__cellsStatus[coord.index] = island.cells[coord.y * dimensions.y + coord.x];
                     building.__cellsStatus[coord.index].setCellId = coord.index;
                 });
-                building.displayBuildingOtherPlayer(island.buildings, island.resourcesOfUser, allTextResources, containerForMap);
+                building.displayBuildingOtherPlayer(island.buildings, island.resourcesOfUser, allTextResources, containerForMap, -1);
             }
             if (data.type === "destroying") {
                 [...island.buildings, ...island.worldResources].forEach(object => {

@@ -1,4 +1,4 @@
-import { DrawInfoBlocks, DrawBuildingsBlock, DrawNumberOfResources, UpdateNumberOfResources } from "./drawInfoBlocks.js";
+import { DrawInfoBlocks, DrawBuildingsBlock, DrawNumberOfResources, UpdateNumberOfResources, drawWaitingScreen, removeWaitingScreen } from "./drawInfoBlocks.js";
 import { Game } from "./classes/game.js";
 import { main } from "./stages.js";
 import { CreateIsland } from "./classes/Map.js";
@@ -70,6 +70,7 @@ import { RotateBlockWheelEvents } from "./timerForStage.js";
         const BDStage = await getGameStatus();
         if (Game.stage === 0 && BDStage !== 0)
         {
+            drawWaitingScreen();
             const userIDInLobby = await getUsersIds();
             let tmpStage = BDStage;
             const promiseForWaiting = new Promise(function(resolve) {
@@ -81,20 +82,23 @@ import { RotateBlockWheelEvents } from "./timerForStage.js";
                     tmpStage = await getGameStatus();
                     if (userIDInLobby.length === arrPlayersId.arr.length)
                     {
-                        console.log(tmpStage);
+                        console.log(arrPlayersId.arr);
                         tmpStage = (tmpStage === 5) ? 1 : (tmpStage + 1);
-                        console.log(tmpStage);
+                        removeWaitingScreen();
                         RotateBlockWheelEvents(allContainer.wheelBlock, tmpStage - 1, () => {}, {text: ''})
                         clearInterval(waitingForNextStage);
                         resolve();
+                        return;
                     }
                     else if (tmpStage !== BDStage)
                     {
+                        removeWaitingScreen();
                         clearInterval(waitingForNextStage);
                         RotateBlockWheelEvents(allContainer.wheelBlock, tmpStage - 1, () => {}, {text: ''})
                         resolve();
+                        return;
                     }
-                    console.log(arrPlayersId);
+                    console.log(arrPlayersId.arr);
                 }, 600);
             });
             await Promise.all([promiseForWaiting]);

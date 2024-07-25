@@ -103,6 +103,8 @@ export function CreateIsland(worldMatrix, colorFlag) {
             warehouse: 0,
             Castle: 0,
             barrack: 0,
+            wall: 0,
+            tower: 0,
         },
         illObjects: {
             barrack: 0,

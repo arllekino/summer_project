@@ -388,3 +388,20 @@ export function DrawInfoBlocks(app) {
 
 	return allContainer;
 }
+
+export function drawWaitingScreen()
+{
+	let waitingBlock = document.createElement('div');
+	waitingBlock.className = 'waiting-screen';
+	waitingBlock.innerHTML =`
+			<div class="waiting-block">
+				<h1 class="waiting-block__title">WAITING FOR NEXT STAGE</h1>
+			</div>`;
+	document.body.appendChild(waitingBlock);
+}
+
+export function removeWaitingScreen()
+{
+	let waitingBlock = document.querySelector('.waiting-screen');
+    document.body.removeChild(waitingBlock);
+}
