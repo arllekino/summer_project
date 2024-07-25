@@ -33,49 +33,42 @@ export async function stageResources(containerForDiceRoll, app, resources, build
     GetResources(buildings, containerCubes, containerForDiceRoll, blockButtonReRoll, resources);
 }
 
-export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildings, CountsBuildings, illObjects)
-{
+export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildings, CountsBuildings, illObjects) {
     let illList = []
 
     // вычитание из пищи людей на данный момент не голодных
     console.log(resourcesOfUser.wheat);
     console.log(resourcesOfUser.inhabitants);
     resourcesOfUser.wheat -= resourcesOfUser.inhabitants;
-    
+
     // Откат всех больных зданий и людей
     Object.keys(illObjects).forEach((key) => {
         console.log(key)
-        if (key !== 'inhabitants')
-        {
+        if (key !== 'inhabitants') {
             CountsBuildings[key] += illObjects[key];
             illObjects[key] = 0;
         }
-        else
-        {
+        else {
             resourcesOfUser.inhabitants += illObjects['inhabitants'];
             illObjects['inhabitants'] = 0
         }
     })
     ObjectsBuildings.forEach((value) => {
         value.__sprite.alpha = 1;
-        if (value.getAlias() !== 'Castle')
-        {
+        if (value.getAlias() !== 'Castle') {
             value.interactivity = true;
         }
     })
     // проверка на голодающих
-    if (resourcesOfUser.wheat < 0)
-    {
-        for (let i = 0; i < Math.abs(resourcesOfUser.wheat); i++)
-        {
+    if (resourcesOfUser.wheat < 0) {
+        for (let i = 0; i < Math.abs(resourcesOfUser.wheat); i++) {
             let building = getRandomElementFormList(ObjectsBuildings);
-            while (building.getAlias() === 'warehouse' && building.getAlias() === 'wall' && building in illList)
-            {
+            while (building.getAlias() === 'warehouse' && building.getAlias() === 'wall' && building in illList) {
                 building = getRandomElementFormList(ObjectsBuildings);
             }
             illList.push[building];
             illObjects[building.getAlias()] += 1;
-            CountsBuildings[building.getAlias()]  -= 1;
+            CountsBuildings[building.getAlias()] -= 1;
             building.__sprite.alpha = 0.5;
             building.interactivity = false;
 
@@ -95,7 +88,7 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     allTextResources['textForInhabitants'].text = `${resourcesOfUser.inhabitants}`;
 
     console.log('Больные: ', illObjects),
-    console.log('Здания: ',CountsBuildings);
+        console.log('Здания: ', CountsBuildings);
 }
 
 export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap, resolve, userId)
@@ -308,8 +301,7 @@ function interruptBuilding(app, island)
 }
 
 export async function stageBuilding(app, island, allTextResources, flags, blocks, containerForMap) {
-    if (!flags['hummer'])
-    {
+    if (!flags['hummer']) {
         const hummer = new Destroyer(app)
         AddEventListenersForHammer(hummer, island.buildingsOfUserIsland, island.resourcesOnIsland,
             island.cells, app, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap);
@@ -359,9 +351,7 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         building: null,
     };
 
-    towers.forEach(tower => {
-        tower.startAttack(warriors);
-    })
+
 
     if (countOfWarriors !== 0) {
         while (!isBuildingPressed.state) {

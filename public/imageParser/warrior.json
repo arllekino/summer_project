@@ -58,7 +58,7 @@
         }
     },
     "meta": {
-        "image": "/../assets/warriorSprites.png",
+        "image": "/images/warriorSprites.png",
         "format": "RGBA8888",
         "size": { "w": 64, "h": 32 },
         "scale": "1"

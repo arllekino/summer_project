@@ -1,6 +1,7 @@
 import { mouseDistanceInContainer, mouseIntersectsInContainer } from './classes/CommonFunctions.js';
 import { Warrior } from './classes/Warrior.js';
 import { updateIsland } from './gameRequsets.js';
+import { UpdateNumberOfResources } from "./drawInfoBlocks.js";
 
 function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) {
     return cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().x + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().width / 2;
@@ -473,7 +474,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
     }
 }
 
-async function DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, shortWay, cells, resolve, island) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, resolve, island, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     if (clickedBuilding.building) {
         console.log(warriorsOfAllUser);
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
@@ -491,7 +492,17 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUse
         const areWarriorsAttacking = {
             state: false,
         }
-        while (clickedBuilding.building.__hp > 0 && clickedBuilding.building.__sprite) {
+        
+        let activeWarriorsCount = 0;
+        // Рекурсивная функция для атаки воинов
+        async function attackBuilding(currentHp) {
+            if (currentHp <= 0) {
+                return;
+            }
+
+            // Живые воины
+            const aliveWarriors = warriorsOfAllUser.warriorsOfShip.filter(warrior => warrior.alive);
+
             if (areWarriorsAttacking.state) {
                 warriorsOfAllUser.warriorsOfShip.forEach((warriorOfShip) => {
                     if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
@@ -509,98 +520,126 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUse
                         const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
                         if (distanceForWarriorsOfIsland <= 40) {
                             areWarriorsAttacking.state = true;
-                            return;
                         }
                         else {
                             areWarriorsAttacking.state = false;
                         }
                     }
                 });
-                continue;
+                await attackBuilding(clickedBuilding.building.__hp);
             }
-            for (const warrior of warriorsOfAllUser.warriorsOfShip) {
 
-                if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
-                    let targetXOfWarriorOfIsland = Infinity;
-                    let targetYOfWarriorOfIsland = Infinity;
-                    warriorsOfAllUser.warriorsOfIsland.forEach((warriorOfIsland) => {
-                        if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
-                            targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
-                            targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+            // Если есть живые воины, продолжаем атаку
+            if (aliveWarriors.length > 0) {
+                for (const warrior of aliveWarriors) {
+                    if (warrior.alive) { // Проверяем, жив ли воин
+
+                        if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
+                            let targetXOfWarriorOfIsland = Infinity;
+                            let targetYOfWarriorOfIsland = Infinity;
+                            warriorsOfAllUser.warriorsOfIsland.forEach((warriorOfIsland) => {
+                                if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                                    targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
+                                    targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+                                }
+                            });
+        
+                            const dxForWarriorsOfIsland = targetXOfWarriorOfIsland - warrior.x;
+                            const dyForWarriorsOfIsland = targetYOfWarriorOfIsland - warrior.y;
+                            const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                            if (distanceForWarriorsOfIsland <= 40) {
+                                areWarriorsAttacking.state = true;
+                                break;
+                            }
                         }
-                    });
 
-                    const dxForWarriorsOfIsland = targetXOfWarriorOfIsland - warrior.x;
-                    const dyForWarriorsOfIsland = targetYOfWarriorOfIsland - warrior.y;
-                    const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
-                    if (distanceForWarriorsOfIsland <= 40) {
-                        areWarriorsAttacking.state = true;
+                        activeWarriorsCount++;
+                        const damageToApply = Math.min(warrior.damage, currentHp);
+                        await warrior.startAttack(clickedBuilding.building, damageToApply);
+                        hpText.text = `${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`;
+
+                        // Анимация урона
+                        const damageText = new PIXI.Text(-damageToApply, {
+                            fontSize: 16,
+                            fill: 0xff0000,
+                            align: 'center',
+                            alpha: 0,
+                            fontWeight: 'bold'
+                        });
+                        damageText.zIndex = 501;
+                        damageText.x = clickedBuilding.building.__sprite.x + clickedBuilding.building.__sprite.width / 2 - damageText.width / 2;
+                        damageText.y = clickedBuilding.building.__sprite.y - 5 - 20;
+                        app.stage.addChild(damageText);
+
+                        for (let i = 0; i <= 10; i++) {
+                            damageText.alpha = i / 10;
+                            await new Promise(resolve => setTimeout(resolve, 20));
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 200));
+
+                        for (let i = 10; i >= 0; i--) {
+                            damageText.alpha = i / 10;
+                            await new Promise(resolve => setTimeout(resolve, 20));
+                        }
+                        app.stage.removeChild(damageText);
+
+                        if (!warrior.alive) {
+                            activeWarriorsCount--;
+                        }
+                        // Рекурсивно вызываем функцию с оставшимся HP
+                        await attackBuilding(clickedBuilding.building.__hp);
                         break;
                     }
                 }
-
-                // Проверяем, не больше ли урон воина, чем HP здания
-                const damageToApply = Math.min(warrior.damage, clickedBuilding.building.__hp);
-
-                await warrior.attack(clickedBuilding.building, damageToApply);
-                hpText.text = `${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`;
-
-                // Анимация урона
-                const damageText = new PIXI.Text(`-${damageToApply}`, {
-                    fontSize: 16,
-                    fill: 0xff0000,
-                    align: 'center',
-                    alpha: 0,
-                    fontWeight: 'bold'
-                });
-                damageText.zIndex = 501;
-                damageText.x = clickedBuilding.building.__sprite.x + clickedBuilding.building.__sprite.width / 2 - damageText.width / 2;
-                damageText.y = clickedBuilding.building.__sprite.y - 5 - 20;
-                app.stage.addChild(damageText);
-
-                for (let i = 0; i <= 10; i++) {
-                    damageText.alpha = i / 10;
-                    await new Promise(resolve => setTimeout(resolve, 20));
+                if (areWarriorsAttacking.state) {
+                    await attackBuilding(clickedBuilding.building.__hp);
                 }
-                await new Promise(resolve => setTimeout(resolve, 200));
-
-                for (let i = 10; i >= 0; i--) {
-                    damageText.alpha = i / 10;
-                    await new Promise(resolve => setTimeout(resolve, 20));
-                }
-                app.stage.removeChild(damageText);
-                if (clickedBuilding.building.__hp <= 0) {
-                    break; // Выход из цикла, если HP здания <= 0
-                }
+            } else {
+                // Если нет живых воинов, выходим из функции
+                return;
             }
         }
+
+        await attackBuilding(clickedBuilding.building.__hp);
         app.stage.removeChild(hpText);
 
-        for (const warrior of warriorsOfAllUser.warriorsOfShip) {
-            warrior.sprite.visible = true;
-            warrior.attackSprite.visible = false;
-        }
+        if (clickedBuilding.building.__hp <= 0) {
+            for (const warrior of warriorsOfAllUser.warriorsOfShip) {
+                warrior.sprite.visible = true;
+                warrior.attackSprite.visible = false;
+            }
+            await animateBuildingDestruction(clickedBuilding.building.__sprite, app);
 
-        await animateBuildingDestruction(clickedBuilding.building.__sprite);
-        clickedBuilding.building.__sprite.destroy();
-        buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
-        if (island) {
-            if (island.buildingsOfUserIsland.indexOf(clickedBuilding.building) !== -1)
+
+            await updateResourcesOnBuildingDestroy(clickedBuilding.building, resourcesOfUser, buildingCountsOfUser, allTextResources);
+
+            if (island) {
+                if (island.buildingsOfUserIsland.indexOf(clickedBuilding.building) !== -1)
                 {
                     island.buildingsOfUserIsland.splice(island.buildingsOfUserIsland.indexOf(clickedBuilding.building), 1);
                     island.buildingCountsOfUser[clickedBuilding.building.getAlias()] -= 1;
                 }
-        }
+            }
 
-        for (const cellId in clickedBuilding.building.__cellsStatus) {
-            clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
+            buildings.splice(buildings.indexOf(clickedBuilding), 1);
+            for (const cellId in clickedBuilding.building.__cellsStatus) {
+                clickedBuilding.building.__cellsStatus[cellId].setPtrTower(-1);
+            }
+            clickedBuilding.building.__sprite.destroy();
         }
+        resolve();
     }
-    resolve();
 }
 
-async function animateBuildingDestruction(buildingSprite) {
-    const textureBackground = await PIXI.Assets.load("/../../assets/textures/debris.png");
+async function updateResourcesOnBuildingDestroy(building, resourcesOfUser, buildingCountsOfUser, allTextResources) {
+    buildingCountsOfUser[building.getAlias()] -= 1;
+    resourcesOfUser['inhabitants'] -= 1;
+
+    UpdateNumberOfResources(allTextResources, resourcesOfUser, buildingCountsOfUser)
+}
+
+async function animateBuildingDestruction(buildingSprite, app) {
+    const textureBackground = await PIXI.Texture.from(`debris.png`);
     const debrisSprite = new PIXI.Sprite(textureBackground);
     debrisSprite.anchor.set(0.5);
     debrisSprite.zIndex = 600;
@@ -612,7 +651,8 @@ async function animateBuildingDestruction(buildingSprite) {
     // Случайное вращение обломков
     debrisSprite.rotation = Math.random() * Math.PI * 2;
 
-    buildingSprite.parent.addChild(debrisSprite);
+    //buildingSprite.parent.addChild(debrisSprite);
+    app.stage.addChild(debrisSprite);
 
     // Анимация
     for (let i = 1; i >= 0; i -= 0.1) {
@@ -646,38 +686,50 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriorsOf
 
     let allWarriorsReached = false;
     let allWarriorsReachedOtherWarriors = false;
+    let allWarriorsAlive = true;
 
     const ticker = new PIXI.Ticker();
     ticker.add((time) => {
-        if (!allWarriorsReachedOtherWarriors) {
-            allWarriorsReached = true;
+        allWarriorsReached = true;
+        allWarriorsAlive = true;
 
-            groups.forEach((group, groupIndex) => {
-                let offsetX = 0; // Смещение по X для каждой группы
-                let offsetY = 0; // Смещение по Y для каждой группы
+        groups.forEach((group, groupIndex) => {
+            let offsetX = 0;
+            let offsetY = 0;
 
-                // Смещение относительно предыдущей группы
-                if (groupIndex > 0) {
-                    const previousGroup = groups[groupIndex - 1];
-                    const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
+            if (warriors.length < 5) {
+                offsetX = (groupIndex % 2 === 0) ? 6 : -6;
+                offsetY = (groupIndex % 2 === 0) ? 3 : -3;
+            } else if (warriors.length < 10) {
+                offsetX = (groupIndex % 2 === 0) ? 4 : -4;
+                offsetY = (groupIndex % 2 === 0) ? 2 : -2;
+            } else {
+                offsetX = (groupIndex % 2 === 0) ? 2 : -2;
+                offsetY = (groupIndex % 2 === 0) ? 1 : -1;
+            }
 
-                    // Смещение по X в разные стороны
-                    offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
-                    offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
-                }
+            if (groupIndex > 0) {
+                const previousGroup = groups[groupIndex - 1];
+                const previousLeaderSprite = previousGroup[0].getSprite();
+                offsetX = (groupIndex % 2 === 0) ? 5 : -5;
+                offsetY = previousLeaderSprite.y - targetY + 3 * groupIndex;
+            }
 
-                group.forEach((warrior, index) => {
+            group.forEach((warrior, index) => {
+                if (warrior.isAlive()) {
+                    allWarriorsAlive = true;
+
                     const sprite = warrior.getSprite();
+                    // sprite.zIndex = sprite.getBounds().y - 15;
+                    // console.log(sprite.zIndex);
 
-                    // Смещение в разные стороны (внутри группы)
                     let internalOffsetX = 0;
                     if (index === 0) {
-                        internalOffsetX = -8; // Левый воин
+                        internalOffsetX = -5;
                     } else if (index === 2) {
-                        internalOffsetX = 8; // Правый воин
+                        internalOffsetX = 5;
                     }
 
-                    // Движение воина к целевой позиции с учетом смещения
                     const dx = targetX + offsetX + internalOffsetX - sprite.x;
                     const dy = targetY + offsetY - sprite.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -705,13 +757,14 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriorsOf
                             return;
                         }
                     }
-                });
+                } else {
+                    const index = group.indexOf(warrior);
+                    if (index !== -1) {
+                        group.splice(index, 1);
+                    }
+                }
             });
-            if (allWarriorsReached) {
-                ticker.destroy();
-                resolve();
-            }
-        }
+        });
         if (allWarriorsReachedOtherWarriors) {
             if (warriorsOfAllUser.warriorsOfShip.length === 0) {
                 areWarriorsOfShipDead.state = true;
@@ -720,6 +773,16 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriorsOf
             }
             if (warriorsOfAllUser.warriorsOfIsland.length === 0) {
                 areWarriorsOfShipDead.state = false;
+                ticker.destroy();
+                resolve();
+            }
+        }
+        else {
+            if (!allWarriorsAlive) {
+                ticker.destroy();
+                resolve();
+            }
+            if (allWarriorsReached) {
                 ticker.destroy();
                 resolve();
             }
@@ -739,8 +802,7 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
         height: 1,
     }
     buildings.forEach((building) => {
-        if (mouseDistanceInContainer(bounds, building, containerForMap) < minDist && mouseIntersectsInContainer(bounds, building, containerForMap))
-        {
+        if (mouseDistanceInContainer(bounds, building, containerForMap) < minDist && mouseIntersectsInContainer(bounds, building, containerForMap)) {
             console.log(building);
             minDist = mouseDistanceInContainer(bounds, building, containerForMap);
             minDistObject = building;
@@ -751,7 +813,7 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
     }
 }
 
-async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     if (!isWarriorSailingBack) {
         let newShortWay = [];
         const hasNewPathBuilt = {
@@ -773,35 +835,36 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                             building: null,
                         }
                         GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap, dimensions);
-                        const promiseForDestroy = new Promise(function(resolve){
-                            DestroyBuilding(app, buildings, buildingAround, warriorsOfAllUser, shortWay, cells, resolve, island);
+                        const promiseForDestroy = new Promise(function (resolve) {
+                            DestroyBuilding(app, buildings, buildingAround, warriorsOfAllUser, resolve, island, resourcesOfUser, allTextResources, buildingCountsOfUser);
                         });
                         await Promise.all([promiseForDestroy]);
                         hasAShortWayFound.state = false;
 
-                        newShortWay = GetShortWay({x: infoAboutCell.x, y: infoAboutCell.y}, coordsEndWar, worldMatrix, cells, hasAShortWayFound, dimensions);
+                        newShortWay = GetShortWay({ x: infoAboutCell.x, y: infoAboutCell.y }, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
                         hasNewPathBuilt.state = true;
                         totalPath.way = totalPath.way.concat(newShortWay);
-        
-                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
+                        const promiseForMove = new Promise(function (resolve) {
+                            MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, resourcesOfUser, allTextResources, buildingCountsOfUser);
+                        });
+                        await Promise.all([promiseForMove]);
                     }
                 }
                 else {
-                    debugger;
-                    const promiseForDestroy = new Promise(function(resolve){
-                        DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, shortWay, cells, resolve, island);
+                    const promiseForDestroy = new Promise(function (resolve) {
+                        DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, resolve, resourcesOfUser, allTextResources, buildingCountsOfUser);
                     });
                     await Promise.all([promiseForDestroy]);
                     const promiseBack = new Promise(function (resolve) {
-                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
+                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, resourcesOfUser, allTextResources, buildingCountsOfUser);
                     });
                     await Promise.all([promiseBack]);
-                    
+
                     for (const warrior of warriorsOfAllUser.warriorsOfShip) {
                         warrior.destroy(app);
                     }
                 }
-                
+
             }
         }
     } else {
@@ -1115,7 +1178,7 @@ export function MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resources
     ticker.start();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors, island, colorFlag, idUser) {
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors, island, colorFlag, idUser, towers, resourcesOfUser, allTextResources, buildingCountsOfUser) {
     const dimensions = {
         x: worldMatrix[0].length,
         y: worldMatrix.length,
@@ -1139,8 +1202,15 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     }
     const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound, dimensions);
     totalPath.way = shortWay;
+    towers.forEach(tower => {
+        tower.startAttack(warriorsOfAllUser.warriorsOfShip);
+    });
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island, towers, resourcesOfUser, allTextResources, buildingCountsOfUser);
     });
     await Promise.all([promiseForward]);
+    towers.forEach(tower => {
+        tower.stopAttack(warriorsOfAllUser.warriorsOfShip);
+    });
+    resolve();
 }

@@ -1,4 +1,4 @@
-import { Cell } from "./Cell.js"; 
+import { Cell } from "./Cell.js";
 import { UpdateNumberOfResources } from "../drawInfoBlocks.js";
 import { Rect } from "./Quadtree.js";
 import { SendBuilding } from "../websocket/logicForStage.js";
@@ -25,10 +25,10 @@ export class Building
         this.dimensions = dimensions;
         this.damage = damage;
         this.attackTimer = null;
-        Object.entries(requiredResources).forEach(([key, value]) => { 
-            if (value !== 1) { value = Math.floor(value / 2); } 
-            if (key == 'hammer') { value = 0}
-            if (value !== 0) {this.__droppingResources[key] = value;} 
+        Object.entries(requiredResources).forEach(([key, value]) => {
+            if (value !== 1) { value = Math.floor(value / 2); }
+            if (key == 'hammer') { value = 0 }
+            if (value !== 0) { this.__droppingResources[key] = value; }
         });
         this.__matrixPattern = [];
         this.__eCells = [];
@@ -46,8 +46,7 @@ export class Building
         //app.stage.off('pointermove', (event) => this.startMouseFollowing(event))
     }
 
-    getAlias()
-    {
+    getAlias() {
         return this.alias;
     }
 
@@ -65,8 +64,7 @@ export class Building
     getName() {
         return this.name;
     }
-    setHp(hp) 
-    {
+    setHp(hp) {
         this.__hp = hp;
     }
     getECells() {
@@ -153,15 +151,15 @@ export class Building
 
     startMouseFollowing(event, cells, quadTree) {
         let position = event.data.global;
-        if (this.__eCells[0]) {this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50);}
-        if (this.__eCells[1]) {this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50);}
-        if (this.__eCells[2]) {this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50);}
-        if (this.__eCells[3]) {this.__eCells[3].setDirectPositions(position.x + 40 - 50, position.y + 10 - 50);}
-        if (this.__eCells[4]) {this.__eCells[4].setDirectPositions(position.x + 20 - 50, position.y + 20 - 50);}
-        if (this.__eCells[5]) {this.__eCells[5].setDirectPositions(position.x - 50, position.y + 30 - 50);}
-        if (this.__eCells[6]) {this.__eCells[6].setDirectPositions(position.x + 60 - 50, position.y + 20 - 50);}
-        if (this.__eCells[7]) {this.__eCells[7].setDirectPositions(position.x + 40 - 50, position.y + 30 - 50);}
-        if (this.__eCells[8]) {this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50);}
+        if (this.__eCells[0]) { this.__eCells[0].setDirectPositions(position.x + 20 - 50, position.y - 50); }
+        if (this.__eCells[1]) { this.__eCells[1].setDirectPositions(position.x - 50, position.y + 10 - 50); }
+        if (this.__eCells[2]) { this.__eCells[2].setDirectPositions(position.x - 20 - 50, position.y + 20 - 50); }
+        if (this.__eCells[3]) { this.__eCells[3].setDirectPositions(position.x + 40 - 50, position.y + 10 - 50); }
+        if (this.__eCells[4]) { this.__eCells[4].setDirectPositions(position.x + 20 - 50, position.y + 20 - 50); }
+        if (this.__eCells[5]) { this.__eCells[5].setDirectPositions(position.x - 50, position.y + 30 - 50); }
+        if (this.__eCells[6]) { this.__eCells[6].setDirectPositions(position.x + 60 - 50, position.y + 20 - 50); }
+        if (this.__eCells[7]) { this.__eCells[7].setDirectPositions(position.x + 40 - 50, position.y + 30 - 50); }
+        if (this.__eCells[8]) { this.__eCells[8].setDirectPositions(position.x + 20 - 50, position.y + 40 - 50); }
         this.__sprite.x = position.x - this.__sprite.getBounds().width / 2;
         this.__sprite.y = position.y - this.__sprite.getBounds().height / 2;
         // cells.forEach((cell) => {
@@ -178,14 +176,12 @@ export class Building
         //         }
         //     }));
         // });
-        this.__eCells.filter(eCell => eCell !== null).forEach( (eCell) => {
+        this.__eCells.filter(eCell => eCell !== null).forEach((eCell) => {
             const cell = quadTree.query(new Rect(eCell.x + 7, eCell.y + 4, 5, 5));
             if (cell.length > 0) {
-                if (cell[0] !== this.cellsBefore[eCell.getCellId()])
-                {
-                    if (this.cellsBefore[eCell.getCellId()] !== null)
-                    {
-                        this.cellsBefore[eCell.getCellId()].changeType(this.cellsBefore[eCell.getCellId()].getType());   
+                if (cell[0] !== this.cellsBefore[eCell.getCellId()]) {
+                    if (this.cellsBefore[eCell.getCellId()] !== null) {
+                        this.cellsBefore[eCell.getCellId()].changeType(this.cellsBefore[eCell.getCellId()].getType());
                     }
                 }
                 this.cellsBefore[eCell.getCellId()] = cell[0];
@@ -195,18 +191,16 @@ export class Building
                     cell[0].okField();
                 }
                 this.__cellsStatus[eCell.getCellId()] = cell[0];
-            } 
-            else 
-            {
-                if (this.cellsBefore[eCell.getCellId()] !== null)
-                {
+            }
+            else {
+                if (this.cellsBefore[eCell.getCellId()] !== null) {
                     this.cellsBefore[eCell.getCellId()].changeType(this.cellsBefore[eCell.getCellId()].getType());
                     this.cellsBefore[eCell.getCellId()] = null;
                 }
             }
         })
     }
-        
+
 
     rotateMatrix(direction) {
         if (direction == 1) {
@@ -251,7 +245,7 @@ export class Building
             });
             this.__stopMovingFlag = true;
             // this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
-            this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x  + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
+            this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
             this.clearPatterns();
             this.__sprite.zIndex = this.__sprite.y;
             this.__sprite.alpha = 1;
@@ -294,7 +288,7 @@ export class Building
             this.__stopMovingFlag = true;
             app.stage.on('pointermove', (event) => this.startMouseFollowing(event)).off('pointermove');
             // this.setPosition(this.__cellsStatus[4].getBounds().x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].getBounds().y - this.__sprite.getBounds().height / 3 + 5);
-            this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x  + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
+            this.setPosition(this.__cellsStatus[4].__sprite.getBounds().x - containerForMap.x + this.__cellsStatus[4].getBounds().width / 2 - 52.5, this.__cellsStatus[4].__sprite.getBounds().y - containerForMap.y - this.__sprite.getBounds().height / 3 + 5);
             this.clearPatterns();
             this.__sprite.zIndex = this.__sprite.y;
             this.__sprite.alpha = 1;
@@ -302,8 +296,7 @@ export class Building
             buildings.push(this);
             userBuildings.push(this);
             containerForMap.addChild(this.__sprite);
-            for (const resource in this.requiredResources)
-            {
+            for (const resource in this.requiredResources) {
                 resources[resource] -= this.requiredResources[resource];
             }
             resources['inhabitants'] += this.__peopleCount;
@@ -326,13 +319,12 @@ export class Building
             }
         })
         Object.values(this.__cellsStatus).forEach(cell => {
-            if (cell !== null) { cell.changeType(cell.getType());}
+            if (cell !== null) { cell.changeType(cell.getType()); }
         })
         this.__eCells = [];
     }
 
-    clearCellsStatus()
-    {
+    clearCellsStatus() {
         this.__cellsStatus = {};
     }
 
@@ -342,40 +334,42 @@ export class Building
         }
     }
 
-    startAttack(enemiesArray)
-    {
+    startAttack(enemiesArray) {
         let targetEnemy = null;
-        this.attackTimer = setInterval(()=> {
-            if (!targetEnemy && enemiesArray != [])
-            {
-                targetEnemy = enemiesArray[Math.floor(Math.random() * enemiesArray.length)]
+        this.attackTimer = setInterval(() => {
+            if (!targetEnemy && enemiesArray.length > 0) {
+                targetEnemy = enemiesArray[Math.floor(Math.random() * enemiesArray.length)];
             }
-            if (!targetEnemy)
-            {
-                this.stopAttack()
+
+            if (!targetEnemy) {
+                this.stopAttack();
                 return;
             }
-            if (Math.random() * 100 >= this.hitChance)
-            {
-                console.log('Мимо')
+
+            if (Math.random() * 100 >= this.hitChance) {
+                console.log('Мимо');
                 return;
             }
-            if (targetEnemy.getHp() - this.damage <= 0)
-            {
+
+            // Проверяем, атакует ли враг в данный момент
+            if (targetEnemy.attacking) {
+                targetEnemy.stopAttack(); // Останавливаем атаку врага
+            }
+
+            if (targetEnemy.getHp() - this.damage <= 0) {
                 targetEnemy.damaged(this.damage);
-                enemiesArray.splice(enemiesArray.indexOf(targetEnemy), 1); 
+                enemiesArray.splice(enemiesArray.indexOf(targetEnemy), 1);
                 targetEnemy = null;
-            }
-            else
-            {
+            } else {
                 targetEnemy.damaged(this.damage);
             }
-        }, 2000)
+        }, 2000);
     }
 
-    stopAttack()
-    {
-        clearInterval(this.attackTimer);
+    stopAttack() {
+        if (this.attackTimer) {
+            clearInterval(this.attackTimer);
+            this.attackTimer = null;
+        }
     }
-
 }
