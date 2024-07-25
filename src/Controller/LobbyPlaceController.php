@@ -64,7 +64,7 @@ class LobbyPlaceController extends AbstractController
         } catch (\UnexpectedValueException $e) {
             return $this->redirectToRoute(
                 'start_lobby_page',
-                ['message' => $e]
+                ['message' => $e->getMessage()]
             );
         }
 

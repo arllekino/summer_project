@@ -1,3 +1,7 @@
+body {
+  overflow-y: hidden;
+}
+
 * {
   font-family: "Lora", serif;
   color: black;

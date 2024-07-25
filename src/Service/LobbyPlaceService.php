@@ -28,7 +28,14 @@ class LobbyPlaceService
         $extantLobby = $this->repository->findByPlayerId($userId);
         if ($extantLobby)
         {
-            throw new \UnexpectedValueException('Вы уже создали лобби. Его ключ - ' . $extantLobby->getKeyRoom());
+            if ($extantLobby->getStatus() === self::PLAYER_HOST)
+            {
+                throw new \UnexpectedValueException('Вы уже создали лобби. Его ключ - ' . $extantLobby->getKeyRoom());
+            }
+            else 
+            {
+                throw new \UnexpectedValueException('Вы уже в лобби. Его ключ - ' . $extantLobby->getKeyRoom());
+            }
         }
         
         $lobby = new LobbyPlace(
@@ -50,6 +57,12 @@ class LobbyPlaceService
 
     public function addUserToLobby(string $keyRoom, int $userId): void
     {
+        $extantLobbyPlace = $this->repository->findByPlayerId($userId);
+        if ($extantLobbyPlace !== null && $extantLobbyPlace->getKeyRoom() !== $keyRoom)
+        {
+            throw new \UnexpectedValueException('Вы уже в лобби. Его ключ - ' . $extantLobbyPlace->getKeyRoom());
+        }
+
         $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
         if (empty($lobbyPlaces))
         {
@@ -63,6 +76,7 @@ class LobbyPlaceService
         {
             throw new \UnexpectedValueException('Игра уже запущена');
         }
+
         $notUsedColorFlags = self::FLAGS_ARRAY;
         foreach ($lobbyPlaces as $lobbyPlace)
         {

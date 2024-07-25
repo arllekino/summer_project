@@ -27,7 +27,7 @@ class User
     {
         return $this->email;    
     }
-    
+
     public function getHashPassword(): string
     {
         return $this->hashPassword;    
@@ -38,10 +38,12 @@ class User
     {
         $this->userName = $userName;    
     }
+    
     public function setEmail(string $email): void
     {
         $this->email = $email;    
     }
+
     public function setHashPassword(string $hashPassword): void
     {
         $this->hashPassword = $hashPassword;    
