@@ -170,11 +170,11 @@ function MakeField(obj) {
     }
     
     let matrixOfField = [];
-    for(let i = 0; i < widthOfField; i++)
+    for(let i = 0; i < heightOfField; i++)
     {
         let temp = [];
         temp.splice(0, temp.length);
-        for (let j = 0; j < heightOfField; j++)
+        for (let j = 0; j < widthOfField; j++)
         {
             temp.push(0);
         }
@@ -192,22 +192,22 @@ export function GetBoundsForIsland(iter, bounds) {
             bounds.startYOfFiled = 10;
             break;
         case 1:
+            bounds.iterXOfField = 10;
+            bounds.iterYOfField = 65;
+            bounds.startXOfFiled = 10;
+            bounds.startYOfFiled = 65;
+            break;
+        case 2:
             bounds.iterXOfField = 65;
             bounds.iterYOfField = 10;
             bounds.startXOfFiled = 65;
             bounds.startYOfFiled = 10;
             break;
-        case 2:
-            bounds.iterXOfField = 15;
-            bounds.iterYOfField = 70;
-            bounds.startXOfFiled = 15;
-            bounds.startYOfFiled = 70;
-            break;
         case 3:
             bounds.iterXOfField = 65;
-            bounds.iterYOfField = 70;
+            bounds.iterYOfField = 65;
             bounds.startXOfFiled = 65;
-            bounds.startYOfFiled = 70;
+            bounds.startYOfFiled = 65;
             break;
         default:
             bounds.iterXOfField = 0;

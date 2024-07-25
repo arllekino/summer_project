@@ -5,7 +5,7 @@ import { SendBuilding } from "../websocket/logicForStage.js";
 
 export class Building
 {
-    constructor(app, cells, userBuildings, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, buildingCountsOfUser, containerForMap, dimensions, anotherBuilding, damage)
+    constructor(app, cells, userBuildings, buildings, quadTree, name, alias, givingResource, peopleCount, hp, defense, buildType, buildPtr, requiredResources, resources, allTextResources, buildingCountsOfUser, containerForMap, dimensions, anotherBuilding, damage, userId)
     {
         this.__hp = hp;
         this.__defense = defense;
@@ -35,6 +35,7 @@ export class Building
         this.__stopMovingFlag = false;
         this.__bounds;
         this.hitChance = 100;
+        this.__userId = userId;
         this.initSprite(app);
         if (!anotherBuilding) {
             window.addEventListener('click', () => this.mouseClick(app, userBuildings, buildings, resources, allTextResources, buildingCountsOfUser, containerForMap, cells, dimensions));

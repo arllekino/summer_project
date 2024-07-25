@@ -11,9 +11,9 @@ import { Rules } from "./classes/Rules.js";
 import { GetCoordsOfBuildings } from "./moveSpriteToCoords.js";
 import { Cell } from "./classes/Cell.js";
 import { Rect } from "./classes/Quadtree.js";
-import { ChoiceEndCoords, MoveWarrior, MoveWarriorsToOtherWarriors } from "./moveWarrior.js";
+import { ChoiceEndCoords, MakeIslandWarriorsOfPlayer, MoveWarrior, MoveWarriorsToOtherWarriors } from "./moveWarrior.js";
 import { CheckReadinessOfPlayers, MakePlayersNotReady } from "./requestsForMainGame.js"
-import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
+import { SendInfoAboutAttack, SendPlayerId, WaitingForPlayers, ws } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
 import { Warrior } from "./classes/Warrior.js";
 
@@ -94,7 +94,7 @@ export function stageDisasters(allTextResources, resourcesOfUser, ObjectsBuildin
     console.log('Здания: ',CountsBuildings);
 }
 
-export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap, resolve)
+export async function StartStage(app, island, allTextResources, flags, blocks, containerForMap, resolve, userId)
 {
     const handleKeyDown = (event) => {
         const key = event.key;
@@ -122,16 +122,16 @@ export async function StartStage(app, island, allTextResources, flags, blocks, c
         flags['rotations'] = true;
     }
 
-    await buildCastle(app, island, allTextResources, blocks, containerForMap);
-    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
-    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
-    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap);
-    await buildFarm(app, island, allTextResources, blocks, containerForMap);
+    await buildCastle(app, island, allTextResources, blocks, containerForMap, userId);
+    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap, userId);
+    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap, userId);
+    await buildFarmerHouse(app, island, allTextResources, blocks, containerForMap, userId);
+    await buildFarm(app, island, allTextResources, blocks, containerForMap, userId);
     Game.stage += 1;
     resolve();
 }
 
-async function buildCastle(app, island, allTextResources, blocks, containerForMap) {
+async function buildCastle(app, island, allTextResources, blocks, containerForMap, userId) {
     const dimensions = {
         x: island.matrixOfIsland[0].length,
         y: island.matrixOfIsland.length,
@@ -139,7 +139,7 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
+        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Castle', 'Castle', {}, 1, 100, 0, 1, 17, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0, userId);
         island.buldingObject.setMatrixPattern([
             [1, 1, 1],
             [1, 1, 1],
@@ -158,7 +158,7 @@ async function buildCastle(app, island, allTextResources, blocks, containerForMa
         checkCondition();
     })
 }
-async function buildFarmerHouse(app, island, allTextResources, blocks, containerForMap) {
+async function buildFarmerHouse(app, island, allTextResources, blocks, containerForMap, userId) {
     const dimensions = {
         x: island.matrixOfIsland[0].length,
         y: island.matrixOfIsland.length,
@@ -166,7 +166,7 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
+        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farmer House', 'houseVillage', {}, 1, 100, 0, 1, 13, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0, userId);
         island.buldingObject.setMatrixPattern([
             [0, 0, 0],
             [0, 1, 0],
@@ -187,7 +187,7 @@ async function buildFarmerHouse(app, island, allTextResources, blocks, container
     })
 }
 
-async function buildFarm(app, island, allTextResources, blocks, containerForMap) {
+async function buildFarm(app, island, allTextResources, blocks, containerForMap, userId) {
     const dimensions = {
         x: island.matrixOfIsland[0].length,
         y: island.matrixOfIsland.length,
@@ -195,7 +195,7 @@ async function buildFarm(app, island, allTextResources, blocks, containerForMap)
     return new Promise((resolve) => {
         const requiredResources = {};
         island.buildingMoment = true;
-        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0);
+        island.buldingObject = new Building(app, island.cells, island.buildingsOfUserIsland, island.buildings, island.quadTreeOfUserIsland, 'Farm', 'farm', {wheat: 1}, 1, 100, 0, 1, 1, requiredResources, island.resourcesOfUser, allTextResources, island.buildingCountsOfUser, containerForMap, dimensions, false, 0, userId);
         island.buldingObject.setMatrixPattern([
             [1, 1, 0],
             [1, 1, 0],
@@ -261,30 +261,11 @@ export async function stageBuilding(app, island, allTextResources, flags, blocks
     });
 }
 
-export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors, towers) {
-    
-    const warriorsOfIsland = [];
-    const numWarriors = 5;
-    let buildingCastle = null;
-    buildings.forEach((building) => {
-        if (building.name === "Castle") {
-            buildingCastle = building;
-            return;
-        }
-    });
-
-    let xForEnemy = 0, yForEnemy = 0;
-    if (buildingCastle) {
-        const bounds = buildingCastle.getBounds();
-        xForEnemy = bounds.x;
-        yForEnemy = bounds.y;
+export async function stageBattles(app, cells, quadTree, buildings, ships, worldMatrix, allContainer, warriors, towers, isThereBattleGoingNow, countOfWarriors, idUser) {
+    const dimensions = {
+        x: worldMatrix[0].length,
+        y: worldMatrix.length,
     }
-
-    for (let i = 0; i < numWarriors; i++) {
-        const warrior = new Warrior(app, "war", xForEnemy, yForEnemy, 40, 3 + i);
-        warriorsOfIsland.push(warrior)
-    }
-    
     const coordsStart = {
         x: 0,
         y: 0,
@@ -304,69 +285,90 @@ export async function stageBattles(app, cells, quadTree, buildings, ships, world
         tower.startAttack(warriors);
     })
 
-    while (!isBuildingPressed.state) {
-        const promise = new Promise(function(resolve) {
-            GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed, allContainer.containerForMap, clickedBuilding);
-        });
-        await Promise.all([promise]);
-
-        if (Game.stage !== 4) {
-            isBuildingPressed.state = true;
-        }
-    }
-    const stopMoving = {
-        state: false,
-    };
-    const isThisRightCell = {
-        state: false,
-    };
-    const coordsEnd = {
-        x: 0,
-        y: 0,
-    }
-    const cellForShipFromMap = {
-        cell: null,
-    }
-    if (isBuildingPressed.state && Game.stage === 4) {
-        let cellForShip = new Cell(app, -1, 5);
-        function getCoordsOfShip(resolve) {
-            ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve);
-            if (Game.stage !== 4) {
-                resolve();
-            }
-            if (isThisRightCell.state) {
-                app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
-            }
-        }
-        while (!stopMoving.state) {
+    if (countOfWarriors !== 0) {
+        while (!isBuildingPressed.state) {
             const promise = new Promise(function(resolve) {
-                app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve));
-                app.stage.on("click", () => getCoordsOfShip(resolve));
+                GetCoordsOfBuildings(cells, coordsOfBuilding, buildings, resolve, isBuildingPressed, allContainer.containerForMap, clickedBuilding, dimensions);
                 if (Game.stage !== 4) {
                     resolve();
                 }
-            })
+            });
             await Promise.all([promise]);
+
             if (Game.stage !== 4) {
-                cellForShip = null;
-                app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");
-                app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
-                stopMoving.state = true;
+                isBuildingPressed.state = true;
             }
         }
-        cellForShip = null;
-    }
-    if (stopMoving.state && Game.stage === 4) {
-        const promiseForMovingShip = new Promise(function(resolve) {
-            MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix,resolve, allContainer.containerForMap);
-        });
-        await Promise.all([promiseForMovingShip]);
-        const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
-        const warriorsIsDead = {
+        console.log(clickedBuilding);
+        const stopMoving = {
             state: false,
+        };
+        const isThisRightCell = {
+            state: false,
+        };
+        const coordsEnd = {
+            x: 0,
+            y: 0,
         }
-        MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, warriors, allContainer.containerForMap, warriorsOfIsland);
-        MoveWarriorsToOtherWarriors(warriorsOfIsland, warriors, warriorsIsDead);
+        const cellForShipFromMap = {
+            cell: null,
+        }
+        if (isBuildingPressed.state && Game.stage === 4) {
+            let cellForShip = new Cell(app, -1, 5);
+            function getCoordsOfShip(resolve) {
+                ChoicePlaceForShip(app, stopMoving, isThisRightCell, cellForShip, cellForShipFromMap, resolve);
+                if (Game.stage !== 4) {
+                    resolve();
+                }
+                if (isThisRightCell.state) {
+                    app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
+                }
+            }
+            while (!stopMoving.state) {
+                const promise = new Promise(function(resolve) {
+                    app.stage.on("pointermove", (event) => MouseFollowingForShip(event, cells, coordsEnd, cellForShip, isThisRightCell, cellForShipFromMap, quadTree, resolve, dimensions));
+                    app.stage.on("click", () => getCoordsOfShip(resolve));
+                    if (Game.stage !== 4) {
+                        resolve();
+                    }
+                })
+                await Promise.all([promise]);
+                if (Game.stage !== 4) {
+                    cellForShip = null;
+                    app.stage.on("pointermove", (event) => MouseFollowingForShip(event)).off("pointermove");
+                    app.stage.on("click", (event) => getCoordsOfShip(event)).off("click");
+                    stopMoving.state = true;
+                }
+            }
+            cellForShip = null;
+        }
+        if (stopMoving.state && Game.stage === 4) {
+
+            isThereBattleGoingNow.state = true;
+            SendInfoAboutAttack(clickedBuilding, coordsStart, coordsEnd, coordsOfBuilding, 4, cells, isThereBattleGoingNow);
+            const warriorsOfAllUser = {
+                warriorsOfIsland: [],
+                warriorsOfShip: [],
+            }
+            const promiseForMovingShip = new Promise(function(resolve) {
+                MoveSpriteToCoords(coordsEnd, coordsStart, cells, app, ships, worldMatrix,resolve, allContainer.containerForMap);
+            });
+            await Promise.all([promiseForMovingShip]);
+            const idAttackedUser = clickedBuilding.__userId;
+            let castleAttackedUser;
+            buildings.forEach(building => {
+                if (building.__userId === idAttackedUser) {
+                    if (building.name === "Castle") {
+                        castleAttackedUser = building;
+                        return;
+                    }
+                }
+            });
+            MakeIslandWarriorsOfPlayer(app, 6, warriorsOfAllUser, castleAttackedUser);
+            const coordsStartForWarrior = ChoiceEndCoords(coordsOfBuilding, coordsEnd, worldMatrix, cells);
+            MoveWarrior(coordsStartForWarrior, coordsEnd, cells, app, worldMatrix, buildings, clickedBuilding, allContainer.containerForMap, warriorsOfAllUser, countOfWarriors);
+            MoveWarriorsToOtherWarriors(warriorsOfAllUser);
+        }
     }
 }
 
@@ -423,7 +425,7 @@ export async function main(allContainer, app, island, idUser) {
     }
 
     const allTextResources = DrawNumberOfResources(allContainer.containerForResources, island.resourcesOfUser, app);
-    DrawBuildingsBlock(app, island, allTextResources, allContainer.containerForMap);
+    DrawBuildingsBlock(app, island, allTextResources, allContainer.containerForMap, idUser);
 
     const flags = {
         wheelFlag: false,
@@ -439,10 +441,13 @@ export async function main(allContainer, app, island, idUser) {
     const arrPlayersId = {
         arr: [],
     }
-    await WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap);
+    const isThereBattleGoingNow = {
+        state: false,
+    }
+    await WaitingForPlayers(arrPlayersId, app, island, allTextResources, allContainer.containerForMap, isThereBattleGoingNow);
 
     const promiseForStartStage = new Promise(function(resolve) {
-        StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve);
+        StartStage(app, island, allTextResources, flags, blocks, allContainer.containerForMap, resolve, idUser);
     })
     await Promise.all([promiseForStartStage]);
     
@@ -463,9 +468,8 @@ export async function main(allContainer, app, island, idUser) {
     arrPlayersId.arr = [];
     
     let promiseForWaiting = null;
-
     while (true) {
-
+        isThereBattleGoingNow.state = false;
         stageResources(allContainer.containerForDiceRoll, app, island.resourcesOfUser, island.buildingCountsOfUser);
         const promiseForResources = new Promise(function(resolve) {
             startTimerForStage(Game.timeStageForResources, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
@@ -546,9 +550,9 @@ export async function main(allContainer, app, island, idUser) {
         await Promise.all([promiseForWaiting]);
 
         const towers = island.buildingsOfUserIsland.filter(building => building.getAlias() === 'tower' )
-        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers);
+        stageBattles(app, island.cells, island.quadTree, island.buildings, island.ships, island.matrixOfIsland, allContainer, island.warriors, towers, isThereBattleGoingNow, island.resourcesOfUser.wars, idUser);
         const promiseForBattles = new Promise(function(resolve) {
-            startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId);
+            startTimerForStage(Game.timeStageForBattles, allContainer.wheelBlock, Game.stage, resolve, app, flags, idUser, arrPlayersId, isThereBattleGoingNow);
         })
         await Promise.all([promiseForBattles]);
         towers.forEach(tower => {

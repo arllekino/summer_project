@@ -8,7 +8,7 @@ export const webSocketObject = {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const ws = new WebSocket('ws://192.168.48.234:8080');
+    const ws = new WebSocket('ws://10.250.104.158:8080');
     webSocketObject.webSocket = ws;
 
     const quitButton = document.querySelector('.logout');

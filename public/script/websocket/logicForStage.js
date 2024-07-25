@@ -1,5 +1,7 @@
 import { Building } from "../classes/Building.js";
 import { Cell } from "../classes/Cell.js";
+import { MoveSpriteToCoords } from "../moveSpriteToCoords.js";
+import { ChoiceEndCoords, MakeIslandWarriorsOfPlayer, MoveWarrior, MoveWarriorsToOtherWarriors } from "../moveWarrior.js";
 import { MakePlayerReady } from "../requestsForMainGame.js";
 // import { webSocketObject } from "./lobby.js";
 
@@ -7,7 +9,7 @@ const webSocketObject = {
     webSocket: null,
 }
 
-const ws = new WebSocket('ws://192.168.48.234:8080');
+export const ws = new WebSocket('ws://10.250.104.158:8080');
 
 let lobbyKey;
 
@@ -150,9 +152,45 @@ function GetParamForBuilding(data, infoAboutBulding) {
     }
 }
 
-export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap) {
+export async function GetCountOfWar(userId) {
+    const response = await fetch("", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+    }
+    else {
+        console.log(response.status);
+    }
+}
+
+export async function SetCountOfWar(userId, resources) {
+    const response = await fetch("", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+    }
+    else {
+        console.log(response.status);
+    }
+}
+
+export async function WaitingForPlayers(arrPlayersId, app, island, allTextResources, containerForMap, isThereBattleGoingNow) {
     if (ws) {
-        ws.onmessage = (event) => {
+        ws.onmessage = async (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "waiting") {
                 arrPlayersId.arr = data.arrPlayersId;
@@ -198,7 +236,6 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     }
                     if (JSON.stringify(arrCoords) === JSON.stringify(data.cellsStatus))
                     {
-                        console.log('_____КОНТАКТ____');
                         if (object.__cellsStatus['-1'])
                         {
                             object.sprite.destroy();
@@ -217,6 +254,59 @@ export async function WaitingForPlayers(arrPlayersId, app, island, allTextResour
                     }
                 });
             }
+            if (data.type === "departureOfShip") {
+                let attackedBuilding;
+                let idAttackedUser;
+                let castleAttackedUser;
+                [...island.buildings].forEach(building => {
+                    const arrCoords = [];
+                    for (let key in building.__cellsStatus) {
+                        const index = island.cells.indexOf(building.__cellsStatus[key]);
+                        const x = index % building.dimensions.x;
+                        const y = (index - x) / building.dimensions.x;
+                        const coords = {
+                            x: x,
+                            y: y,
+                            index: key,
+                        }
+                        arrCoords.push(coords);
+                    }
+                    if (JSON.stringify(arrCoords) === JSON.stringify(data.arrCoords)) {
+                        attackedBuilding = building;
+                        idAttackedUser = building.__userId;
+                        return;
+                    }
+                });
+                [...island.buildings].forEach(building => {
+                    if (building.__userId === idAttackedUser) {
+                        if (building.name === "Castle") {
+                            castleAttackedUser = building;
+                            return;
+                        }
+                    }
+                });
+                isThereBattleGoingNow.state = data.isThereBattleGoingNow;
+                const warriorsOfAllUser = {
+                    warriorsOfIsland: [],
+                    warriorsOfShip: [],
+                }
+                const resourcesOfAttackedPlayer = await GetCountOfWar(idAttackedUser);
+                const promiseForMovingShip = new Promise(function(resolve) {
+                    MoveSpriteToCoords(data.coordsEndOfShip, data.coordsStartOfShip, island.cells, app, island.ships, island.matrixOfIsland, resolve, containerForMap);
+                });
+                await Promise.all([promiseForMovingShip]);
+                if (countOfWarrriorsOfAttackedUser !== 0) {
+                    if (countOfWarrriorsOfAttackedUser > data.countOfWarriors) {
+                        MakeIslandWarriorsOfPlayer(app, data.countOfWarriors, warriorsOfAllUser, castleAttackedUser);
+                    }
+                    else {
+                        MakeIslandWarriorsOfPlayer(app, countOfWarrriorsOfAttackedUser, warriorsOfAllUser, castleAttackedUser);
+                    }
+                }
+                const coordsStartForWarrior = ChoiceEndCoords(data.coordsOfBuilding, data.coordsEndOfShip, island.matrixOfIsland, island.cells);
+                MoveWarrior(coordsStartForWarrior, data.coordsEndOfShip, island.cells, app, island.matrixOfIsland, island.buildings, attackedBuilding, containerForMap, warriorsOfAllUser, data.countOfWarriors);
+                MoveWarriorsToOtherWarriors(warriorsOfAllUser);
+            }
         };
     }
     else {
@@ -228,7 +318,6 @@ export async function SendPlayerId(arrPlayersId, idPlayer) {
     if (ws) {
         arrPlayersId.arr.push(idPlayer);
         arrPlayersId.arr.sort();
-        
 
         const data = {
             from: 'game',
@@ -327,6 +416,39 @@ export async function SendDestroyBuilding(object, cells) {
             key_room: lobbyKey,
         }
         ws.send(JSON.stringify(data));
+    }
+    else {
+        console.log("соединение разорвалось");
+    }
+}
+
+export function SendInfoAboutAttack(attackedBuilding, coordsStartOfShip, coordsEndOfShip, coordsOfBuilding, countOfWarriors, cells, isThereBattleGoingNow) {
+    if (ws) {
+        const arrCoords = [];
+        for (let key in attackedBuilding.building.__cellsStatus) {
+            const index = cells.indexOf(attackedBuilding.building.__cellsStatus[key]);
+            const x = index % attackedBuilding.building.dimensions.x;
+            const y = (index - x) / attackedBuilding.building.dimensions.x;
+            const coords = {
+                x: x,
+                y: y,
+                index: key,
+            }
+            arrCoords.push(coords);
+        }
+        const data = {
+            from: "game",
+            type: "departureOfShip",
+            key_room: lobbyKey,
+            arrCoords: arrCoords,
+            coordsStartOfShip: coordsStartOfShip,
+            coordsEndOfShip: coordsEndOfShip,
+            coordsOfBuilding: coordsOfBuilding,
+            countOfWarriors: countOfWarriors,
+            isThereBattleGoingNow: isThereBattleGoingNow.state,
+        }
+        ws.send(JSON.stringify(data));
+        
     }
     else {
         console.log("соединение разорвалось");
