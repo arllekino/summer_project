@@ -1,17 +1,18 @@
 import { mouseDistanceInContainer, mouseIntersectsInContainer } from './classes/CommonFunctions.js';
 import { Warrior } from './classes/Warrior.js';
+import { updateIsland } from './gameRequsets.js';
 
-function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
-    return cells[numberOfCellY * 50 + numberOfCellX].getBounds().x + cells[numberOfCellY * 50 + numberOfCellX].getBounds().width / 2;
+function GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) {
+    return cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().x + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().width / 2;
 }
 
-function GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) {
-    return cells[numberOfCellY * 50 + numberOfCellX].getBounds().y + cells[numberOfCellY * 50 + numberOfCellX].getBounds().height / 2;
+function GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) {
+    return cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().y + cells[numberOfCellY * dimensions.x + numberOfCellX].getBounds().height / 2;
 }
 
-async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numberOfCellY) {
-    const x = GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) - 5;
-    const y = GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells) - 7;
+async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numberOfCellY, dimensions) {
+    const x = GetXCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) - 5;
+    const y = GetYCoordFromMatrixWorld(numberOfCellX, numberOfCellY, cells, dimensions) - 7;
 
     const textureIcon = await PIXI.Assets.load(pathToFile);
     warrior.texture = textureIcon;
@@ -21,8 +22,24 @@ async function DrawWarrior(warrior, app, cells, pathToFile, numberOfCellX, numbe
     app.stage.addChild(warrior);
 }
 
+export function MakeIslandWarriorsOfPlayer(app, countOfWarriors, warriorsOfAllUser, buildingCastle, colorFlag, idUser) {
+    let xForEnemy = 0, yForEnemy = 0;
+    if (buildingCastle) {
+        xForEnemy = buildingCastle.__cellsStatus[4].x;
+        yForEnemy = buildingCastle.__cellsStatus[4].y;
+    }
+
+    for (let i = 0; i < countOfWarriors; i++) {
+        const warrior = new Warrior(app, "war", xForEnemy, yForEnemy, 40, 3 + i, colorFlag, idUser);
+        warriorsOfAllUser.warriorsOfIsland.push(warrior)
+    }
+}
+
 export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cells) {
-    console.log(coordsBuildings, coordsOfShip);
+    const dimensions = {
+        x: worldMatrix[0].length,
+        y: worldMatrix.length,
+    }
     const currentCoords = {
         x: 0,
         y: 0,
@@ -43,7 +60,7 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
             costPath = 1;
         }
         cell.costPath = costPath;
-        cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsOfShip, worldMatrix, cells);
+        cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsOfShip, worldMatrix, cells, dimensions);
         cellsAround.push(cell);
     }
     let cellWithTheSmallestPath1 = cellsAround[0];
@@ -52,7 +69,7 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
             cellWithTheSmallestPath1 = cell;
         }
     })
-    if (cells[cellWithTheSmallestPath1.y * 50 + cellWithTheSmallestPath1.x].__ptrTower !== -1) {
+    if (cells[cellWithTheSmallestPath1.y * dimensions.x + cellWithTheSmallestPath1.x].__ptrTower !== -1) {
         const currentCoords = {
             x: 0,
             y: 0,
@@ -67,7 +84,7 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
             if (worldMatrix[currentCoords.y][currentCoords.x] === 0) {
                 continue;
             }
-            if (cells[currentCoords.y * 50 + currentCoords.x].__ptrTower !== -1) {
+            if (cells[currentCoords.y * dimensions.x + currentCoords.x].__ptrTower !== -1) {
                 continue;
             }
             const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, cellWithTheSmallestPath1.x, cellWithTheSmallestPath1.y);
@@ -79,7 +96,7 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
                 costPath = 1;
             }
             cell.costPath = costPath + cellWithTheSmallestPath1.costPath;
-            cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsOfShip, worldMatrix, cells);
+            cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsOfShip, worldMatrix, cells, dimensions);
             cellsAround.push(cell);
         }
         let cellWithTheSmallestPath = cellsAround[0];
@@ -93,10 +110,10 @@ export function ChoiceEndCoords(coordsBuildings, coordsOfShip, worldMatrix, cell
     return { x: cellWithTheSmallestPath1.x, y: cellWithTheSmallestPath1.y }
 }
 
-function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells) {
+function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells, dimensions) {
     let distanceX = 0;
     for (let iter = minX; iter < maxX; iter++) {
-        let cellIndex = minY * 50 + iter;
+        let cellIndex = minY * dimensions.x + iter;
         if (worldMatrix[minY][iter] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceX += 1;
@@ -110,10 +127,10 @@ function CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatri
     return distanceX;
 }
 
-function CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix, cells) {
+function CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix, cells, dimensions) {
     let distanceX = 0;
     for (let iter = minX; iter < maxX; iter++) {
-        let cellIndex = maxY * 50 + iter;
+        let cellIndex = maxY * dimensions.x + iter;
         if (worldMatrix[maxY][iter] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceX += 1;
@@ -127,10 +144,10 @@ function CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix
     return distanceX;
 }
 
-function CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatrix, cells) {
+function CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatrix, cells, dimensions) {
     let distanceY = 0;
     for (let iter = minY; iter < maxY; iter++) {
-        let cellIndex = iter * 50 + minX;
+        let cellIndex = iter * dimensions.x + minX;
         if (worldMatrix[iter][minX] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceY += 1;
@@ -144,10 +161,10 @@ function CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatri
     return distanceY;
 }
 
-function CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, maxX, worldMatrix, cells) {
+function CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, maxX, worldMatrix, cells, dimensions) {
     let distanceY = 0;
     for (let iter = minY; iter < maxY; iter++) {
-        let cellIndex = iter * 50 + maxX;
+        let cellIndex = iter * dimensions.x + maxX;
         if (worldMatrix[iter][maxX] === 1) {
             if (cells[cellIndex].__ptrTower === -1) {
                 distanceY += 1;
@@ -161,26 +178,12 @@ function CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, maxX, worldMatrix
     return distanceY;
 }
 
-function FirstCalculateOptionForTwoStage(minX, maxX, minY, maxY, worldMatrix, cells) {
-    const distanceXFirstOption = CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells);
-    const distanceYFirstOption = CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, maxX, worldMatrix, cells);
+function FirstCalculateOptionForTwoStage(minX, maxX, minY, maxY, worldMatrix, cells, dimensions) {
+    const distanceXFirstOption = CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells, dimensions);
+    const distanceYFirstOption = CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, maxX, worldMatrix, cells, dimensions);
 
-    const distanceXSecondOption = CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix, cells);
-    const distanceYSecondOption = CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatrix, cells);
-
-    if ((distanceXFirstOption + distanceYFirstOption) > (distanceXSecondOption + distanceYSecondOption)) {
-        return distanceXSecondOption + distanceYSecondOption;
-    } else {
-        return distanceXFirstOption + distanceYFirstOption;
-    }
-}
-
-function SecondCalculateOptionForTwoStage(minX, maxX, minY, maxY, worldMatrix, cells) {
-    const distanceXFirstOption = CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells);
-    const distanceYFirstOption = CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, minX, worldMatrix, cells);
-
-    const distanceXSecondOption = CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix, cells);
-    const distanceYSecondOption = CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, maxX, worldMatrix, cells);
+    const distanceXSecondOption = CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix, cells, dimensions);
+    const distanceYSecondOption = CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, minX, worldMatrix, cells, dimensions);
 
     if ((distanceXFirstOption + distanceYFirstOption) > (distanceXSecondOption + distanceYSecondOption)) {
         return distanceXSecondOption + distanceYSecondOption;
@@ -189,18 +192,32 @@ function SecondCalculateOptionForTwoStage(minX, maxX, minY, maxY, worldMatrix, c
     }
 }
 
-function CalculateDistance(coordsStartWar, coordsEndWar, worldMatrix, cells) {
+function SecondCalculateOptionForTwoStage(minX, maxX, minY, maxY, worldMatrix, cells, dimensions) {
+    const distanceXFirstOption = CalculateDistanceXCoordByTheSmallestYCoord(minX, maxX, minY, worldMatrix, cells, dimensions);
+    const distanceYFirstOption = CalculateDistanceYCoordByTheBiggestXCoord(minY, maxY, minX, worldMatrix, cells, dimensions);
+
+    const distanceXSecondOption = CalculateDistanceXCoordByTheBiggestYCoord(minX, maxX, maxY, worldMatrix, cells, dimensions);
+    const distanceYSecondOption = CalculateDistanceYCoordByTheSmallestXCoord(minY, maxY, maxX, worldMatrix, cells, dimensions);
+
+    if ((distanceXFirstOption + distanceYFirstOption) > (distanceXSecondOption + distanceYSecondOption)) {
+        return distanceXSecondOption + distanceYSecondOption;
+    } else {
+        return distanceXFirstOption + distanceYFirstOption;
+    }
+}
+
+function CalculateDistance(coordsStartWar, coordsEndWar, worldMatrix, cells, dimensions) {
     if (coordsStartWar.x <= coordsEndWar.x && coordsStartWar.y <= coordsEndWar.y) {
-        return FirstCalculateOptionForTwoStage(coordsStartWar.x, coordsEndWar.x, coordsStartWar.y, coordsEndWar.y, worldMatrix, cells);
+        return FirstCalculateOptionForTwoStage(coordsStartWar.x, coordsEndWar.x, coordsStartWar.y, coordsEndWar.y, worldMatrix, cells, dimensions);
     }
     if (coordsStartWar.x >= coordsEndWar.x && coordsStartWar.y >= coordsEndWar.y) {
-        return FirstCalculateOptionForTwoStage(coordsEndWar.x, coordsStartWar.x, coordsEndWar.y, coordsStartWar.y, worldMatrix, cells);
+        return FirstCalculateOptionForTwoStage(coordsEndWar.x, coordsStartWar.x, coordsEndWar.y, coordsStartWar.y, worldMatrix, cells, dimensions);
     }
     if (coordsStartWar.x >= coordsEndWar.x && coordsStartWar.y <= coordsEndWar.y) {
-        return SecondCalculateOptionForTwoStage(coordsEndWar.x, coordsStartWar.x, coordsStartWar.y, coordsEndWar.y, worldMatrix, cells);
+        return SecondCalculateOptionForTwoStage(coordsEndWar.x, coordsStartWar.x, coordsStartWar.y, coordsEndWar.y, worldMatrix, cells, dimensions);
     }
     if (coordsStartWar.x <= coordsEndWar.x && coordsStartWar.y >= coordsEndWar.y) {
-        return SecondCalculateOptionForTwoStage(coordsStartWar.x, coordsEndWar.x, coordsEndWar.y, coordsStartWar.y, worldMatrix, cells);
+        return SecondCalculateOptionForTwoStage(coordsStartWar.x, coordsEndWar.x, coordsEndWar.y, coordsStartWar.y, worldMatrix, cells, dimensions);
     }
     return -1;
 }
@@ -274,6 +291,10 @@ function TheseCellsTheSame(cell1, cell2) {
 }
 
 function FindBuildingNear(cell, coordsEndWar, worldMatrix, cells) {
+    const dimensions = {
+        x: worldMatrix[0].length,
+        y: worldMatrix.length,
+    }
     const currentCoords = {
         x: 0,
         y: 0,
@@ -295,8 +316,8 @@ function FindBuildingNear(cell, coordsEndWar, worldMatrix, cells) {
             costPath = 1;
         }
         cell.costPath = costPath;
-        cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells);
-        if (cells[currentCoords.x + currentCoords.y * 50].__ptrTower !== -1) {
+        cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells, dimensions);
+        if (cells[currentCoords.x + currentCoords.y * dimensions.x].__ptrTower !== -1) {
             arrCellWithBuilding.push(cell);
         }
     }
@@ -319,14 +340,14 @@ function FindBuildingNear(cell, coordsEndWar, worldMatrix, cells) {
     }
 }
 
-function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound) {
+function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound, dimensions) {
     const calculatedCells = [];
 
     const dirtyShortWay = [];
     const consideredCells = [];
 
     const cellStart = CreateCellForAlg(0, -1, coordsStartWar.x, coordsStartWar.y, -1, -1);
-    cellStart.approximateCostPath = CalculateDistance(coordsStartWar, coordsEndWar, worldMatrix, cells);
+    cellStart.approximateCostPath = CalculateDistance(coordsStartWar, coordsEndWar, worldMatrix, cells, dimensions);
     dirtyShortWay.push(cellStart);
 
     const currentCoords = {
@@ -337,6 +358,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
 
     let pathHasBeenFound = false;
     while (!pathHasBeenFound) {
+        console.log(123);
         const cellsAround = [];
         const previousCell = dirtyShortWay[dirtyShortWay.length - 1];
         for (let iter = 0; iter < 9; iter++) {
@@ -350,7 +372,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
             if (worldMatrix[currentCoords.y][currentCoords.x] !== 1 && worldMatrix[currentCoords.y][currentCoords.x] !== 2) {
                 continue;
             }
-            if (cells[currentCoords.x + currentCoords.y * 50].__ptrTower !== -1) {
+            if (cells[currentCoords.x + currentCoords.y * dimensions.x].__ptrTower !== -1) {
                 continue;
             }
             const cell = CreateCellForAlg(0, -1, currentCoords.x, currentCoords.y, previousCell.x, previousCell.y);
@@ -372,7 +394,7 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
                 continue;
             }
             cell.costPath = costPath + previousCell.costPath;
-            cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells);
+            cell.approximateCostPath = CalculateDistance({ x: cell.x, y: cell.y }, coordsEndWar, worldMatrix, cells, dimensions);
             cellsAround.push(cell);
             calculatedCells.push(cell);
         }
@@ -451,9 +473,9 @@ function GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShort
     }
 }
 
-async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, island) {
+async function DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, shortWay, cells, resolve, island) {
     if (clickedBuilding.building) {
-
+        console.log(warriorsOfAllUser);
         const hpText = new PIXI.Text(`${clickedBuilding.building.name}: ${clickedBuilding.building.__hp}`, {
             fontSize: 16,
             fill: 0xffff00,
@@ -466,8 +488,57 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
 
         await new Promise(resolve => setTimeout(resolve, 200)); // Ждем 300 мс, чтобы текст с HP был виден
 
+        const areWarriorsAttacking = {
+            state: false,
+        }
         while (clickedBuilding.building.__hp > 0 && clickedBuilding.building.__sprite) {
-            for (const warrior of warriors) {
+            if (areWarriorsAttacking.state) {
+                warriorsOfAllUser.warriorsOfShip.forEach((warriorOfShip) => {
+                    if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
+                        let targetXOfWarriorOfIsland = Infinity;
+                        let targetYOfWarriorOfIsland = Infinity;
+                        warriorsOfAllUser.warriorsOfIsland.forEach((warriorOfIsland) => {
+                            if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                                targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
+                                targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+                            }
+                        });
+    
+                        const dxForWarriorsOfIsland = targetXOfWarriorOfIsland - warriorOfShip.x;
+                        const dyForWarriorsOfIsland = targetYOfWarriorOfIsland - warriorOfShip.y;
+                        const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                        if (distanceForWarriorsOfIsland <= 40) {
+                            areWarriorsAttacking.state = true;
+                            return;
+                        }
+                        else {
+                            areWarriorsAttacking.state = false;
+                        }
+                    }
+                });
+                continue;
+            }
+            for (const warrior of warriorsOfAllUser.warriorsOfShip) {
+
+                if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
+                    let targetXOfWarriorOfIsland = Infinity;
+                    let targetYOfWarriorOfIsland = Infinity;
+                    warriorsOfAllUser.warriorsOfIsland.forEach((warriorOfIsland) => {
+                        if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                            targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
+                            targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+                        }
+                    });
+
+                    const dxForWarriorsOfIsland = targetXOfWarriorOfIsland - warrior.x;
+                    const dyForWarriorsOfIsland = targetYOfWarriorOfIsland - warrior.y;
+                    const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                    if (distanceForWarriorsOfIsland <= 40) {
+                        areWarriorsAttacking.state = true;
+                        break;
+                    }
+                }
+
                 // Проверяем, не больше ли урон воина, чем HP здания
                 const damageToApply = Math.min(warrior.damage, clickedBuilding.building.__hp);
 
@@ -505,7 +576,7 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
         }
         app.stage.removeChild(hpText);
 
-        for (const warrior of warriors) {
+        for (const warrior of warriorsOfAllUser.warriorsOfShip) {
             warrior.sprite.visible = true;
             warrior.attackSprite.visible = false;
         }
@@ -513,10 +584,12 @@ async function DestroyBuilding(app, buildings, clickedBuilding, warriors, shortW
         await animateBuildingDestruction(clickedBuilding.building.__sprite);
         clickedBuilding.building.__sprite.destroy();
         buildings.splice(buildings.indexOf(clickedBuilding.building), 1);
-        if (island.buildingsOfUserIsland.indexOf(clickedBuilding.building) !== -1)
-        {
-            island.buildingsOfUserIsland.splice(island.buildingsOfUserIsland.indexOf(clickedBuilding.building), 1);
-            island.buildingCountsOfUser[clickedBuilding.building.getAlias()] -= 1;
+        if (island) {
+            if (island.buildingsOfUserIsland.indexOf(clickedBuilding.building) !== -1)
+                {
+                    island.buildingsOfUserIsland.splice(island.buildingsOfUserIsland.indexOf(clickedBuilding.building), 1);
+                    island.buildingCountsOfUser[clickedBuilding.building.getAlias()] -= 1;
+                }
         }
 
         for (const cellId in clickedBuilding.building.__cellsStatus) {
@@ -551,17 +624,16 @@ async function animateBuildingDestruction(buildingSprite) {
     debrisSprite.destroy();
 }
 
-
-function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) {
+function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriorsOfAllUser, areWarriorsOfShipDead, dimensions) {
     const speed = 0.6;
-    const targetX = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 5;
-    const targetY = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells) - 7;
+    const targetX = GetXCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells, dimensions) - 5;
+    const targetY = GetYCoordFromMatrixWorld(xCoordMatrix, yCoordMatrix, cells, dimensions) - 7;
 
     const groupSize = 3;
     const groups = [];
     let currentGroup = [];
-    for (let i = 0; i < warriors.length; i++) {
-        currentGroup.push(warriors[i]);
+    for (let i = 0; i < warriorsOfAllUser.warriorsOfShip.length; i++) {
+        currentGroup.push(warriorsOfAllUser.warriorsOfShip[i]);
 
         if (currentGroup.length === groupSize) {
             groups.push(currentGroup);
@@ -573,63 +645,96 @@ function MoveSpriteToCell(xCoordMatrix, yCoordMatrix, cells, resolve, warriors) 
     }
 
     let allWarriorsReached = false;
+    let allWarriorsReachedOtherWarriors = false;
 
     const ticker = new PIXI.Ticker();
     ticker.add((time) => {
-        allWarriorsReached = true;
+        if (!allWarriorsReachedOtherWarriors) {
+            allWarriorsReached = true;
 
-        groups.forEach((group, groupIndex) => {
-            let offsetX = 0; // Смещение по X для каждой группы
-            let offsetY = 0; // Смещение по Y для каждой группы
+            groups.forEach((group, groupIndex) => {
+                let offsetX = 0; // Смещение по X для каждой группы
+                let offsetY = 0; // Смещение по Y для каждой группы
 
-            // Смещение относительно предыдущей группы
-            if (groupIndex > 0) {
-                const previousGroup = groups[groupIndex - 1];
-                const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
+                // Смещение относительно предыдущей группы
+                if (groupIndex > 0) {
+                    const previousGroup = groups[groupIndex - 1];
+                    const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
 
-                // Смещение по X в разные стороны
-                offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
-                offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
-            }
-
-            group.forEach((warrior, index) => {
-                const sprite = warrior.getSprite();
-
-                // Смещение в разные стороны (внутри группы)
-                let internalOffsetX = 0;
-                if (index === 0) {
-                    internalOffsetX = -8; // Левый воин
-                } else if (index === 2) {
-                    internalOffsetX = 8; // Правый воин
+                    // Смещение по X в разные стороны
+                    offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
+                    offsetY = previousLeaderSprite.y - targetY + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
                 }
 
-                // Движение воина к целевой позиции с учетом смещения
-                const dx = targetX + offsetX + internalOffsetX - sprite.x;
-                const dy = targetY + offsetY - sprite.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 1) {
-                    sprite.x += dx / distance * speed * time.deltaTime;
-                    sprite.y += dy / distance * speed * time.deltaTime;
-                    allWarriorsReached = false;
-                }
+                group.forEach((warrior, index) => {
+                    const sprite = warrior.getSprite();
+
+                    // Смещение в разные стороны (внутри группы)
+                    let internalOffsetX = 0;
+                    if (index === 0) {
+                        internalOffsetX = -8; // Левый воин
+                    } else if (index === 2) {
+                        internalOffsetX = 8; // Правый воин
+                    }
+
+                    // Движение воина к целевой позиции с учетом смещения
+                    const dx = targetX + offsetX + internalOffsetX - sprite.x;
+                    const dy = targetY + offsetY - sprite.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance > 1) {
+                        sprite.x += dx / distance * speed * time.deltaTime;
+                        sprite.y += dy / distance * speed * time.deltaTime;
+                        allWarriorsReached = false;
+                    }
+                    if (warriorsOfAllUser.warriorsOfIsland.length > 0) {
+                        let targetXOfWarriorOfIsland = Infinity;
+                        let targetYOfWarriorOfIsland = Infinity;
+                        warriorsOfAllUser.warriorsOfIsland.forEach((warriorOfIsland) => {
+                            if (warriorOfIsland.sprite.getBounds().x <= targetXOfWarriorOfIsland && warriorOfIsland.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                                targetXOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().x;
+                                targetYOfWarriorOfIsland = warriorOfIsland.sprite.getBounds().y;
+                            }
+                        });
+
+                        const dxForWarriorsOfIsland = targetXOfWarriorOfIsland + offsetX + internalOffsetX - sprite.x;
+                        const dyForWarriorsOfIsland = targetYOfWarriorOfIsland + offsetY - sprite.y;
+                        const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                        if (distanceForWarriorsOfIsland <= 40) {
+                            allWarriorsReachedOtherWarriors = true;
+                            allWarriorsReached = false;
+                            return;
+                        }
+                    }
+                });
             });
-        });
-
-        if (allWarriorsReached) {
-            ticker.destroy();
-            resolve();
+            if (allWarriorsReached) {
+                ticker.destroy();
+                resolve();
+            }
+        }
+        if (allWarriorsReachedOtherWarriors) {
+            if (warriorsOfAllUser.warriorsOfShip.length === 0) {
+                areWarriorsOfShipDead.state = true;
+                ticker.destroy();
+                resolve();
+            }
+            if (warriorsOfAllUser.warriorsOfIsland.length === 0) {
+                areWarriorsOfShipDead.state = false;
+                ticker.destroy();
+                resolve();
+            }
         }
     });
 
     ticker.start();
 }
 
-function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap) {
+function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap, dimensions) {
     let minDist = 99999;
     let minDistObject = null;
     const bounds = {
-        x: GetXCoordFromMatrixWorld(infoAboutCell.x, infoAboutCell.y, cells),
-        y: GetYCoordFromMatrixWorld(infoAboutCell.x, infoAboutCell.y, cells),
+        x: GetXCoordFromMatrixWorld(infoAboutCell.x, infoAboutCell.y, cells, dimensions),
+        y: GetYCoordFromMatrixWorld(infoAboutCell.x, infoAboutCell.y, cells, dimensions),
         width: 1,
         height: 1,
     }
@@ -646,16 +751,20 @@ function GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, 
     }
 }
 
-async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island) {
+async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island) {
     if (!isWarriorSailingBack) {
         let newShortWay = [];
         const hasNewPathBuilt = {
             state: false,
         }
         for (let iter = 0; iter < shortWay.length; iter++) {
-            await new Promise(resolve => {
-                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriors);
+            const promiseForMoveSprite = new Promise(function(resolve) {
+                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriorsOfAllUser, areWarriorsOfShipDead, dimensions);
             });
+            await Promise.all([promiseForMoveSprite]);
+            if (warriorsOfAllUser.warriorsOfShip.length === 0) {
+                break;
+            }
             if (iter === shortWay.length - 1) {
                 if (!hasAShortWayFound.state) {
                     const infoAboutCell = FindBuildingNear(shortWay[iter], coordsEndWar, worldMatrix, cells);
@@ -663,31 +772,31 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
                         const buildingAround = {
                             building: null,
                         }
-                        GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap);
+                        GetBuildingFromMatrix(buildings, infoAboutCell, cells, buildingAround, containerForMap, dimensions);
                         const promiseForDestroy = new Promise(function(resolve){
-                            DestroyBuilding(app, buildings, buildingAround, warriors, shortWay, cells, resolve, island);
+                            DestroyBuilding(app, buildings, buildingAround, warriorsOfAllUser, shortWay, cells, resolve, island);
                         });
                         await Promise.all([promiseForDestroy]);
                         hasAShortWayFound.state = false;
-        
-                        newShortWay = GetShortWay({x: infoAboutCell.x, y: infoAboutCell.y}, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
+
+                        newShortWay = GetShortWay({x: infoAboutCell.x, y: infoAboutCell.y}, coordsEndWar, worldMatrix, cells, hasAShortWayFound, dimensions);
                         hasNewPathBuilt.state = true;
                         totalPath.way = totalPath.way.concat(newShortWay);
         
-                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island);
+                        MoveSprite(app, newShortWay, cells, buildings, isWarriorSailingBack, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
                     }
                 }
                 else {
                     const promiseForDestroy = new Promise(function(resolve){
-                        DestroyBuilding(app, buildings, clickedBuilding, warriors, shortWay, cells, resolve, island);
+                        DestroyBuilding(app, buildings, clickedBuilding, warriorsOfAllUser, shortWay, cells, resolve, island);
                     });
                     await Promise.all([promiseForDestroy]);
                     const promiseBack = new Promise(function (resolve) {
-                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriors, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island);
+                        MoveSprite(app, totalPath.way, cells, buildings, true, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
                     });
                     await Promise.all([promiseBack]);
                     
-                    for (const warrior of warriors) {
+                    for (const warrior of warriorsOfAllUser.warriorsOfShip) {
                         warrior.destroy(app);
                     }
                 }
@@ -697,24 +806,328 @@ async function MoveSprite(app, shortWay, cells, buildings, isWarriorSailingBack,
     } else {
         for (let iter = shortWay.length - 1; iter >= 0; iter--) {
             await new Promise(resolve => {
-                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriors);
+                MoveSpriteToCell(shortWay[iter].x, shortWay[iter].y, cells, resolve, warriorsOfAllUser, areWarriorsOfShipDead, dimensions);
             });
         }
     }
     resolve();
 }
 
-export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, warriors, containerForMap, island) {
-    const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 5;
-    const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells) - 7;
+function GetIndexOfWarriors(distributionOfOtherWarriors, distributionOfWarriors, iteration) {
+    if (distributionOfOtherWarriors.length > distributionOfWarriors.length) {
+        // for (let iter = iteration; iter < distributionOfOtherWarriors.length; iter++) {
+            if (distributionOfOtherWarriors[iteration] !== -1) {
+                return {
+                    iterForWarrior: distributionOfOtherWarriors[iteration],
+                    iterForOtherWarrior: distributionOfWarriors[distributionOfOtherWarriors[iteration]],
+                }
+            }
+            else {
+                return {
+                    iterForWarrior: -1,
+                    iterForOtherWarrior: -1,
+                }
+            }
+        // }
+    }
+    else {
+        // for (let iter = iteration; iter < distributionOfWarriors.length; iter++) {
+            if (distributionOfWarriors[iteration] !== -1) {
+                return {
+                    iterForWarrior: distributionOfOtherWarriors[distributionOfWarriors[iteration]],
+                    iterForOtherWarrior: distributionOfWarriors[iteration],
+                }
+            }
+            else {
+                return {
+                    iterForWarrior: -1,
+                    iterForOtherWarrior: -1,
+                }
+            }
+        // }
+    }
+}
 
-    const numWarriors = 5;
-    const warriorGroup = [];
+function Sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-    for (let i = 0; i < numWarriors; i++) {
-        const warrior = new Warrior(app, "war", x, y, 40, 3 + i);
-        warriorGroup.push(warrior)
-        warriors.push(warrior);
+function RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, iterWithMinusOne, warriorKilledInWarriors) {
+    if (warriorKilledInWarriors) {
+        let indexWithoutMinusOne = 0;
+        for (let iter = 0; iter < distributionOfWarriors.length; iter++) {
+            if (distributionOfWarriors[iter] !== -1) {
+                indexWithoutMinusOne = iter;
+                if (distributionOfOtherWarriors.indexOf(iter) === -1) {
+                    for (let iter2 = 0; iter2 < distributionOfOtherWarriors.length; iter2++) {
+                        if (distributionOfOtherWarriors[iter2] === iterWithMinusOne) {
+                            distributionOfOtherWarriors[iter2] = iter;
+                        }
+                    }
+                    break;
+                }
+            }
+            if (iter === distributionOfWarriors.length - 1) {
+                for (let iter2 = 0; iter2 < distributionOfOtherWarriors.length; iter2++) {
+                    if (distributionOfOtherWarriors[iter2] === iterWithMinusOne) {
+                        distributionOfOtherWarriors[iter2] = indexWithoutMinusOne;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    else {
+        let indexWithoutMinusOne = 0;
+        for (let iter = 0; iter < distributionOfOtherWarriors.length; iter++) {
+            if (distributionOfOtherWarriors[iter] !== -1) {
+                indexWithoutMinusOne = iter;
+                if (distributionOfWarriors.indexOf(iter) === -1) {
+                    for (let iter2 = 0; iter2 < distributionOfWarriors.length; iter2++) {
+                        if (distributionOfWarriors[iter2] === iterWithMinusOne) {
+                            distributionOfWarriors[iter2] = iter;
+                        }
+                    }
+                    break;
+                }
+            }
+            if (iter === distributionOfOtherWarriors.length - 1) {
+                for (let iter2 = 0; iter2 < distributionOfWarriors.length; iter2++) {
+                    if (distributionOfWarriors[iter2] === iterWithMinusOne) {
+                        distributionOfWarriors[iter2] = indexWithoutMinusOne;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
+async function BattlesOfTheWarriors(warriorsOfAllUser, resolve, idUser, resourcesOfAttackedPlayer) {
+    let lengthOfWarriors = warriorsOfAllUser.warriorsOfShip.length;
+    let lengthOfOtherWarriors = warriorsOfAllUser.warriorsOfIsland.length;
+
+    const wrapperForWarriors = {
+        warriors: [],
+        otherWarriors: [],
+    }
+
+    const distributionOfOtherWarriors = [];
+    const distributionOfWarriors = [];
+
+    let warriorsIsDead = false;
+
+    if (lengthOfWarriors > lengthOfOtherWarriors) {
+        wrapperForWarriors.warriors = warriorsOfAllUser.warriorsOfShip;
+        wrapperForWarriors.otherWarriors = warriorsOfAllUser.warriorsOfIsland;
+    }
+    else {
+        wrapperForWarriors.warriors = warriorsOfAllUser.warriorsOfIsland;
+        wrapperForWarriors.otherWarriors = warriorsOfAllUser.warriorsOfShip;
+    }
+    lengthOfWarriors = wrapperForWarriors.warriors.length;
+    lengthOfOtherWarriors = wrapperForWarriors.otherWarriors.length;
+
+    let indexOfOtherWarriors = 0;
+    wrapperForWarriors.warriors.forEach((warrior, index) => {
+        if (index < wrapperForWarriors.otherWarriors.length) {
+            distributionOfWarriors.push(index);
+            distributionOfOtherWarriors.push(index); 
+            indexOfOtherWarriors = index;
+        }
+        else {
+            distributionOfWarriors.push(indexOfOtherWarriors);
+        }
+    });
+    let iteration = 0;
+    while (lengthOfOtherWarriors > 0 && lengthOfWarriors > 0) {
+        for (let iter = 0; iter < distributionOfWarriors.length; iter++) {
+            const indexForBattle = GetIndexOfWarriors(distributionOfOtherWarriors, distributionOfWarriors, iter);
+            if (indexForBattle.iterForOtherWarrior === -1 || indexForBattle.iterForWarrior === -1) {
+                continue;
+            }
+            const damageToApplyToWarrior = Math.min(wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].damage, wrapperForWarriors.warriors[indexForBattle.iterForWarrior].__hp);
+            await wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].attack(wrapperForWarriors.warriors[indexForBattle.iterForWarrior], damageToApplyToWarrior);
+            Sleep(1000).then(() => { ; });
+            
+            if (wrapperForWarriors.warriors[indexForBattle.iterForWarrior].__hp <= 0) {
+                distributionOfWarriors[indexForBattle.iterForWarrior] = -1;
+                RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, indexForBattle.iterForWarrior, true);
+                lengthOfWarriors--;
+
+                await wrapperForWarriors.warriors[indexForBattle.iterForWarrior].sprite.destroy();
+            }
+            else {
+                const damageToApplyToOtherWarrior = Math.min(wrapperForWarriors.warriors[indexForBattle.iterForWarrior].damage, wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].__hp);
+                await wrapperForWarriors.warriors[indexForBattle.iterForWarrior].attack(wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior], damageToApplyToOtherWarrior);
+
+                Sleep(1000).then(() => { ; });
+
+                if (wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].__hp <= 0) {
+                    distributionOfOtherWarriors[indexForBattle.iterForOtherWarrior] = -1;
+                    RedistributeIndexes(distributionOfOtherWarriors, distributionOfWarriors, indexForBattle.iterForOtherWarrior, false);
+                    lengthOfOtherWarriors--;
+
+                    await wrapperForWarriors.otherWarriors[indexForBattle.iterForOtherWarrior].sprite.destroy();
+                }
+            }
+            if (lengthOfOtherWarriors === 0) {
+                warriorsIsDead = true;
+            }
+            if (lengthOfWarriors === 0) {
+                warriorsIsDead = true;
+            }
+        }
+        iteration++;
+    }
+    
+    if (warriorsIsDead) {
+        if (warriorsOfAllUser.warriorsOfShip.length > warriorsOfAllUser.warriorsOfIsland.length) {
+            warriorsOfAllUser.warriorsOfShip = wrapperForWarriors.warriors;
+            warriorsOfAllUser.warriorsOfIsland = wrapperForWarriors.otherWarriors;
+        }
+        else {
+            warriorsOfAllUser.warriorsOfShip = wrapperForWarriors.otherWarriors;
+            warriorsOfAllUser.warriorsOfIsland = wrapperForWarriors.warriors;
+        }
+
+        warriorsOfAllUser.warriorsOfShip = warriorsOfAllUser.warriorsOfShip.filter((warrior) => warrior.__hp > 0);
+        warriorsOfAllUser.warriorsOfIsland = warriorsOfAllUser.warriorsOfIsland.filter((otherWarrior) => otherWarrior.__hp > 0);
+        if (warriorsOfAllUser.warriorsOfShip.length !== 0) {
+            if (idUser === warriorsOfAllUser.warriorsOfShip[0].idUser) {
+                if (resourcesOfAttackedPlayer.warriors === 0) {
+                    resourcesOfAttackedPlayer.warriors = warriorsOfAllUser.warriorsOfShip.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+                else {
+                    resourcesOfAttackedPlayer.warriors += warriorsOfAllUser.warriorsOfShip.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+            }
+        }
+        if (warriorsOfAllUser.warriorsOfIsland.length !== 0) {
+            if (idUser === warriorsOfAllUser.warriorsOfIsland[0].idUser) {
+                if (resourcesOfAttackedPlayer.warriors === 0) {
+                    resourcesOfAttackedPlayer.warriors = warriorsOfAllUser.warriorsOfIsland.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+                else {
+                    resourcesOfAttackedPlayer.warriors += warriorsOfAllUser.warriorsOfIsland.length;
+                    updateIsland(resourcesOfAttackedPlayer);
+                }
+            }
+        }
+        resolve();
+    }
+}
+
+export function MoveWarriorsToOtherWarriors(warriorsOfAllUser, idUser, resourcesOfAttackedPlayer) {
+    const speed = 0.8;
+
+    const groupSize = 3;
+    const groups = [];
+    let currentGroup = [];
+    for (let i = 0; i < warriorsOfAllUser.warriorsOfIsland.length; i++) {
+        currentGroup.push(warriorsOfAllUser.warriorsOfIsland[i]);
+
+        if (currentGroup.length === groupSize) {
+            groups.push(currentGroup);
+            currentGroup = [];
+        }
+    }
+    if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+    }
+
+    let allWarriorsReached = false;
+
+    const ticker = new PIXI.Ticker();
+    ticker.add(async (time) => {
+        allWarriorsReached = false;
+
+        let targetXOfWarriorOfIsland = Infinity;
+        let targetYOfWarriorOfIsland = Infinity;
+        warriorsOfAllUser.warriorsOfShip.forEach((otherWarrior) => {
+            if (otherWarrior.sprite.getBounds().x <= targetXOfWarriorOfIsland && otherWarrior.sprite.getBounds().y <= targetYOfWarriorOfIsland) {
+                targetXOfWarriorOfIsland = otherWarrior.sprite.getBounds().x;
+                targetYOfWarriorOfIsland = otherWarrior.sprite.getBounds().y;
+            }
+        });
+
+        groups.forEach((group, groupIndex) => {
+
+            let offsetX = 0; // Смещение по X для каждой группы
+            let offsetY = 0; // Смещение по Y для каждой группы
+
+            // Смещение относительно предыдущей группы
+            if (groupIndex > 0) {
+                const previousGroup = groups[groupIndex - 1];
+                const previousLeaderSprite = previousGroup[0].getSprite(); // Спрайт лидера предыдущей группы
+
+                // Смещение по X в разные стороны
+                offsetX = (groupIndex % 2 === 0) ? 8 : -5; // Вправо для четных, влево для нечетных групп
+                offsetY = previousLeaderSprite.y - targetYOfWarriorOfIsland + 8 * groupIndex; // Смещение по Y относительно предыдущего лидера
+            }
+
+            group.forEach(async (warrior, index) => {
+                const sprite = warrior.getSprite();
+
+                // Смещение в разные стороны (внутри группы)
+                let internalOffsetX = 0;
+                if (index === 0) {
+                    internalOffsetX = -8; // Левый воин
+                } else if (index === 2) {
+                    internalOffsetX = 8; // Правый воин
+                }
+
+                const dxForWarriorsOfIsland = targetXOfWarriorOfIsland + offsetX + internalOffsetX - sprite.x;
+                const dyForWarriorsOfIsland = targetYOfWarriorOfIsland + offsetY - sprite.y;
+                const distanceForWarriorsOfIsland = Math.sqrt(dxForWarriorsOfIsland * dxForWarriorsOfIsland + dyForWarriorsOfIsland * dyForWarriorsOfIsland);
+                if (distanceForWarriorsOfIsland <= 1) {
+                    allWarriorsReached = true;
+                    const promise = new Promise(function(resolve) {
+                        BattlesOfTheWarriors(warriorsOfAllUser, resolve, idUser, resourcesOfAttackedPlayer);
+                    });
+                    await Promise.all([promise]);
+                }
+                else {
+                    sprite.x += dxForWarriorsOfIsland / distanceForWarriorsOfIsland * speed * time.deltaTime;
+                    sprite.y += dyForWarriorsOfIsland / distanceForWarriorsOfIsland * speed * time.deltaTime;
+                }
+
+            });
+        });
+
+        if (warriorsOfAllUser.warriorsOfShip.length === 0) {
+            warriorsOfAllUser.warriorsOfShip.forEach((warrior) => {
+                warrior.sprite.destroy();
+            });
+            ticker.destroy();
+        }
+
+        if (allWarriorsReached) {
+            ticker.destroy();
+        }
+    });
+
+    ticker.start();
+}
+
+export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worldMatrix, buildings, clickedBuilding, containerForMap, warriorsOfAllUser, countOfWarriors, island, colorFlag, idUser) {
+    const dimensions = {
+        x: worldMatrix[0].length,
+        y: worldMatrix.length,
+    }
+    
+    const x = GetXCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells, dimensions) - 5;
+    const y = GetYCoordFromMatrixWorld(coordsStartWar.x, coordsStartWar.y, cells, dimensions) - 7;
+
+    for (let i = 0; i < countOfWarriors; i++) {
+        const warrior = new Warrior(app, "war", x, y, 40, 3 + i, colorFlag, idUser);
+        warriorsOfAllUser.warriorsOfShip.push(warrior);
+    }
+    const areWarriorsOfShipDead = {
+        state: false
     }
     const hasAShortWayFound = {
         state: false,
@@ -722,10 +1135,10 @@ export async function MoveWarrior(coordsEndWar, coordsStartWar, cells, app, worl
     const totalPath = {
         way: [],
     }
-    const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound);
+    const shortWay = GetShortWay(coordsStartWar, coordsEndWar, worldMatrix, cells, hasAShortWayFound, dimensions);
     totalPath.way = shortWay;
     const promiseForward = new Promise(function (resolve) {
-        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorGroup, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, island);
+        MoveSprite(app, shortWay, cells, buildings, false, resolve, clickedBuilding, warriorsOfAllUser, hasAShortWayFound, coordsEndWar, worldMatrix, containerForMap, totalPath, areWarriorsOfShipDead, dimensions, island);
     });
     await Promise.all([promiseForward]);
 }

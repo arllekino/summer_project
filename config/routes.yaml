@@ -113,6 +113,14 @@ update_map:
 end_game: 
   path: /end_game
   controller: App\Controller\GameController::endGame
+set_game_status:
+  path: /set_game_status
+  methods: POST
+  controller: App\Controller\GameController::setGameStatus
+get_game_status:
+  path: /get_game_status
+  methods: GET
+  controller: App\Controller\GameController::getGameStatus
 
 create_build:
   path: /create_build
@@ -123,21 +131,40 @@ view_all_builds:
   methods: GET
   controller: App\Controller\IslandBuildController::viewAllBuilds
 set_hp_to_build:
-  path: set_hp_to_build
+  path: /set_hp_to_build
   methods: POST
   controller: App\Controller\IslandBuildController::setNewHpToBuild
 set_illness_to_build:
-  path: set_illness_to_build
+  path: /set_illness_to_build
   methods: POST
   controller: App\Controller\IslandBuildController::setIllnessToBuild
 unset_illness_to_build:
-  path: unset_illness_to_build
+  path: /unset_illness_to_build
   methods: POST
   controller: App\Controller\IslandBuildController::unsetIllnessToBuild
 delete_build:
-  path: delete_build
+  path: /delete_build
   methods: POST
   controller: App\Controller\IslandBuildController::deleteBuild
+delete_builds_in_game:
+  path: /delete_builds_in_game
+  controller: App\Controller\IslandBuildController::deleteBuildsInGame
+
+create_island:
+  path: /create_island  
+  controller: App\Controller\IslandController::createIsland
+view_island:
+  path: /view_island
+  methods: POST
+  controller: App\Controller\IslandController::viewIsland
+update_island:
+  path: /update_island
+  methods: POST
+  controller: App\Controller\IslandController::updateIsland
+view_islands_in_game:
+  path: /view_islands_in_game
+  methods: POST
+  controller: App\Controller\IslandController::viewIslandsInGame
 
 error_page:
   path: /error_page/{messageCode}

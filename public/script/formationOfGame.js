@@ -6,10 +6,11 @@ const urlRequests = {
     sendField: "/create_map",
     getField: "/find_map",
     getUserNumber: "/find_username",
-    getPlayerIds: "/get_player_ids"
+    getPlayerIds: "/get_player_ids",
+    getFlagColor: "/get_color_flag",
 }
 
-async function GetCountOfUsers() {
+export async function GetCountOfUsers() {
     const response = await fetch(urlRequests.countOfUser, {
         method: "POST",
     headers: {
@@ -43,7 +44,7 @@ async function GetUserNumber() {
     }
 }
 
-async function CheckStatusOfUserInLobby() {
+export async function CheckStatusOfUserInLobby() {
     const response = await fetch(urlRequests.checkStatusOfUserInLobby, {
         method: "POST",
     headers: {
@@ -70,6 +71,7 @@ async function CheckReadinessOfField() {
     })
     if (response.ok) {
         const data = await response.json();
+        console.log(data.matrix_game_map);
         return data.matrix_game_map;
     }
     else {
@@ -121,26 +123,27 @@ export async function getUsersIds()
 }
 
 export const islandTemplate = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-    [0, 0, 0, 0, 0, 3, 4, 4, 4, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
-    [0, 0, 0, 3, 3, 3, 3, 4, 4, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
-    [0, 0, 3, 3, 3, 3, 3, 4, 4, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0,],
-    [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 2, 2, 2, 0,],
-    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0,],
-    [0, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 2, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0,],
-    [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
-    [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
-    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,],
-    [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0,],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 2],
+    [0, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 2, 2, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 2, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [0, 2, 2, 0, 0, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2],
+    [0, 2, 1, 2, 0, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
+    [0, 2, 4, 2, 2, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0],
+    [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0],
+
 ];
 
 function MakeField(obj) {
@@ -170,11 +173,11 @@ function MakeField(obj) {
     }
     
     let matrixOfField = [];
-    for(let i = 0; i < widthOfField; i++)
+    for(let i = 0; i < heightOfField; i++)
     {
         let temp = [];
         temp.splice(0, temp.length);
-        for (let j = 0; j < heightOfField; j++)
+        for (let j = 0; j < widthOfField; j++)
         {
             temp.push(0);
         }
@@ -192,22 +195,22 @@ export function GetBoundsForIsland(iter, bounds) {
             bounds.startYOfFiled = 10;
             break;
         case 1:
+            bounds.iterXOfField = 10;
+            bounds.iterYOfField = 65;
+            bounds.startXOfFiled = 10;
+            bounds.startYOfFiled = 65;
+            break;
+        case 2:
             bounds.iterXOfField = 65;
             bounds.iterYOfField = 10;
             bounds.startXOfFiled = 65;
             bounds.startYOfFiled = 10;
             break;
-        case 2:
-            bounds.iterXOfField = 15;
-            bounds.iterYOfField = 70;
-            bounds.startXOfFiled = 15;
-            bounds.startYOfFiled = 70;
-            break;
         case 3:
             bounds.iterXOfField = 65;
-            bounds.iterYOfField = 70;
+            bounds.iterYOfField = 65;
             bounds.startXOfFiled = 65;
-            bounds.startYOfFiled = 70;
+            bounds.startYOfFiled = 65;
             break;
         default:
             bounds.iterXOfField = 0;
@@ -244,6 +247,29 @@ function InsertIslandsIntoField(obj, matrixOfField, resolve) {
     resolve();
 }
 
+async function GetUserFlagColor()
+{
+    const response = await fetch(urlRequests.getFlagColor, {
+        method: "GET",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        credentials: "include",
+    })
+    if (response.ok) {
+        const data = await response.json();
+        return data.color_flag;
+    }
+    else {
+        console.log(response.status);
+    }
+
+    if (!response.ok) {
+
+        return;
+    }
+}
+
 export async function FormationOfGame() {
     const status = await CheckStatusOfUserInLobby();
     let matrixOfField = [];
@@ -274,10 +300,13 @@ export async function FormationOfGame() {
     }
     const numberOfUser = await GetUserNumber();
     const userIDInLobby = await getUsersIds();
+    const userColorFlag = await GetUserFlagColor();
     MakePlayersNotReady();
+    
     return {
         arrOfUserIdsInLobby: userIDInLobby,
         numberOfUser: numberOfUser.id,
         matrixOfField: matrixOfField,
+        colorFlag: userColorFlag,
     };
 }

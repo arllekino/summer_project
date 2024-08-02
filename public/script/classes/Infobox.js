@@ -41,6 +41,7 @@ export class Infobox
             case 'Castle': diceTexture = PIXI.Texture.from(`castleDice.png`); break;
             case 'House': diceTexture = PIXI.Texture.from(`houseDice.png`); break;
             case 'Farmer House': diceTexture = PIXI.Texture.from(`farmerDice.png`); break;
+            case 'Barrack': diceTexture = PIXI.Texture.from(`barrackDice.png`); break;
             default: diceTexture = null;
         }
         if (diceTexture) {

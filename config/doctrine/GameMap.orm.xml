@@ -11,6 +11,8 @@
         </id>
         <field name="keyRoom" column="key_room" type="string" nullable="false" /> 
         <field name="matrixGameMap" column="matrix_game_map" type="string" nullable="false"/>
+        <field name="gameStatus" column="game_status" type="integer" nullable="false"/>
+        
 
     </entity>
 

@@ -8,20 +8,17 @@ use App\Repository\GameMapRepository;
 
 class GameMapService
 {
-    private GameMapRepository $repository;
+    public function __construct(private GameMapRepository $repository)
+    {}
 
-    public function __construct(GameMapRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
-    public function createGameMap(string $keyRoom, string $matrixGameMap): void
+    public function createGameMap(string $keyRoom, string $matrixGameMap, int $gameStatus): void
     {
         $gameMap = new GameMap(
             null,
             $keyRoom,
-            $matrixGameMap
-        );    
+            $matrixGameMap,
+            $gameStatus
+        );
         $this->repository->store($gameMap);
     }
     
@@ -31,9 +28,32 @@ class GameMapService
         if ($gameMap === null)
         {
             throw new \UnexpectedValueException('Карта всей игры не найдена');
-        }    
+        }
 
         return $gameMap->getMatrixGameMap();
+    }
+
+    public function getGameStatus(string $keyRoom): int
+    {
+        $gameMap = $this->repository->findByKeyRoom($keyRoom);
+        if ($gameMap === null)
+        {
+            throw new \UnexpectedValueException('Карта всей игры не найдена');
+        }
+
+        return $gameMap->getGameStatus();
+    }
+
+    public function setGameStatus(string $keyRoom, int $gameStatus): void
+    {
+        $gameMap = $this->repository->findByKeyRoom($keyRoom);
+        if ($gameMap === null)
+        {
+            throw new \UnexpectedValueException('Карта всей игры не найдена');
+        }
+
+        $gameMap->setGameStatus($gameStatus);
+        $this->repository->store($gameMap);
     }
 
     public function updateGameMap(string $keyRoom, string $newMatrixGameMap): void

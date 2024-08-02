@@ -2,7 +2,7 @@ import { Game } from "./classes/game.js";
 import { SendPlayerId, WaitingForPlayers } from "./websocket/logicForStage.js";
 import { getUsersIds } from "./formationOfGame.js";
 
-function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
+export function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
     const ticker = new PIXI.Ticker;
     let rotation = 0;
     switch (stage) {
@@ -40,7 +40,7 @@ function RotateBlockWheelEvents(wheelBlock, stage, resolve, textTimer) {
 }
 
 
-export async function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser, arrPlayersId) {
+export async function startTimerForStage(time, wheelBlock, stage, resolve, app, flags, idUser, arrPlayersId, isThereBattleGoingNow) {
     const startTime = new Date();
     const stopTime = startTime.setSeconds(startTime.getSeconds() + time);
     let waitingForPlayers = null;
@@ -82,9 +82,17 @@ export async function startTimerForStage(time, wheelBlock, stage, resolve, app, 
                 resolve();
             }, 300)
         }
-
+        
         const now = new Date();
-        const remain = stopTime - now;
+        let remain = stopTime;
+        if (isThereBattleGoingNow) {
+            if (!isThereBattleGoingNow.state) {
+                remain = stopTime - now;
+            }
+        } else {
+            remain = stopTime - now;
+        }
+        
 
         textTimer.text = `${Math.ceil(remain / 1000)}`;
 

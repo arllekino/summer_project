@@ -16,21 +16,26 @@ class LobbyPlaceService
     private const READY = 'Готов';
     private const NOT_READY = 'Не готов';
     private const FLAGS_ARRAY = ['blue', 'red', 'yellow', 'green'];
-    private LobbyPlaceRepository $repository;
-    private UserService $userService;
     
-    public function __construct(LobbyPlaceRepository $repository, UserService $userService)
-    {
-        $this->repository = $repository;
-        $this->userService = $userService;
-    }
+    public function __construct(
+        private LobbyPlaceRepository $repository,
+        private UserService $userService
+    )
+    {}
 
     public function create(int $userId): string
     {
         $extantLobby = $this->repository->findByPlayerId($userId);
         if ($extantLobby)
         {
-            throw new \UnexpectedValueException('Вы уже создали лобби. Его ключ - ' . $extantLobby->getKeyRoom());
+            if ($extantLobby->getStatus() === self::PLAYER_HOST)
+            {
+                throw new \UnexpectedValueException('Вы уже создали лобби. Его ключ - ' . $extantLobby->getKeyRoom());
+            }
+            else 
+            {
+                throw new \UnexpectedValueException('Вы уже в лобби. Его ключ - ' . $extantLobby->getKeyRoom());
+            }
         }
         
         $lobby = new LobbyPlace(
@@ -52,6 +57,11 @@ class LobbyPlaceService
 
     public function addUserToLobby(string $keyRoom, int $userId): void
     {
+        $extantLobbyPlace = $this->repository->findByPlayerId($userId);
+        if ($extantLobbyPlace !== null && $extantLobbyPlace->getKeyRoom() !== $keyRoom)
+        {
+            throw new \UnexpectedValueException('Вы уже в лобби. Его ключ - ' . $extantLobbyPlace->getKeyRoom());
+        }
         $lobbyPlaces = $this->repository->findByKeyRoom($keyRoom);
         if (empty($lobbyPlaces))
         {
@@ -122,7 +132,7 @@ class LobbyPlaceService
         if (empty($lobbyPlaces))
         {
             throw new \UnexpectedValueException('Лобби не найдено');
-        }
+        }    
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {
@@ -274,7 +284,7 @@ class LobbyPlaceService
 
         foreach ($lobbyPlaces as $lobbyPlace)
         {
-            $lobbyPlace->setStatus(self::LOBBY);
+            $lobbyPlace->setLobbyStatus(self::LOBBY);
             $this->repository->update($lobbyPlace);
         }
     }

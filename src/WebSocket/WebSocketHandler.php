@@ -39,7 +39,7 @@ class WebSocketHandler implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $data = json_decode($msg, true);
-        var_dump($data);
+
         if ($data['type'] === 'heartbeat')
         {
             $currentTime = time();
@@ -50,7 +50,7 @@ class WebSocketHandler implements MessageComponentInterface
                     $lobby = $this->lobbies[$data['key_room']];
                     $game = $this->games[$data['key_room']];
                     $room = $lobby ?? $game;
-                    if ( $room !== null)
+                    if ($room !== null)
                     {
                         $userId = array_search($onDeletePlayer['client'], $room);
                         if ($userId)
@@ -65,7 +65,6 @@ class WebSocketHandler implements MessageComponentInterface
         
         if ($data['type'] !== 'heartbeat')
         {
-            var_dump($data);
             foreach ($this->clients as $client)
             {
                 if ($from !== $client)
@@ -74,7 +73,7 @@ class WebSocketHandler implements MessageComponentInterface
                     {
                         $client->send($msg);
                     }
-                    if ($this->games[$data['key_room']] !== null && in_array($client, $this->games[$data['key_room']]))
+                    if (isset($this->games[$data['key_room']]) && in_array($client, $this->games[$data['key_room']]))
                     {
                         $client->send($msg);
                     }
@@ -146,7 +145,6 @@ class WebSocketHandler implements MessageComponentInterface
     private function deletePlayerFromRoom(array &$room, int $id)
     {
         unset($room[$id]);
-   // удаление из бд     
         
         foreach ($room as $client)         
         {
